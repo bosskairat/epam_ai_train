@@ -2,27 +2,23 @@
 
 This file lists 20 important AI terms with short descriptions.
 
-1. Supervised Learning — Training models on labeled input-output pairs so they learn to map inputs to known targets; commonly used for classification and regression tasks.
-2. Unsupervised Learning — Finding structure in unlabeled data (e.g., clustering, dimensionality reduction) to discover patterns or segment data without explicit labels.
-3. Reinforcement Learning — Learning policies through trial-and-error using a reward signal, suited for sequential decision problems like robotics and resource allocation.
-4. Transfer Learning — Reusing a model or representations trained on one task to accelerate learning on a related task, reducing data and compute needs.
-5. Fine-tuning — Adapting a pre-trained model on a smaller, task-specific dataset by continuing training with a low learning rate for specialization.
-6. Large Language Model (LLM) — Very large transformer-based models trained on massive text corpora that can generate, summarize, and reason about language.
-7. Transformer — Neural architecture that uses self-attention to model relationships across sequences, enabling strong performance in NLP and other domains.
-8. Attention Mechanism — Component that weights input elements by relevance so models can focus on the most important context for each prediction.
-9. Convolutional Neural Network (CNN) — Networks that apply convolutional filters to capture spatial hierarchies in images and other grid-structured data.
-10. Embeddings — Dense vector representations that encode semantic meaning for words, items, or images, enabling similarity search and downstream tasks.
-11. Diffusion Model — Generative approach that learns to produce data by reversing a gradual noising process, effective for high-quality image synthesis.
-12. Overfitting — When a model memorizes training data including noise and fails to generalize to unseen data; a common generalization failure mode.
-13. Regularization — Techniques (e.g., dropout, weight decay, augmentation) used during training to improve generalization and reduce overfitting.
-14. Hyperparameter Tuning — Systematic search for optimal training/configuration parameters (learning rate, batch size, architecture choices) to maximize performance.
-15. Model Drift — Decline in model effectiveness over time due to changing data distributions, requiring monitoring and retraining strategies.
-16. Federated Learning — Privacy-preserving training where models are updated locally on devices and only aggregated centrally, avoiding raw data transfer.
-17. Edge Inference — Running trained models on-device (phones, IoT) to reduce latency and preserve privacy, constrained by compute, memory, and power.
-18. Adversarial Example — Inputs intentionally perturbed in subtle ways that cause models to make incorrect predictions, exposing robustness vulnerabilities.
-19. Explainability (XAI) — Methods and tools (e.g., SHAP, LIME, saliency maps) that provide interpretable explanations for model decisions to build trust and meet regulations.
-20. Prompt Engineering — Crafting and iterating input prompts to steer LLMs toward desired outputs, improving reliability and reducing unwanted behavior.
-
----
-
-Generated and added to repository by Copilot.
+1. Computer Vision - a field of artificial intelligence that enables a computer program to "see" and interpret information from images. It includes tasks such as image classification, object detection, segmentation, tracking, video action analysis, and more.
+2. Image Classification - a computer vision task in which a model assigns an image to a class (e.g., "cat," "dog," or "person").
+3. Object Detection - a computer vision task in which a model detects and localizes objects in an image using bounding boxes.
+4. Image Segmentation - a computer vision task in which a model divides an image into regions on a pixel-by-pixel basis.
+5. YOLO (You Only Look Once) - a popular model for real-time computer vision. It performs detection, classification, segmentation, and other tasks, and processes them extremely quickly.
+6. Natural Language Processing (NLP) - a field of artificial intelligence focused on understanding human language and performing text-based operations. It includes tasks such as speech recognition, machine translation, text generation, sentiment analysis, annotation, and much more.
+7. Fraud Detection - models for detecting suspicious or anomalous actions that can identify fraudulent activity.
+8. Large Language Models (LLMs) - very large language neural networks trained on very large amounts of text, capable of natural language processing, question answering, and various language tasks.
+9. Fast Nearest-Neighbor - algorithms and data structures (FAISS, Annoy, HNSW) that enable efficient searches for elements most similar to a given vector, especially in large embedding databases.
+10. Unsupervised Anomaly Detection — methods for identifying unusual or rare patterns in data without pre-labeled anomaly examples.
+11. Generative AI — models capable of generating new data, such as text, images, and videos, based on previously trained datasets.
+12. Hallucination — a situation where a model generates incorrect or fictitious information not based on real information.
+13. Demand Forecasting — the use of statistical and ML models to predict future demand for services or products.
+14. Multi-echelon Optimization Complexity — optimization problems in supply chains involving multiple tiers (suppliers → distribution centers → stores), where complexity increases dramatically due to interdependencies, demand stochasticity, and resource constraints.
+15. Real-time Control — systems and models capable of making decisions in real time and with minimal response latency. Used in robotics, autonomous vehicles, and process control.
+16. Simulation-to-Reality Transfer — methods that allow algorithms trained in simulation (where training is cheap and safe) to be transferred to real devices, minimizing the gap between simulation and real-world conditions.
+17. Preventing Inappropriate Content — methods of filtering, classifying, and regulating the output of models to avoid generating toxic, dangerous, or norm-violating content.
+18. False Positives — instances of evaluation where a model incorrectly labels a normal object as inappropriate or misclassifies it.
+19. Echo Chambers — an effect in which recommendation algorithms amplify messages from only certain viewpoints, leading to the isolation of the user in an information bubble.
+20. Reinforcing Popularity Bias — a situation where algorithms (e.g., recommender systems) more often show already popular content, thereby further increasing its popularity and suppressing lesser-known options.
