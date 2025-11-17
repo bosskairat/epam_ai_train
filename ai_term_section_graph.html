@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Term–Application Report Relation Graph</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fafbfc; }
+    svg { background: #fff; border: 1px solid #ccc; }
+    .term { fill: #4285F4; font-weight: bold; }
+    .section { fill: #0F9D58; }
+    .edge-explicit { stroke: #FF9800; stroke-width: 2px; }
+    .edge-implicit { stroke: #9E9E9E; stroke-width: 2px; stroke-dasharray: 5 5; }
+    .freq-label { fill: #444; font-size: 12px; text-anchor: middle; }
+  </style>
+</head>
+<body>
+  <h2>AI Terms & Usage in Application Report</h2>
+  <p><strong>Solid Orange Lines:</strong> Explicit usages<br>
+     <strong>Dashed Gray Lines:</strong> Implicit usages<br>
+     (Numbers show usage frequency. Hover terms for details.)</p>
+  <svg width="1200" height="700" viewBox="0 0 1200 700">
+    <!-- Define Terms (left) -->
+    <g id="terms">
+      <text x="50" y="40" class="term">Computer Vision</text>
+      <text x="50" y="80" class="term">Image Classification</text>
+      <text x="50" y="120" class="term">Object Detection</text>
+      <text x="50" y="160" class="term">Image Segmentation</text>
+      <text x="50" y="200" class="term">YOLO</text>
+      <text x="50" y="240" class="term">Natural Language Processing</text>
+      <text x="50" y="280" class="term">Fraud Detection</text>
+      <text x="50" y="320" class="term">Large Language Models</text>
+      <text x="50" y="360" class="term">Fast Nearest-Neighbor</text>
+      <text x="50" y="400" class="term">Unsupervised Anomaly Detection</text>
+      <text x="50" y="440" class="term">Generative AI</text>
+      <text x="50" y="480" class="term">Hallucination</text>
+      <text x="50" y="520" class="term">Demand Forecasting</text>
+      <text x="50" y="560" class="term">Multi-echelon Optimization</text>
+      <text x="50" y="600" class="term">Real-time Control</text>
+      <text x="50" y="640" class="term">Simulation-to-Reality Transfer</text>
+      <text x="50" y="680" class="term">Preventing Inappropriate Content</text>
+      <text x="50" y="720" class="term">False Positives</text>
+      <text x="50" y="760" class="term">Echo Chambers</text>
+      <text x="50" y="800" class="term">Reinforcing Popularity Bias</text>
+    </g>
+    <!-- Application Sections (right) -->
+    <g id="sections">
+      <text x="1050" y="60" class="section">1. Computer Vision</text>
+      <text x="1050" y="110" class="section">2. NLP</text>
+      <text x="1050" y="160" class="section">3. Recommendation Systems</text>
+      <text x="1050" y="210" class="section">4. Predictive Maintenance</text>
+      <text x="1050" y="260" class="section">5. Anomaly & Fraud Detection</text>
+      <text x="1050" y="310" class="section">6. Generative AI</text>
+      <text x="1050" y="360" class="section">7. Medical Imaging</text>
+      <text x="1050" y="410" class="section">8. Supply Chain</text>
+      <text x="1050" y="460" class="section">9. Autonomous Systems</text>
+    </g>
+    <!-- Edges (example for most terms) -->
+    <!-- CV to CV Section -->
+    <line x1="160" y1="40" x2="1040" y2="60" class="edge-explicit"/>
+    <text x="600" y="50" class="freq-label">2</text>
+    <line x1="160" y1="40" x2="1040" y2="360" class="edge-implicit"/>
+    <text x="600" y="200" class="freq-label">1</text>
+    <!-- Image Classification -->
+    <line x1="160" y1="80" x2="1040" y2="60" class="edge-explicit"/>
+    <text x="600" y="70" class="freq-label">1</text>
+    <!-- Object Detection -->
+    <line x1="160" y1="120" x2="1040" y2="60" class="edge-explicit"/>
+    <text x="600" y="100" class="freq-label">2</text>
+    <!-- Image Segmentation -->
+    <line x1="160" y1="160" x2="1040" y2="60" class="edge-explicit"/>
+    <text x="600" y="140" class="freq-label">2</text>
+    <!-- YOLO -->
+    <line x1="160" y1="200" x2="1040" y2="60" class="edge-explicit"/>
+    <text x="600" y="170" class="freq-label">1</text>
+    <!-- NLP Section -->
+    <line x1="160" y1="240" x2="1040" y2="110" class="edge-explicit"/>
+    <text x="600" y="120" class="freq-label">1</text>
+    <line x1="160" y1="240" x2="1040" y2="310" class="edge-implicit"/>
+    <text x="600" y="220" class="freq-label">1</text>
+    <!-- Fraud Detection -->
+    <line x1="160" y1="280" x2="1040" y2="260" class="edge-explicit"/>
+    <text x="600" y="180" class="freq-label">2</text>
+    <!-- LLMs -->
+    <line x1="160" y1="320" x2="1040" y2="110" class="edge-explicit"/>
+    <text x="600" y="160" class="freq-label">1</text>
+    <line x1="160" y1="320" x2="1040" y2="310" class="edge-implicit"/>
+    <text x="600" y="300" class="freq-label">1</text>
+    <!-- Fast Nearest Neighbor -->
+    <line x1="160" y1="360" x2="1040" y2="160" class="edge-explicit"/>
+    <text x="600" y="230" class="freq-label">1</text>
+    <line x1="160" y1="360" x2="1040" y2="160" class="edge-implicit"/>
+    <text x="600" y="250" class="freq-label">2</text>
+    <!-- Unsupervised Anomaly Detection -->
+    <line x1="160" y1="400" x2="1040" y2="260" class="edge-explicit"/>
+    <text x="600" y="270" class="freq-label">1</text>
+    <line x1="160" y1="400" x2="1040" y2="260" class="edge-implicit"/>
+    <text x="600" y="290" class="freq-label">1</text>
+    <!-- Generative AI -->
+    <line x1="160" y1="440" x2="1040" y2="310" class="edge-explicit"/>
+    <text x="600" y="350" class="freq-label">1</text>
+    <line x1="160" y1="440" x2="1040" y2="110" class="edge-implicit"/>
+    <text x="600" y="400" class="freq-label">2</text>
+    <!-- Hallucination -->
+    <line x1="160" y1="480" x2="1040" y2="110" class="edge-explicit"/>
+    <text x="600" y="420" class="freq-label">1</text>
+    <line x1="160" y1="480" x2="1040" y2="310" class="edge-implicit"/>
+    <text x="600" y="440" class="freq-label">1</text>
+    <!-- Demand Forecasting -->
+    <line x1="160" y1="520" x2="1040" y2="410" class="edge-explicit"/>
+    <text x="600" y="450" class="freq-label">1</text>
+    <line x1="160" y1="520" x2="1040" y2="410" class="edge-implicit"/>
+    <text x="600" y="470" class="freq-label">2</text>
+    <!-- Multi-echelon Optimization -->
+    <line x1="160" y1="560" x2="1040" y2="410" class="edge-explicit"/>
+    <text x="600" y="490" class="freq-label">1</text>
+    <!-- Real-time Control -->
+    <line x1="160" y1="600" x2="1040" y2="460" class="edge-explicit"/>
+    <text x="600" y="510" class="freq-label">1</text>
+    <line x1="160" y1="600" x2="1040" y2="460" class="edge-implicit"/>
+    <text x="600" y="530" class="freq-label">1</text>
+    <!-- Simulation-to-Reality Transfer -->
+    <line x1="160" y1="640" x2="1040" y2="460" class="edge-explicit"/>
+    <text x="600" y="550" class="freq-label">1</text>
+    <!-- Preventing Inappropriate Content -->
+    <line x1="160" y1="680" x2="1040" y2="310" class="edge-explicit"/>
+    <text x="600" y="570" class="freq-label">1</text>
+    <line x1="160" y1="680" x2="1040" y2="310" class="edge-implicit"/>
+    <text x="600" y="590" class="freq-label">1</text>
+    <!-- False Positives -->
+    <line x1="160" y1="720" x2="1040" y2="260" class="edge-explicit"/>
+    <text x="600" y="610" class="freq-label">1</text>
+    <line x1="160" y1="720" x2="1040" y2="260" class="edge-implicit"/>
+    <text x="600" y="630" class="freq-label">1</text>
+    <!-- Echo Chambers -->
+    <line x1="160" y1="760" x2="1040" y2="160" class="edge-implicit"/>
+    <text x="600" y="650" class="freq-label">1</text>
+    <!-- Reinforcing Popularity Bias -->
+    <line x1="160" y1="800" x2="1040" y2="160" class="edge-implicit"/>
+    <text x="600" y="670" class="freq-label">1</text>
+  </svg>
+</body>
+</html>
