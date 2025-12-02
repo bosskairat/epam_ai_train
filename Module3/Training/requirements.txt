@@ -16,7 +16,7 @@ matplotlib==3.8.2
 torch==2.1.1
 
 langchain==0.0.346
-openai==0.28.1 ## From the notebooks
+openai==2.8.1 ## From the notebooks
 
 pinecone-client==3.0.0dev4
 pinecone-datasets==0.5.0rc11
@@ -30,3 +30,5 @@ deepface==0.0.79
 
 huggingface-hub==0.25.2
 transformers==4.31.0
+
+nltk==3.8.1
