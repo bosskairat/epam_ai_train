@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG QA Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input[type=text] { width: 80%; padding: 10px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 16px; }
+        #answer { margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>RAG QA Interface</h1>
+    <input type="text" id="question" placeholder="Enter your question here" />
+    <button onclick="askQuestion()">Ask</button>
+    <div id="answer"></div>
+
+    <script>
+        async function askQuestion() {
+            const question = document.getElementById("question").value;
+            const responseDiv = document.getElementById("answer");
+            responseDiv.innerText = "Loading...";
+            try {
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+                responseDiv.innerText = data.answer;
+            } catch (err) {
+                responseDiv.innerText = "Error: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
