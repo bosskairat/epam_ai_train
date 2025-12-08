@@ -107,4 +107,4 @@ This project implements a **Question-Answering (QA) System** that allows users t
 ## Project Video
 A demonstration of the workflow—PDF processing, embeddings generation, Weaviate ingestion, RAG query expansion, and LLM answer generation—is available here:  
 [https://youtu.be/Fulcq0f8xeU](#) 
-[https://github.com/bosskairat/epam_ai_train/tree/main/Module3](#)
+[https://github.com/bosskairat/epam_ai_train/tree/main/Module3/rag_app](#)
