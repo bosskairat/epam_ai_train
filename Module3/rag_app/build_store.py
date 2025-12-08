@@ -11,7 +11,7 @@ WEAVIATE_HTTP_PORT = 8080
 WEAVIATE_GRPC_PORT = 50051
 load_dotenv()
 WEAVIATE_HTTP_PORT_EXTERNAL = os.environ["WEAVIATE_HTTP_PORT_EXTERNAL"]
-WEAVIATE_GRPC_PORT_EXTERNAL = os.environ["WEAVIATE_HTTP_PORT_EXTERNAL"]
+WEAVIATE_GRPC_PORT_EXTERNAL = os.environ["WEAVIATE_GRPC_PORT_EXTERNAL"]
 
 # --- WSL Detection ---
 system = platform.system()
@@ -65,7 +65,6 @@ def run_shell_command(command):
 print(f"--- Stopping and removing any existing container named '{WEAVIATE_CONTAINER_NAME}' ---")
 stop_command = f"docker stop {WEAVIATE_CONTAINER_NAME} 2>/dev/null; docker rm {WEAVIATE_CONTAINER_NAME} 2>/dev/null"
 res = run_shell_command(stop_command)
-print(res)
 print("Cleanup complete.")
 
 # Now, run the new Weaviate container

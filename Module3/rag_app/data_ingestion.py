@@ -16,7 +16,7 @@ COLLECTION_NAME = os.environ["WEAVIATE_COLLECTION_NAME"]
 
 # --- 1. Load document chunks ---
 print("--- 1. Loading document chunks ---")
-document_path = os.path.join(os.path.dirname(__file__), "../data/article_chunks.csv")
+document_path = os.path.join(os.path.dirname(__file__), "data/article_chunks.csv")
 with open(document_path, encoding="utf-8") as f:
     reader = csv.DictReader(f)
     documents_data = list(reader)

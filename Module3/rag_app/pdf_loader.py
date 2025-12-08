@@ -101,11 +101,11 @@ if __name__ == "__main__":
                     pdf_path = os.path.join(root, f)
                     print(f"\nProcessing the file: {pdf_path}")
 
-                    cleaner = PDFCleaner(min_block_size=50, max_block_size=200)
+                    cleaner = PDFCleaner(min_block_size=200, max_block_size=1000)
                     chunks = cleaner.process_pdf(pdf_path)
 
                     for i, c in enumerate(chunks, start=1):
                         # write to CSV
-                        writer.writerow([pdf_path, i, c])
+                        writer.writerow([os.path.basename(pdf_path), i, c])
 
                     print(f" -> saved {len(chunks)} chunks")

@@ -27,12 +27,15 @@ app = FastAPI(title="RAG API with Web UI", lifespan=lifespan)
 async def ask_question(query_request: QueryRequest):
     rag_system: RAG = app.state.rag_system
     try:
-        answer = rag_system.answer_the_question(query_request.question)
-        return {"question": query_request.question, "answer": answer}
+        expanded_query, context, answer = rag_system.answer_the_question(query_request.question)
+        return {"question": query_request.question, 
+                "expanded_query": expanded_query, 
+                "context":context, 
+                "answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # Web UI route
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html", {"request": request})

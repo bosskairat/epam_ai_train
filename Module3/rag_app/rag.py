@@ -55,11 +55,30 @@ class RAG:
         query_expansion_chain = expansion_prompt | self.chat_model | StrOutputParser()
 
         # 2. Chain for Final Answer Generation (with RAG context)
+        # generation_prompt = ChatPromptTemplate.from_template(
+        #     "You are a helper working with an article review. "
+        #     "Your task is to answer the user's question based only on the provided context, "
+        #     "do not use common knowledge, do not correct mistakes in provided context. "
+        #     "Synthesize the information from the context into a detailed summary. "
+        #     "Focus on specific details like names, numbers, and technical terms mentioned in the context. "
+        #     "If the context does not contain the information needed to answer the question, "
+        #     "you must state: 'The provided context does not contain the answer to this question.' "
+        #     "\n\nContext:\n{context}\n\nQuestion: {question}"
+        # )
+        # generation_prompt = ChatPromptTemplate.from_template(
+        #     "You are a article reviewer. "
+        #     "Your task is to answer the user's question based only on the provided context, "
+        #     "do not use common knowledge, do not correct mistakes in provided context. "
+        #     "Synthesize the detailed information from the context. " 
+        #     "If the context does not contain the information needed to answer the question, "
+        #     "you must state: 'The provided context does not contain the answer to this question.' "
+        #     "\n\nContext:\n{context}\n\nQuestion: {question}"
+        # )
         generation_prompt = ChatPromptTemplate.from_template(
-            "You are a helper working with an article review. "
+            "You are a factual assistant. "
             "Your task is to answer the user's question based only on the provided context, "
             "do not use common knowledge, do not correct mistakes in provided context. "
-            "Synthesize the information from the context into a detailed summary. "
+            "Synthesize the information from the context into a concise, bullet-point summary. "
             "Focus on specific details like names, numbers, and technical terms mentioned in the context. "
             "If the context does not contain the information needed to answer the question, "
             "you must state: 'The provided context does not contain the answer to this question.' "
@@ -82,10 +101,11 @@ class RAG:
         # Retrieve Documents from Weaviate
         retrieved_objects = self.rag_collection.query.near_vector(
             near_vector=query_embedding,
-            limit=5,
+            limit=10,
             return_metadata=wvc.query.MetadataQuery(distance=True)
         )
         retrieved_docs_content = [obj.properties['content'] for obj in retrieved_objects.objects]
+        
         context_for_llm = "\n\n---\n\n".join(retrieved_docs_content)
 
         # 3. Generate Final Answer using RAG
@@ -95,7 +115,10 @@ class RAG:
         })
         print(f"**Answer to the original query, with RAG:**\n{final_answer}")
 
-        return final_answer
+        retrieved_docs_content_with_ref =  [f"{obj.properties['content']} [{obj.properties['file']}]" for obj in retrieved_objects.objects]
+        context_for_show = "\n\n---\n\n".join(retrieved_docs_content_with_ref)
+
+        return expanded_query, context_for_show, final_answer
     
 
     def close_weaviate_client(self):

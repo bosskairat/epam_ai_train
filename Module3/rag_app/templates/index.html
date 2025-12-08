@@ -1,35 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RAG QA Interface</title>
+    <title>Question-Answering System Based on Your Articles</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
         input[type=text] { width: 80%; padding: 10px; font-size: 16px; }
-        button { padding: 10px 20px; font-size: 16px; }
-        #answer { margin-top: 20px; white-space: pre-wrap; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .block { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border-left: 4px solid #ccc; 
+            background: #f7f7f7;
+            white-space: pre-wrap;
+        }
+        h2 { margin-top: 40px; }
     </style>
 </head>
 <body>
-    <h1>RAG QA Interface</h1>
+    <h1>Question-Answering System Based on Your Articles</h1>
+
     <input type="text" id="question" placeholder="Enter your question here" />
     <button onclick="askQuestion()">Ask</button>
-    <div id="answer"></div>
 
+    <div id="expanded_query" class="block"></div>
+    <div id="answer" class="block"></div>
+    <div id="context" class="block"></div>
+    
     <script>
         async function askQuestion() {
             const question = document.getElementById("question").value;
-            const responseDiv = document.getElementById("answer");
-            responseDiv.innerText = "Loading...";
+
+            const expandedDiv = document.getElementById("expanded_query");
+            const answerDiv = document.getElementById("answer");
+            const contextDiv = document.getElementById("context");
+            
+            expandedDiv.innerText = "Loading...";
+            answerDiv.innerText = "";
+            contextDiv.innerText = "";
+
             try {
                 const response = await fetch("/ask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ question: question })
                 });
+
                 const data = await response.json();
-                responseDiv.innerText = data.answer;
+
+                expandedDiv.innerHTML = "<strong>Expanded Query:</strong>\n" + data.expanded_query;
+                answerDiv.innerHTML = "<strong>Answer:</strong>\n" + data.answer;
+                contextDiv.innerHTML = "<strong>Retrieved Context:</strong>\n" + data.context;
+
             } catch (err) {
-                responseDiv.innerText = "Error: " + err;
+                expandedDiv.innerText = "Error: " + err;
             }
         }
     </script>
