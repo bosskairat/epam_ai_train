@@ -14,11 +14,61 @@
             white-space: pre-wrap;
         }
         h2 { margin-top: 40px; }
+        #upload_section { margin-top: 20px; }
+        .upload-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Keep filename area from pushing the Upload button */
+        .chosen-files {
+            flex: 1 1 auto;
+            min-width: 0; /* required for text-overflow in flex items */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 60ch;
+            color: #333;
+        }
+
+        /* Make the bottom row align items to the left and keep upload button stable */
+        .upload-row--bottom {
+            justify-content: flex-start;
+        }
+
+        #upload_btn {
+            flex: 0 0 auto;
+            /* optional: fixed width so it doesn't shift */
+            width: 110px;
+        }
     </style>
 </head>
 <body>
     <h1>Question-Answering System Based on Your Articles</h1>
 
+    <div id="upload_section">
+        <h2>Upload PDF(s)</h2>
+
+        <!-- Hidden native file input -->
+        <input type="file" id="file_input" accept=".pdf" multiple style="display:none" aria-label="Choose PDF files" />
+
+        <!-- First row: Choose button + filename display -->
+        <div class="upload-row">
+            <button type="button" id="choose_btn" onclick="document.getElementById('file_input').click()">Choose Files</button>
+            <span id="chosen_files" class="chosen-files">No files chosen</span>
+        </div>
+
+        <!-- Second row: Upload button (fixed under the choose row) -->
+        <div class="upload-row upload-row--bottom">
+            <button type="button" id="upload_btn" onclick="uploadFiles()">Upload</button>
+        </div>
+
+        <div id="upload_status" class="block"></div>
+    </div>
+
+    <h2>Ask a question</h2>
     <input type="text" id="question" placeholder="Enter your question here" />
     <button onclick="askQuestion()">Ask</button>
 
@@ -27,6 +77,65 @@
     <div id="context" class="block"></div>
     
     <script>
+        const fileInput = document.getElementById("file_input");
+        const chosenFilesSpan = document.getElementById("chosen_files");
+
+        fileInput.addEventListener("change", () => {
+            const files = Array.from(fileInput.files || []);
+            if (files.length === 0) {
+            chosenFilesSpan.innerText = "No files chosen";
+            return;
+            }
+            // Show names but they will be truncated visually if too long
+            chosenFilesSpan.innerText = files.map(f => f.name).join(", ");
+        });
+
+        async function uploadFiles() {
+            const input = document.getElementById("file_input");
+            const statusDiv = document.getElementById("upload_status");
+            statusDiv.innerText = "Uploading...";
+            
+            if (!input.files || input.files.length === 0) {
+                statusDiv.innerText = "Please choose at least one PDF file.";
+                return;
+            }
+
+            const files = Array.from(input.files);
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append("files", file); // append each file with the same field name "files"
+            }
+
+            try {
+                const resp = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!resp.ok) {
+                    const text = await resp.text();
+                    statusDiv.innerText = `Upload failed: ${resp.status} ${text}`;
+                    return;
+                }
+
+                const data = await resp.json();
+                // data.uploads is an array with per-file results
+                let html = `<strong>Uploaded ${data.uploads.length} file(s):</strong>\n`;
+                data.uploads.forEach(u => {
+                    html += `\nDocument: ${u.filename}\nChunks: ${u.chunks}\n`;
+                    if (u.preview && u.preview.length) {
+                        html += `Preview (first ${u.preview.length} chunks):\n`;
+                        u.preview.forEach((p, i) => {
+                            html += `\nChunk ${i+1}:\n${p}\n`;
+                        });
+                    }
+                });
+                statusDiv.innerHTML = html;
+            } catch (err) {
+                statusDiv.innerText = "Error: " + err;
+            }
+        }
+
         async function askQuestion() {
             const question = document.getElementById("question").value;
 

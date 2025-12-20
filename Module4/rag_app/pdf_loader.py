@@ -3,7 +3,7 @@ import os
 import csv
 from typing import List
 from pathlib import Path
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 # --- OCR support if needed (optional) ---
 try:

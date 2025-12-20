@@ -4,6 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import weaviate
 import weaviate.classes as wvc
+from weaviate.util import generate_uuid5
 from llm import LocalHuggingFaceChatModel
 from embeddings import LocalHuggingFaceEmbeddings
 
@@ -28,8 +29,7 @@ class RAG:
             port=WEAVIATE_HTTP_PORT_EXTERNAL,
             grpc_port=WEAVIATE_GRPC_PORT_EXTERNAL
         )
-        self.rag_collection = self.weaviate_client.collections.get(COLLECTION_NAME)
-
+    
         print("--- Setting up AI clients ---")
         try:
             # Embedding Model Setup
@@ -41,6 +41,53 @@ class RAG:
             print(f"❌ Failed to initialize AI clients. Please check your .env file or model names. Error: {e}")
             # Stop execution if clients fail to initialize
             raise
+
+
+    def data_ingestion(self, documents_data):
+
+        contents_to_embed = [doc['content'] for doc in documents_data]
+        vector_embeddings = self.embeddings_model.embed_documents(contents_to_embed)
+        print(f"✅ Generated {len(vector_embeddings)} embeddings. Vector dimension: {len(vector_embeddings[0])}")
+        # Add embeddings to our data
+        for i, doc in enumerate(documents_data):
+            doc['content_vector'] = vector_embeddings[i]
+
+        # Delete collection if it already exists for a clean run
+        if self.weaviate_client.collections.exists(COLLECTION_NAME):
+            self.weaviate_client.collections.delete(COLLECTION_NAME)
+            print(f"Deleted existing collection '{COLLECTION_NAME}'.")
+
+        # Create new DB schema for our documents
+        rag_collection = self.weaviate_client.collections.create(
+            name=COLLECTION_NAME,
+            properties=[
+                wvc.config.Property(name="file", data_type=wvc.config.DataType.TEXT),
+                wvc.config.Property(name="chunk_id", data_type=wvc.config.DataType.TEXT),
+                wvc.config.Property(name="content", data_type=wvc.config.DataType.TEXT),
+            ],
+            vector_config=wvc.config.Configure.Vectors.self_provided(
+                vector_index_config=wvc.config.Configure.VectorIndex.hnsw(
+                    distance_metric=wvc.config.VectorDistances.COSINE
+                )
+            )
+        )
+        print(f"✅ Collection '{COLLECTION_NAME}' created successfully.")
+
+        # Use a context manager to automatically handle batching
+        with rag_collection.batch.dynamic() as batch:
+            for doc in documents_data:
+                properties = {
+                    "file": doc["file"],
+                    "chunk_id": doc["chunk_id"],
+                    "content": doc["content"]
+                }
+                batch.add_object(
+                    properties=properties,
+                    vector=doc["content_vector"],  # Use default vector
+                    uuid=generate_uuid5(doc["file"] + "_" + doc["chunk_id"])  # Generate a consistent UUID based on the file and chunk_id
+                )
+        print(f"✅ Data ingestion complete. Total objects in collection: {len(rag_collection)}")
+
 
 
     def answer_the_question(self, user_query: str):
@@ -99,7 +146,8 @@ class RAG:
         query_embedding = self.embeddings_model.embed_query(expanded_query)
 
         # Retrieve Documents from Weaviate
-        retrieved_objects = self.rag_collection.query.near_vector(
+        rag_collection = self.weaviate_client.collections.get(COLLECTION_NAME)
+        retrieved_objects = rag_collection.query.near_vector(
             near_vector=query_embedding,
             limit=10,
             return_metadata=wvc.query.MetadataQuery(distance=True)

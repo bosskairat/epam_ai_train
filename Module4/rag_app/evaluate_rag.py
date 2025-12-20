@@ -11,9 +11,11 @@ class RAGEvaluator:
         self.rag = rag_instance
         # Example test set: (Query, Expected Key Fact)
         self.test_set = [
-            {"query": "What methods or techniques are described in the articles?", "expected_fact": "Neural Networks"},
-            {"query": "Explain the meaning of [specific term] mentioned in the articles.", "expected_fact": ""},
-            {"query": "What numbers, statistics, or results are reported in the articles?", "expected_fact": ""}
+            {"query": "Which face recognition model and comparison method achieved the best performance according to the paper?",
+             "expected_fact": "The best-performing approach was the Dlib face recognition model combined with an SVM classifier, \
+                which achieved the highest ability to distinguish individuals among the evaluated combinations."},
+            {"query": "Explain the meaning of [specific term] mentioned in the articles."},
+            {"query": "What numbers, statistics, or results are reported in the articles?"}
         ]
 
     def evaluate_faithfulness(self, answer, context):
