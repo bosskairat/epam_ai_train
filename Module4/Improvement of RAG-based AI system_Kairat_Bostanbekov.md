@@ -155,3 +155,7 @@ HyDE improved recall by expanding sparse or underspecified queries into semantic
 1. **Prompt strictness alone can degrade performance** if retrieval recall is insufficient or evaluation does not reward abstention.
 2. **Retrieval quality improvements (chunking, reranking, HyDE)** have a stronger positive impact than prompt changes.
 3. **Reranking and HyDE together outperform the baseline**, indicating that upstream retrieval enhancements are the highest-leverage interventions.
+
+
+The full implementation and evaluation code are available in the project repository:
+[https://github.com/bosskairat/epam_ai_train/tree/main/Module4/rag_app](#)
