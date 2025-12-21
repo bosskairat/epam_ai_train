@@ -1,0 +1,435 @@
+{
+  "datasets": [
+    {
+      "dataset": "59_2021_Qualitative Evaluation of Face Embeddings.json",
+      "average_score": 58.0,
+      "results": [
+        {
+          "id": "face_q1",
+          "question": "What was the primary motivation for conducting a qualitative comparison of face embeddings in this study?",
+          "predicted_answer": "Here’s a bullet-point summary of the primary motivation for the qualitative comparison:\n\n*   To evaluate and compare different face embedding techniques (VGG-Face, Dlib, OpenFace) on a face discrimination task.\n*   The goal was to determine which technique performed best on a face, specifically focusing on Dlib based face recognition model.",
+          "expected_answer": "To compare well-known face embedding models qualitatively on a face discrimination task and determine the most suitable approach for practical applications such as door access control.",
+          "score": 85,
+          "justification": "The model answer correctly identifies the evaluation of different face embedding techniques and the focus on Dlib, but it lacks the explicit mention of practical applications like door access control, which is part of the expected answer."
+        },
+        {
+          "id": "face_q2",
+          "question": "Which three deep learning face recognition models were evaluated in the paper?",
+          "predicted_answer": "Here’s a bullet-point summary of the three deep learning face recognition models evaluated in the paper:\n\n*   Dlib\n*   OpenFace\n*   VGG-Face",
+          "expected_answer": "VGG-Face, Dlib, and OpenFace.",
+          "score": 100,
+          "justification": "The model answer correctly lists all three deep learning face recognition models (Dlib, OpenFace, and VGG-Face) evaluated in the paper, matching the expected answer perfectly."
+        },
+        {
+          "id": "face_q3",
+          "question": "How were the nine face recognition technique combinations formed?",
+          "predicted_answer": "Here’s a bullet-point summary of how the nine face recognition techniques were combined:\n\n*   Each of the 9 combinations was created by comparing them to each other using Euclidean and Cosine distance methods.",
+          "expected_answer": "By combining three face embedding models with three comparison methods: Euclidean distance, Cosine distance, and a linear SVM classifier.",
+          "score": 40,
+          "justification": "The model answer incorrectly states that the combinations were created by comparing them to each other using Euclidean and Cosine distance methods, rather than correctly identifying that the combinations were formed by using three face embedding models with three comparison methods."
+        },
+        {
+          "id": "face_q4",
+          "question": "Describe the dataset used in the experiments.",
+          "predicted_answer": "Here’s a bullet-point summary of the dataset used in the experiments:\n\n*   **Composition:** Made up of complete frontal and well-cropped (NxNsized) face images of 33 persons (mostly Asian).\n*   **Number of Images:** Approximately 10 different face images were used for each person.\n*   **Face Image Source:** Images were sourced from a face recognition model.\n*   **Dataset Size:** The dataset was a reference database used with Euclidean and Cosine distance methods.\n*   **Data Distribution:** Primarily focused on Asian faces.",
+          "expected_answer": "The dataset consisted of frontal, well-cropped face images of 33 individuals, mostly Asian, with at least 10 images per person, split into training and test sets.",
+          "score": 85,
+          "justification": "The model answer is mostly factually correct and provides a good level of detail about the dataset, including composition, number of images, and focus on Asian faces. However, it introduces some elements (like the source of images and dataset size) that are not explicitly mentioned in the expected answer, which affects its completeness and faithfulness to the source."
+        },
+        {
+          "id": "face_q5",
+          "question": "What image constraints were applied before extracting face embeddings?",
+          "predicted_answer": "Here’s a bullet-point summary of the information provided, focusing on the specific details:\n\n*   **Training Data:** The face embeddings were extracted from 33 persons, primarily Asian, with at least 10 different faces per person.\n*   **Dataset Creation:** The datasets were created using complete frontal images of 33 people.\n*   **Embedding Method:** The face vectors were stored in a local directory for use with Euclidean and Cosine distance methods.\n*   **SVM Classifier:** The SVM classifier was used to train the model.",
+          "expected_answer": "Images were required to be complete frontal faces and well-cropped to a fixed NxN resolution.",
+          "score": 40,
+          "justification": "The model answer provides some relevant information about the dataset and methods used, but it fails to address the specific image constraints required before extracting face embeddings, which were the focus of the question."
+        },
+        {
+          "id": "face_q6",
+          "question": "How were embeddings used differently for SVM classification compared to distance-based methods?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "For distance-based methods, embeddings were stored as reference vectors and compared directly, while for SVM they were used as feature inputs to train a classifier.",
+          "score": 20,
+          "justification": "The model answer correctly states that the provided context does not contain the answer, but it fails to address the question about the differences in how embeddings were used for SVM classification versus distance-based methods, resulting in a low score for factual correctness and completeness."
+        },
+        {
+          "id": "face_q7",
+          "question": "Which result supported the selection of a model for door access control?",
+          "predicted_answer": "*   Dlib based face recognition model (with SVM classifier combined) was the best face recognition technique amongst 9combinations as it showed the highest rate to distinguish people from each other.",
+          "expected_answer": "The Dlib face recognition model combined with an SVM classifier showed the highest ability to distinguish individuals.",
+          "score": 90,
+          "justification": "The model answer accurately identifies the Dlib face recognition model with SVM as the best technique for distinguishing individuals, which aligns with the expected answer. However, it could be slightly more concise and clearer in phrasing."
+        },
+        {
+          "id": "face_q8",
+          "question": "Why does the paper emphasize evaluation on mostly Asian faces?",
+          "predicted_answer": "Here’s a bullet-point summary of why the paper emphasizes evaluation on mostly Asian faces:\n\n*   The research focuses on evaluating deep face recognition models on faces predominantly of Asian ethnicity.\n*   The paper highlights that these models perform best when compared against face recognition models trained on Asian faces.\n*   The evaluation was conducted on a dataset of 33 faces, with a significant proportion being Asian.",
+          "expected_answer": "Because many existing face recognition benchmarks underrepresent Asian faces, and the study aimed to assess model performance in this demographic.",
+          "score": 60,
+          "justification": "The model answer provides some relevant points but lacks clarity on the main reason for emphasizing Asian faces, which is the underrepresentation in existing benchmarks. It also does not mention the aim to assess model performance specifically in this demographic, which is crucial for completeness."
+        },
+        {
+          "id": "face_q9",
+          "question": "What was the role of Euclidean and Cosine distance metrics in the experiments?",
+          "predicted_answer": "The provided context does not specify the role of Euclidean and Cosine distance metrics in the experiments. It only states that these methods were used to compare face recognition techniques.",
+          "expected_answer": "They were used to measure similarity between face embeddings as non-classifier-based recognition approaches.",
+          "score": 40,
+          "justification": "The model answer incorrectly states that the context does not specify the role of the distance metrics, while the expected answer clearly identifies their use in measuring similarity between face embeddings. This indicates a lack of factual correctness and completeness."
+        },
+        {
+          "id": "face_q10",
+          "question": "How does qualitative evaluation differ from a purely quantitative benchmark in this study?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The qualitative evaluation focused on comparative behavior and discriminative ability rather than reporting only numerical accuracy metrics.",
+          "score": 20,
+          "justification": "The model answer correctly identifies that the provided context does not contain the answer, but it fails to address the question about the differences between qualitative and quantitative evaluation, which is essential for completeness."
+        }
+      ]
+    },
+    {
+      "dataset": "61_2021_Simulation of Air Pollution in Almaty.json",
+      "average_score": 56.0,
+      "results": [
+        {
+          "id": "air_q1",
+          "question": "What was the main objective of simulating air pollution in Almaty?",
+          "predicted_answer": "The main objective of the simulation was to analyze atmospheric processes in the autumn-winter season of 2016 in Almaty City, specifically to assess the levels of sulfur dioxide (SO) and to model the transport of pollutants.",
+          "expected_answer": "The main objective was to analyze and predict the spatial and temporal distribution of air pollutants in Almaty using simulation modeling.",
+          "score": 80,
+          "justification": "The model answer correctly identifies the objective of analyzing air pollution in Almaty, but it is more specific to the autumn-winter season of 2016 and focuses on sulfur dioxide levels, which may not encompass the broader goal of predicting spatial and temporal distribution of all air pollutants."
+        },
+        {
+          "id": "air_q2",
+          "question": "Which air pollutants were modeled in the study and why are they important?",
+          "predicted_answer": "According to the text, the study modeled sulfur dioxide (SO) pollutants. These pollutants are important because the CHP-2, a coal-fired heat and power plant, emits significant amounts of SO during the autumn-winter season.",
+          "expected_answer": "Key air pollutants such as particulate matter and gaseous emissions were modeled because they have significant impacts on human health and air quality.",
+          "score": 70,
+          "justification": "The model answer correctly identifies sulfur dioxide as a pollutant modeled in the study, but it lacks completeness as it does not mention other key pollutants like particulate matter or gaseous emissions, which are also important for human health and air quality."
+        },
+        {
+          "id": "air_q3",
+          "question": "What were the major sources of air pollution considered in Almaty?",
+          "predicted_answer": "Here’s a bullet-point summary of the major sources of air pollution considered in Almaty:\n\n*   **CHP-2 Source:** The primary source of pollution was the emissions from the CHP-2 source, a coal-fired power plant.\n*   **Local Winds:** Local winds, resulting from orographic and thermal surface inhomogeneities, were a significant factor.\n*   **Southern Peripheral of the City:** Concentrations of pollutants were notably higher in the southern part of the city.\n*   **Mountain-Valley Circulation:** The complex pattern of wind within the mountain-valley circulation was a key driver.\n*   **Slope Winds:** Slope winds also contributed to the pollution.\n*   **Inversion Layers:** Inversion layers were also a factor.",
+          "expected_answer": "The major sources included vehicle traffic and stationary sources such as industrial facilities and heating systems.",
+          "score": 70,
+          "justification": "The model answer provides detailed sources of air pollution in Almaty, including specific factors like CHP-2 and local winds. However, it diverges from the expected answer by including additional elements that may not be considered major sources, such as local winds and inversion layers, which could be seen as complicating the response rather than focusing on the primary sources like vehicle traffic and industrial facilities."
+        },
+        {
+          "id": "air_q4",
+          "question": "What type of modeling approach was used to simulate air pollution?",
+          "predicted_answer": "The provided context describes the use of the WRF-Chem model for simulating air pollution.",
+          "expected_answer": "A numerical air dispersion and simulation model was used to estimate pollutant concentrations across the city.",
+          "score": 70,
+          "justification": "The model answer mentions the WRF-Chem model, which is a specific type of numerical air dispersion model, but it does not explicitly state that it is used to estimate pollutant concentrations across the city, which is part of the expected answer."
+        },
+        {
+          "id": "air_q5",
+          "question": "What input data were required for the air pollution simulation?",
+          "predicted_answer": "The provided context does not specify the exact input data required for the air pollution simulation. It only mentions that the simulation was performed using the information from the database of the University of Wyoming (http://weather.uwyo.edu/upperair/sounding.html) and the World Weather database (http://rp5.kz/docs/about/ru).",
+          "expected_answer": "Input data included emission inventories, meteorological data, and geographical information about the city.",
+          "score": 40,
+          "justification": "The model answer lacks factual correctness and completeness as it does not mention the specific input data required for the air pollution simulation, such as emission inventories, meteorological data, and geographical information, which are essential for understanding the simulation's requirements."
+        },
+        {
+          "id": "air_q6",
+          "question": "How did meteorological conditions affect the simulation results?",
+          "predicted_answer": "Here’s a summary of how meteorological conditions affected the simulation results, based solely on the provided text:\n\n*   **Wind Speed:** Wind speed variations were recorded during the simulation period, but measurement data exhibited a greater amplitude (0-3 m/s).\n*   **Temperature:** The simulation resulted in a greater temperature variation than the observation data.\n*   **Weather Conditions:** Adverse weather conditions were reflected in the simulation results, with the model capturing wind as light, variable, and gusty.\n*   **Atmospheric Pollution:** The study indicated that the atmospheric pollution levels were highest in the autumn-winter season, with a significant contribution from sulfur dioxide (SO) emissions from coal-fired enterprises.",
+          "expected_answer": "Meteorological factors such as wind speed, wind direction, and temperature significantly influenced pollutant dispersion and accumulation.",
+          "score": 75,
+          "justification": "The model answer provides relevant details about wind speed, temperature variations, and atmospheric pollution, which are related to meteorological conditions. However, it lacks a direct connection to how these factors specifically influenced pollutant dispersion and accumulation, which is the core of the expected answer."
+        },
+        {
+          "id": "air_q7",
+          "question": "What seasonal trends in air pollution were identified?",
+          "predicted_answer": "The provided context does not specify any seasonal trends in air pollution.",
+          "expected_answer": "Higher pollution levels were observed during colder seasons due to increased heating emissions and unfavorable dispersion conditions.",
+          "score": 20,
+          "justification": "The model answer incorrectly states that the context does not specify any seasonal trends, while the expected answer clearly identifies higher pollution levels during colder seasons."
+        },
+        {
+          "id": "air_q8",
+          "question": "How were simulation results validated in the study?",
+          "predicted_answer": "The study validated simulation results through the use of the mean and absolute rootmean-square errors of temperature, wind speed, and wind direction simulation, and by choosing the test simulation with the minimum total error.  Observations from eight weather stations in Almaty and its outskirts were used to calculate these errors, and the variant with the real initial data for the outer domain was selected.",
+          "expected_answer": "Simulation outputs were compared with data from air quality monitoring stations in Almaty.",
+          "score": 85,
+          "justification": "The model answer provides a detailed explanation of how simulation results were validated, including the use of mean and absolute root-mean-square errors and the selection of the test simulation with the minimum total error. However, it does not explicitly mention the comparison with data from air quality monitoring stations, which is a key aspect of the expected answer."
+        },
+        {
+          "id": "air_q9",
+          "question": "Which areas of Almaty showed the highest pollution levels?",
+          "predicted_answer": "The provided context does not specify which areas of Almaty showed the highest pollution levels.",
+          "expected_answer": "Central and densely populated areas with heavy traffic and limited air circulation showed the highest pollution levels.",
+          "score": 30,
+          "justification": "The model answer correctly identifies that the provided context does not specify specific areas, but it fails to address the expected answer regarding central and densely populated areas, which is a significant omission."
+        },
+        {
+          "id": "air_q10",
+          "question": "How did traffic emissions compare to stationary sources in their contribution?",
+          "predicted_answer": "The provided context does not contain information about how traffic emissions compared to stationary sources.",
+          "expected_answer": "Traffic emissions were a dominant contributor, though stationary sources also played a significant role, especially in winter.",
+          "score": 20,
+          "justification": "The model answer correctly states that the provided context lacks information, but it fails to address the question about the comparison between traffic emissions and stationary sources, which is crucial for completeness."
+        }
+      ]
+    },
+    {
+      "dataset": "62_2021_Handwritten Kazakh and Russian HKR database.json",
+      "average_score": 54.0,
+      "results": [
+        {
+          "id": "hkr_q1",
+          "question": "What specific linguistic characteristic of the Kazakh alphabet distinguishes it from the Russian Cyrillic alphabet in the context of the HKR database?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "While both languages share 33 basic Cyrillic characters [cite: 11], the Kazakh alphabet contains 9 additional specific characters not found in the Russian alphabet[cite: 12].",
+          "score": 20,
+          "justification": "The model answer correctly identifies that the context does not contain the answer, but it fails to provide any relevant information about the Kazakh alphabet's specific characters compared to the Russian alphabet, which affects its completeness and factual correctness."
+        },
+        {
+          "id": "hkr_q2",
+          "question": "Describe the language distribution of the HKR database and the total volume of symbols it contains.",
+          "predicted_answer": "Here’s a summary of the language distribution and symbol volume of the HKR database, based solely on the provided text:\n\n*   **Language Distribution:** The HKR database primarily contains Russian words (approximately 95% of the words) and Kazakh words (approximately 5% of the words).\n*   **Total Symbol Volume:** The database contains approximately 63000 sentences, more than 715699 symbols, and approximately 106718 words. The total number of symbols is significantly higher than just the number of sentences.",
+          "expected_answer": "The database is composed of approximately 95% Russian and 5% Kazakh words/sentences [cite: 9] and contains more than 715,699 symbols[cite: 15, 466].",
+          "score": 70,
+          "justification": "The model answer correctly identifies the language distribution of the HKR database but introduces additional information about the number of sentences and words that is not present in the expected answer. While it maintains the correct symbol count, the inclusion of unverified details affects its completeness and faithfulness to the source."
+        },
+        {
+          "id": "hkr_q3",
+          "question": "How did the researchers automate the generation of ground truth labels for the handwritten forms?",
+          "predicted_answer": "The researchers automated the generation of ground truth labels for the handwritten forms through a recommendation system that simplifies the labeling process. This system allows for the automatic identification of forms and the segmentation of characters, significantly reducing the time and cost associated with manual labeling.",
+          "expected_answer": "The forms were generated using LaTeX and converted to PDF[cite: 13, 163]. Since the researchers knew the printed text, they saved the source text with a unique ID and cell number to automatically generate correct labels[cite: 409, 410].",
+          "score": 30,
+          "justification": "The model answer incorrectly describes the method of generating ground truth labels, mentioning a recommendation system and character segmentation, which are not part of the original process. It fails to address the use of LaTeX, PDF conversion, and the unique ID system for label generation, leading to a lack of factual correctness and completeness."
+        },
+        {
+          "id": "hkr_q4",
+          "question": "What technical reasoning led the authors to recommend using a blue pen for filling out the forms?",
+          "predicted_answer": "The authors suggested using the blue pen because it allows the system to distinguish the word from the table borders at the color level. This is achieved through a process of converting an image from RGB to HSV, where blue remains blue regardless of the brightness and intensity of the image.",
+          "expected_answer": "A blue pen allows the system to distinguish handwriting from the black table borders at the color level[cite: 446]. By converting from RGB to HSV, the blue color remains invariant to lighting intensity, aiding segmentation[cite: 447, 448].",
+          "score": 85,
+          "justification": "The model answer is factually correct and captures the main reasoning behind the recommendation for using a blue pen. However, it lacks specific citations and does not mention the segmentation aspect, which affects its completeness and faithfulness to the source."
+        },
+        {
+          "id": "hkr_q5",
+          "question": "Explain the difference in composition between the TEST1 and TEST2 datasets used in the recognition experiments.",
+          "predicted_answer": "Here’s a bullet-point summary of the differences between the TEST1 and TEST2 datasets used in the recognition experiments:\n\n*   **TEST1:** Consisted of words that did not exist in the Training dataset.\n*   **TEST2:** Was made up of words that existed in the Training dataset but with a different handwriting style.\n\n",
+          "expected_answer": "TEST1 consisted of words that did not exist in the Training or Validation datasets [cite: 484], while TEST2 contained words present in the training set but written in entirely different handwriting styles[cite: 485].",
+          "score": 90,
+          "justification": "The model answer accurately captures the key differences between TEST1 and TEST2 datasets, but it lacks the specific mention that TEST1 words did not exist in the Validation dataset, which is part of the expected answer."
+        },
+        {
+          "id": "hkr_q6",
+          "question": "Compare the performance of the Attention-Gated-CNN-BGRU model between the two test sets using the Levenshtein CER metric.",
+          "predicted_answer": "Here’s a summary of the provided text regarding the performance of the Attention-Gated-CNN-BGRU model, comparing its results across the two test sets:\n\n*   **Overall Performance:** The Attention-Gated-CNN-BGRU model demonstrated the highest recognition rate overall, achieving 8.34% CER, 38.54% WER, and 12.12% CER across the first and second test datasets.\n\n*   **Levenshtein CER Comparison:**  The model’s performance differed between the two test sets. The first test dataset yielded a lower CER (8.34%) compared to the second (8.36%).\n\n*   **WER Comparison:**  The second test dataset showed a higher WER (38.54%) than the first, indicating a greater number of errors in the transcription.\n\n*   **Other Metrics:** The model’s performance was also evaluated using Character Error Rate (CER) and Word Error Rate (WER), with the Attention-Gated-CNN-BGRU model achieving lower CER and WER values.",
+          "expected_answer": "The model achieved an 8.34% Character Error Rate (CER) on TEST1 [cite: 488] and a nearly identical 8.36% CER on TEST2[cite: 488].",
+          "score": 75,
+          "justification": "The model answer correctly identifies the CER values for both test sets but includes additional metrics (WER) that were not requested in the question. While it provides a comparison, the focus on WER detracts from the clarity of the specific CER comparison, leading to a slight decrease in completeness and faithfulness to the source."
+        },
+        {
+          "id": "hkr_q7",
+          "question": "What pre-processing steps are performed to isolate and 'cut out' cells from the filled forms?",
+          "predicted_answer": "Here’s a bullet-point summary of the pre-processing steps performed to isolate cells from the filled forms:\n\n*   Filtering forms to enhance table boundaries.\n*   Defining the contours of the table.\n*   Determination and compensation of the angle of rotation.\n*   Exclusion of lines.\n*   Segmentation by cells.",
+          "expected_answer": "The steps include filtering to enhance boundaries [cite: 418], defining table contours [cite: 419], compensating for rotation angle [cite: 420], and exclusion of lines[cite: 420].",
+          "score": 85,
+          "justification": "The model answer is factually correct and includes most of the key steps mentioned in the expected answer. However, it adds an extra step (segmentation by cells) that is not explicitly mentioned in the expected answer, which affects its faithfulness to the source. The completeness is good, but the addition of an unreferenced step slightly detracts from the overall score."
+        },
+        {
+          "id": "hkr_q8",
+          "question": "How does the CER calculation developed by the authors (CER*) differ from the standard Levenshtein CER calculation?",
+          "predicted_answer": "The authors developed a CER calculation method that differs from the standard Levenshtein CER calculation by:\n\n*   It involves multiplying the errors for each character by the fraction of a character in the whole test dataset and summing these results.\n*   The formula is: CERc = S+I+D N, where S is the number of correct predictions of c, I is the number of incorrect predictions of c, and D is the number of incorrect predictions of c.",
+          "expected_answer": "The authors' CER* algorithm loops through results to count frequencies of characters and correct predictions[cite: 500]. It multiplies character-specific errors by the fraction of that character in the whole dataset to find a weighted average[cite: 505, 506].",
+          "score": 85,
+          "justification": "The model answer correctly identifies the key difference in the CER* calculation by mentioning the multiplication of character-specific errors by the fraction of that character in the dataset. However, it inaccurately presents the formula and does not explicitly mention the counting of frequencies of characters and correct predictions, which is a crucial aspect of the authors' method."
+        },
+        {
+          "id": "hkr_q9",
+          "question": "According to the paper, what historical database did the authors use as a reference for their data collection and storage principles?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The researchers decided to adopt the general principles of data collection and storage described in the IAM Database[cite: 40, 408].",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer clearly indicates that the IAM Database was used as a reference."
+        },
+        {
+          "id": "hkr_q10",
+          "question": "What specific geographic keyword categories were included to make the database relevant for the Republic of Kazakhstan?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The list includes areas, cities, villages, settlements, and streets [cite: 172-177].",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer clearly lists the relevant geographic keyword categories."
+        }
+      ]
+    },
+    {
+      "dataset": "63_2022_Modeling of the Calm Situations.json",
+      "average_score": 32.5,
+      "results": [
+        {
+          "id": "air_q1",
+          "question": "What specific meteorological condition was the focus of this simulation, and why is it problematic for Almaty?",
+          "predicted_answer": "Here’s a concise summary of the provided text, focusing on the specific meteorological condition and its challenges:\n\n*   **Focus:** The simulation focused on wind conditions, specifically the “kata batic flow of cold air in the evening and night hours.”\n*   **Problem:** The sparse network of meteorological stations in Almaty limits the accuracy of wind velocity measurements, leading to data rounding and a maximum velocity of 0.5 m/s, which is insufficient for detailed analysis.",
+          "expected_answer": "The study focused on 'calm' situations (low wind speeds of 0вЂ“1 m/s), which are problematic because they prevent the dispersion of pollutants, leading to high surface concentrations in the city[cite: 8, 11].",
+          "score": 40,
+          "justification": "The model answer incorrectly identifies the focus of the simulation as 'kata batic flow of cold air' instead of 'calm situations' with low wind speeds. It also fails to mention the problem of pollutant dispersion, which is central to the expected answer."
+        },
+        {
+          "id": "air_q2",
+          "question": "According to the paper, which two main types of air pollution sources were accounted for in the modeling process?",
+          "predicted_answer": "According to the paper, the modeling process accounted for two main types of air pollution sources:\n\n1.  Frequent recurrence of calm and lowwind conditions and temperature inversions.\n2.  Urban heat island (UHI) conditions.",
+          "expected_answer": "The model included stationary sources (such as industrial plants and thermal power stations) and mobile sources (motor vehicles)[cite: 31, 33].",
+          "score": 10,
+          "justification": "The model answer does not address the two main types of air pollution sources as specified in the question. Instead, it discusses environmental conditions that may affect air quality, which is not relevant to the sources of air pollution."
+        },
+        {
+          "id": "air_q3",
+          "question": "How did the researchers justify the use of a three-dimensional numerical model over a two-dimensional one for this study?",
+          "predicted_answer": "The researchers justified the use of a three-dimensional numerical model over a two-dimensional one due to the limitations of the existing meteorological stations in Almaty and the need to capture the complex effects of the underlying surface processes. Specifically, the model was chosen to account for the impact of large-scale flows, which the two-dimensional model did not adequately represent.",
+          "expected_answer": "A three-dimensional model was necessary to account for Almaty's complex terrain (mountains) and the vertical distribution of temperature and wind, which significantly influence pollutant transport[cite: 38, 40].",
+          "score": 70,
+          "justification": "The model answer captures some aspects of the justification for using a three-dimensional model, such as the limitations of meteorological stations and the need to represent complex surface processes. However, it lacks specific mention of Almaty's complex terrain and the vertical distribution of temperature and wind, which are critical factors influencing pollutant transport."
+        },
+        {
+          "id": "air_q4",
+          "question": "What specific height was used for the calculation of surface concentrations in the simulation results?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The surface concentrations were calculated at a height of 2 meters[cite: 104].",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer clearly specifies that the height used for the calculation of surface concentrations is 2 meters."
+        },
+        {
+          "id": "air_q5",
+          "question": "Explain the role of the 'roughness parameter' (z0) in the mathematical model described.",
+          "predicted_answer": "The provided text doesn’t explicitly define the “roughness parameter” (z0) within the specific mathematical model being discussed. However, it does state that the model utilizes various parameterization methods, including:\n\n*   **Short-wave and long-wave radiation (Mlawer):** This parameterization method is used to represent the radiation effects in the atmosphere.\n*   **Surface layer (Monin-Obukhov similarity theory):** This method is used to model the surface layer characteristics.\n*   **Urban area (BEP):** This parameterization method is used to represent the urban area’s influence on the atmosphere.\n*   **Bougeault-Lacarrere parameterization of the boundary layer:** This method is used to model the boundary layer characteristics.\n\nThese methods are chosen based on experience and a series of trial simulations, suggesting the “roughness parameter” (z0) plays a role in selecting these specific parameterizations.",
+          "expected_answer": "The roughness parameter represents the aerodynamic properties of the underlying surface (city buildings or terrain) and is used to calculate the vertical profile of the wind speed and the coefficient of turbulent exchange[cite: 49, 53].",
+          "score": 60,
+          "justification": "The model answer does not directly address the role of the roughness parameter (z0) as requested, failing to explain its significance in relation to aerodynamic properties and wind speed profiles. While it mentions relevant parameterization methods, it lacks a clear connection to the roughness parameter's function, leading to a lower score for factual correctness and completeness."
+        },
+        {
+          "id": "air_q6",
+          "question": "What mathematical approach was used to solve the transport and diffusion equations for pollutants?",
+          "predicted_answer": "The provided text does not specify a particular mathematical approach used to solve the transport and diffusion equations for pollutants. It mentions the use of “modeling results on a fine grid” and “parameterization of the processes in the urban canopy based on the modeling results on the fine grid.”",
+          "expected_answer": "The equations were solved using the method of splitting by physical processes and coordinate directions, utilizing an implicit finite-difference scheme[cite: 85, 87].",
+          "score": 20,
+          "justification": "The model answer fails to address the specific mathematical approach mentioned in the expected answer, which is the method of splitting by physical processes and coordinate directions with an implicit finite-difference scheme. It also does not provide any relevant details about the transport and diffusion equations."
+        },
+        {
+          "id": "air_q7",
+          "question": "How did the simulation distinguish the behavior of carbon monoxide (CO) compared to nitrogen dioxide (NO2) in the results?",
+          "predicted_answer": "The provided context does not contain information about how the simulation distinguished the behavior of CO and NO2. It focuses on wind conditions, urban area characteristics, and the use of different parameterization methods.",
+          "expected_answer": "The simulation showed that CO, primarily from motor vehicles, reached high concentrations along major highways, while NO2 concentrations were influenced by both transport and larger stationary sources like power plants[cite: 105, 126].",
+          "score": 20,
+          "justification": "The model answer fails to address the specific question about the simulation's findings regarding CO and NO2, providing irrelevant information instead. It lacks factual correctness and completeness."
+        },
+        {
+          "id": "air_q8",
+          "question": "What was the specified horizontal grid resolution used for the numerical experiments in Almaty?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The numerical experiments used a grid with a horizontal step of 500 meters[cite: 102].",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer clearly specifies the horizontal grid resolution used in the numerical experiments."
+        },
+        {
+          "id": "air_q9",
+          "question": "What role does the 'inversion layer' play in the pollution levels described in the paper?",
+          "predicted_answer": "Here’s a concise summary of the role of the inversion layer, based solely on the provided text:\n\n*   **Blocking Vertical Exchange:** The inversion layer acts as a barrier, preventing vertical flows and thus inhibiting the movement of warm air upwards.\n*   **Contributing to Smog:** By blocking vertical exchange, it contributes to the formation of smog in the lower northern part of the city.\n*   **Creating Anabatic Airflow:** The inversion layer facilitates the formation of anabatic airflow, shifting the air boundary upward and contributing to localized breezes.\n*   **Amplifying Pollution:** It plays a crucial role in amplifying the pollution by locking the vertical exchange, including turbulent diffusion of pollutants.",
+          "expected_answer": "The inversion layer acts as a 'lid' or barrier that traps pollutants near the surface by preventing vertical mixing, especially during calm weather[cite: 16, 125].",
+          "score": 85,
+          "justification": "The model answer accurately describes the role of the inversion layer in blocking vertical exchange and amplifying pollution, which aligns with the expected answer. However, it introduces additional concepts like anabatic airflow and localized breezes that may not be directly relevant to the pollution levels discussed in the paper, slightly affecting its completeness and faithfulness to the source."
+        },
+        {
+          "id": "air_q10",
+          "question": "Define the 'Maximum Permissible Concentration' (MPC) as used in the study's evaluation.",
+          "predicted_answer": "The provided context does not define the “Maximum Permissible Concentration” (MPC) as used in the study’s evaluation. It only describes the parameterization methods employed – 6 component cloud microphysics spectral method, Mlawer parameterization, surface layer according to MoninObukhov similarity theory, Bougeault-Lacarrere parameterization, Kain-Fritsch convective parameterization, and Smagorinsky 2D turbulence parameterization.\n",
+          "expected_answer": "The MPC is a regulatory limit used to evaluate air quality; the study found that pollutants like NO2 and CO often exceeded these limits in Almaty's center and near highways[cite: 105, 114].",
+          "score": 20,
+          "justification": "The model answer fails to provide a definition of the 'Maximum Permissible Concentration' (MPC) and instead discusses unrelated parameterization methods. It does not address the question asked, resulting in low factual correctness and completeness."
+        }
+      ]
+    },
+    {
+      "dataset": "64_2022_KOHTD Kazakh offline handwritten text dataset.json",
+      "average_score": 62.5,
+      "results": [
+        {
+          "id": "kohtd_q1",
+          "question": "What problem in handwritten text recognition does the KOHTD dataset specifically aim to address?",
+          "predicted_answer": "The KOHTD dataset specifically aims to address the challenge of handwriting recognition in the Kazakh language, particularly given the lack of a publicly available dataset for handwritten Kazakh text.",
+          "expected_answer": "It addresses the lack of publicly available datasets for offline handwritten text recognition in the Kazakh language.",
+          "score": 100,
+          "justification": "The model answer accurately reflects the problem the KOHTD dataset aims to address, specifically the lack of publicly available datasets for offline handwritten text recognition in the Kazakh language, and it is complete and faithful to the source."
+        },
+        {
+          "id": "kohtd_q2",
+          "question": "Why is the creation of a Kazakh handwritten dataset important compared to using existing datasets?",
+          "predicted_answer": "The provided context highlights several reasons why the creation of a Kazakh offline handwritten text dataset (KOHTD) is crucial:\n\n*   **Addressing Challenges in Handwriting Recognition:** It’s essential for researchers working on handwriting recognition, particularly in the Kazakh language, as there’s a lack of publicly available datasets.\n*   **Serving as a Benchmark for Algorithms:** It provides a standard and pure dataset for evaluating and comparing different handwriting recognition algorithms, allowing for more robust performance assessment.\n*   **Supporting Research and Development:** The dataset enables further research and development in the field, specifically for Kazakh-Russian handwriting recognition.\n*   **Novelty for Future Studies:** The dataset offers a starting point for studying handwriting recognition in the Kazakh-Russian language, allowing for the development of new effective algorithms.",
+          "expected_answer": "Because most existing handwritten datasets focus on Latin scripts and do not represent the linguistic and script-specific characteristics of Kazakh.",
+          "score": 85,
+          "justification": "The model answer is factually correct and addresses the importance of creating a Kazakh handwritten dataset, highlighting its role in handwriting recognition and algorithm benchmarking. However, it could be more concise and focused on the specific linguistic and script characteristics of Kazakh, which is the core of the expected answer."
+        },
+        {
+          "id": "kohtd_q3",
+          "question": "Which script is used in the KOHTD dataset, and what challenges does it introduce?",
+          "predicted_answer": "The KOHTD dataset is written in Cyrillic. It includes 3000 handwritten exam papers, 140335 segmented images, and approximately 922010 symbols.",
+          "expected_answer": "The dataset uses the Kazakh Cyrillic script, which introduces challenges such as a larger character set and script-specific handwriting variations.",
+          "score": 70,
+          "justification": "The model answer correctly identifies that the dataset is written in Cyrillic, but it fails to specify that it is the Kazakh Cyrillic script and does not mention the challenges related to the larger character set and handwriting variations."
+        },
+        {
+          "id": "kohtd_q4",
+          "question": "What types of handwritten data are included in the KOHTD dataset?",
+          "predicted_answer": "Here’s a concise bullet-point summary of the provided text regarding the KOHTD dataset:\n\n*   **Content:** The KOHTD dataset includes 3000 handwritten exam papers, 140,335 segmented images, and approximately 922,010 symbols.\n*   **Data Types:** It consists of various types of handwritten text, including Kazakh and Russian languages.\n*   **Data Format:** The dataset is written in Cyrillic and shares the same 42 characters in Kazakh.\n*   **Dataset Size:** Approximately 1000 different styles of handwriting paper.\n*   **Data Collection:** It was collected from student exams, with an average of 2 examination sheets per person.",
+          "expected_answer": "The dataset includes offline handwritten text samples such as characters, words, and text lines written in Kazakh.",
+          "score": 75,
+          "justification": "The model answer provides factual information about the KOHTD dataset, including the number of handwritten exam papers and segmented images. However, it includes details about the Russian language and Cyrillic characters that were not part of the expected answer, which specifically focused on Kazakh handwritten text. This affects the completeness and faithfulness to the source."
+        },
+        {
+          "id": "kohtd_q5",
+          "question": "How was the data for KOHTD collected?",
+          "predicted_answer": "The provided context does not contain information about how the data for KOHTD was collected.",
+          "expected_answer": "Data was collected from multiple writers under controlled conditions to ensure diversity in handwriting styles.",
+          "score": 20,
+          "justification": "The model answer correctly states that the provided context does not contain information about the data collection for KOHTD, but it fails to address the expected answer regarding the collection method, leading to a low score for completeness and factual correctness."
+        },
+        {
+          "id": "kohtd_q6",
+          "question": "What preprocessing or annotation steps were applied to the dataset?",
+          "predicted_answer": "Here’s a summary of the preprocessing and annotation steps applied to the dataset, based solely on the provided text:\n\n*   **Line Segmentation:** The text was divided into separate lines.\n*   **Word Segmentation:** The text was split into individual words.\n*   **Intensity Feature Extraction:** Intensity features were collected from each word to train an HMM classifier.\n*   **Structure-like Feature Extraction:** The number of subwords and diacritical marks were retrieved.\n*   **Normalization:** Words were normalized to improve recognition accuracy.\n*   **User Annotation Verification:** The system checked for identical annotations between users to ensure reliability.\n*   **Neural Network Training:** A neural network was trained on an incomplete dataset to improve handwriting recognition.",
+          "expected_answer": "Handwritten samples were digitized, cleaned, segmented, and annotated with corresponding ground-truth labels.",
+          "score": 70,
+          "justification": "The model answer includes relevant preprocessing steps such as segmentation and feature extraction, but it introduces elements like neural network training that were not mentioned in the expected answer. Additionally, it lacks the specific mention of digitization and cleaning, which are crucial components of the preprocessing process."
+        },
+        {
+          "id": "kohtd_q7",
+          "question": "How does KOHTD differ from datasets like MNIST or IAM?",
+          "predicted_answer": "Here’s a summary of the differences between KOHTD and datasets like MNIST and IAM, based solely on the provided text:\n\n*   **KOHTD:** A Kazakh offline handwritten text dataset with 3000 exam papers, 140335 segmented images, and approximately 922010 symbols. It’s specifically designed for Kazakh handwritten text recognition.\n*   **MNIST & IAM:** These datasets are primarily for English handwritten text recognition. They are larger in size (MNIST has 116,000 RGB images, IAM has 29 classes) and may have different characteristics related to the types of images they contain (e.g., different handwriting styles).\n\n",
+          "expected_answer": "Unlike MNIST or IAM, KOHTD focuses on Kazakh Cyrillic handwritten text rather than digits or Latin-script handwriting.",
+          "score": 85,
+          "justification": "The model answer correctly identifies that KOHTD focuses on Kazakh Cyrillic handwritten text, distinguishing it from MNIST and IAM, which are centered on English handwriting. However, it provides additional details about the datasets that were not present in the original question, which affects its completeness and faithfulness to the source."
+        },
+        {
+          "id": "kohtd_q8",
+          "question": "What types of variability are present in the KOHTD dataset?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "Variability includes different writers, handwriting styles, stroke thicknesses, and natural noise from scanning.",
+          "score": 20,
+          "justification": "The model answer correctly states that the provided context does not contain the answer, but it fails to address the question about the types of variability in the KOHTD dataset, which is a factual inaccuracy."
+        },
+        {
+          "id": "kohtd_q9",
+          "question": "For which tasks is the KOHTD dataset primarily intended?",
+          "predicted_answer": "The KOHTD dataset is primarily intended for the following tasks:\n\n*   Handwritten recognition for different languages (specifically Kazakh).\n*   Offline handwriting recognition.\n*   Research in handwriting recognition tasks.",
+          "expected_answer": "It is intended for offline handwritten character recognition, word recognition, and handwritten text recognition tasks.",
+          "score": 80,
+          "justification": "The model answer is factually correct and mentions relevant tasks, but it lacks specific mention of 'word recognition' and 'handwritten text recognition,' which are part of the expected answer. It also introduces 'research in handwriting recognition tasks,' which, while related, is not explicitly stated in the expected answer."
+        },
+        {
+          "id": "kohtd_q10",
+          "question": "How was the usefulness of the KOHTD dataset validated?",
+          "predicted_answer": "The provided context does not contain information about how the usefulness of the KOHTD dataset was validated.",
+          "expected_answer": "By conducting baseline experiments using standard recognition models to demonstrate feasibility and benchmark performance.",
+          "score": 20,
+          "justification": "The model answer incorrectly states that the provided context does not contain information about the validation of the KOHTD dataset, while the expected answer clearly outlines a method for validation."
+        }
+      ]
+    }
+  ],
+  "overall_average_score": 52.6
+}
