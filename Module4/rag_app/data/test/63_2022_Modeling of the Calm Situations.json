@@ -1,0 +1,62 @@
+[
+  {
+    "id": "air_q1",
+    "question": "What specific meteorological condition was the focus of this simulation, and why is it problematic for Almaty?",
+    "expected_answer": "The study focused on 'calm' situations (low wind speeds of 0–1 m/s), which are problematic because they prevent the dispersion of pollutants, leading to high surface concentrations in the city[cite: 8, 11].",
+    "answer_type": "objective"
+  },
+  {
+    "id": "air_q2",
+    "question": "According to the paper, which two main types of air pollution sources were accounted for in the modeling process?",
+    "expected_answer": "The model included stationary sources (such as industrial plants and thermal power stations) and mobile sources (motor vehicles)[cite: 31, 33].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "air_q3",
+    "question": "How did the researchers justify the use of a three-dimensional numerical model over a two-dimensional one for this study?",
+    "expected_answer": "A three-dimensional model was necessary to account for Almaty's complex terrain (mountains) and the vertical distribution of temperature and wind, which significantly influence pollutant transport[cite: 38, 40].",
+    "answer_type": "technical_reasoning"
+  },
+  {
+    "id": "air_q4",
+    "question": "What specific height was used for the calculation of surface concentrations in the simulation results?",
+    "expected_answer": "The surface concentrations were calculated at a height of 2 meters[cite: 104].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "air_q5",
+    "question": "Explain the role of the 'roughness parameter' (z0) in the mathematical model described.",
+    "expected_answer": "The roughness parameter represents the aerodynamic properties of the underlying surface (city buildings or terrain) and is used to calculate the vertical profile of the wind speed and the coefficient of turbulent exchange[cite: 49, 53].",
+    "answer_type": "technical_definition"
+  },
+  {
+    "id": "air_q6",
+    "question": "What mathematical approach was used to solve the transport and diffusion equations for pollutants?",
+    "expected_answer": "The equations were solved using the method of splitting by physical processes and coordinate directions, utilizing an implicit finite-difference scheme[cite: 85, 87].",
+    "answer_type": "methodology"
+  },
+  {
+    "id": "air_q7",
+    "question": "How did the simulation distinguish the behavior of carbon monoxide (CO) compared to nitrogen dioxide (NO2) in the results?",
+    "expected_answer": "The simulation showed that CO, primarily from motor vehicles, reached high concentrations along major highways, while NO2 concentrations were influenced by both transport and larger stationary sources like power plants[cite: 105, 126].",
+    "answer_type": "comparative_analysis"
+  },
+  {
+    "id": "air_q8",
+    "question": "What was the specified horizontal grid resolution used for the numerical experiments in Almaty?",
+    "expected_answer": "The numerical experiments used a grid with a horizontal step of 500 meters[cite: 102].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "air_q9",
+    "question": "What role does the 'inversion layer' play in the pollution levels described in the paper?",
+    "expected_answer": "The inversion layer acts as a 'lid' or barrier that traps pollutants near the surface by preventing vertical mixing, especially during calm weather[cite: 16, 125].",
+    "answer_type": "technical_reasoning"
+  },
+  {
+    "id": "air_q10",
+    "question": "Define the 'Maximum Permissible Concentration' (MPC) as used in the study's evaluation.",
+    "expected_answer": "The MPC is a regulatory limit used to evaluate air quality; the study found that pollutants like NO2 and CO often exceeded these limits in Almaty's center and near highways[cite: 105, 114].",
+    "answer_type": "technical_definition"
+  }
+]

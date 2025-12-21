@@ -1,8 +1,10 @@
 import os
 import json
+import glob
 from dotenv import load_dotenv
 from openai import OpenAI
 from rag_system import RAG
+from pdf_loader import PDFCleaner
 
 
 # Load environment variables from .env file
@@ -25,14 +27,14 @@ def llm_judge(question, expected, predicted):
         Model Answer:
         {predicted}
 
-        Score the model answer from 0 to 5 based on:
+        Score the model answer from 0 to 100 based on:
         1. Factual correctness
         2. Completeness
         3. Faithfulness to the source
 
         Return ONLY a JSON object:
-        {{"score": <0-5>, "justification": "<short explanation>"}}
-        """
+        {{"score": <0-100>, "justification": "<short explanation>"}}
+    """
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
@@ -42,9 +44,24 @@ def llm_judge(question, expected, predicted):
 
 
 def evaluate_rag(dataset_path):
+    pdf_path = os.path.join("data/pdf", os.path.basename(dataset_path).replace(".json", ".pdf"))
+    # Baseline splitting method 
+    # cleaner = PDFCleaner(min_block_size=100, max_block_size=500)
+    # Improved splitting method with sentence-based chunks and overlap
+    cleaner = PDFCleaner(min_block_size=300, max_block_size=1000, overlap_sentences=2)
+    chunks = cleaner.process_pdf(str(pdf_path))
+
+    # collect documents to ingest into RAG
+    documents_data =[
+        {"file": os.path.basename(pdf_path), "chunk_id": str(i + 1), "content": chunk}
+        for i, chunk in enumerate(chunks)
+    ]
+    my_rag.data_ingestion(documents_data)
+
     with open(dataset_path) as f:
         dataset = json.load(f)
 
+    # Evaluate each question in the dataset
     results = []
     for item in dataset:
         _, _, predicted = my_rag.answer_the_question(item["question"])
@@ -67,9 +84,28 @@ def evaluate_rag(dataset_path):
 
 
 if __name__ == "__main__":
-    scores = evaluate_rag("data/test/59_2021_Qualitative Evaluation of Face Embeddings.json")
+    all_datasets_output = []
+    all_scores = []
+    for dataset_path in glob.glob("data/test/*.json"):
+        print(f"Evaluating dataset: {dataset_path}")
+        scores = evaluate_rag(dataset_path)
+        avg_score = sum(r["score"] for r in scores) / len(scores) if scores else 0.0
+        print(f"Average RAG Score: {avg_score:.2f}")
+        output = {
+            "dataset": os.path.basename(dataset_path),
+            "average_score": avg_score,
+            "results": scores,
+        }
+        all_datasets_output.append(output)
+        all_scores.extend([r["score"] for r in scores])
+
+    overall_average = sum(all_scores) / len(all_scores) if all_scores else 0.0
+    final_output = {
+        "datasets": all_datasets_output,
+        "overall_average_score": overall_average,
+    }
+    print(f"Overall Average RAG Score (all datasets): {overall_average:.2f}")
+    with open("5_rag_evaluation_results_hyde.json", "w", encoding="utf-8") as f:
+        json.dump(final_output, f, indent=2, ensure_ascii=False)
+    # Close the Weaviate client once after all datasets processed
     my_rag.close_weaviate_client()
-    avg_score = sum(r["score"] for r in scores) / len(scores)
-    print(f"Average RAG Score: {avg_score:.2f}")
-    with open("rag_evaluation_results.json", "w") as f:
-        json.dump(scores, f, indent=2)

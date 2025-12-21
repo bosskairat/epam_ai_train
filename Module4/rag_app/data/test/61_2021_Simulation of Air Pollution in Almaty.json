@@ -1,0 +1,62 @@
+[
+  {
+    "id": "air_q1",
+    "question": "What was the main objective of simulating air pollution in Almaty?",
+    "expected_answer": "The main objective was to analyze and predict the spatial and temporal distribution of air pollutants in Almaty using simulation modeling.",
+    "answer_type": "objective"
+  },
+  {
+    "id": "air_q2",
+    "question": "Which air pollutants were modeled in the study and why are they important?",
+    "expected_answer": "Key air pollutants such as particulate matter and gaseous emissions were modeled because they have significant impacts on human health and air quality.",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "air_q3",
+    "question": "What were the major sources of air pollution considered in Almaty?",
+    "expected_answer": "The major sources included vehicle traffic and stationary sources such as industrial facilities and heating systems.",
+    "answer_type": "source_analysis"
+  },
+  {
+    "id": "air_q4",
+    "question": "What type of modeling approach was used to simulate air pollution?",
+    "expected_answer": "A numerical air dispersion and simulation model was used to estimate pollutant concentrations across the city.",
+    "answer_type": "methodology"
+  },
+  {
+    "id": "air_q5",
+    "question": "What input data were required for the air pollution simulation?",
+    "expected_answer": "Input data included emission inventories, meteorological data, and geographical information about the city.",
+    "answer_type": "data_requirements"
+  },
+  {
+    "id": "air_q6",
+    "question": "How did meteorological conditions affect the simulation results?",
+    "expected_answer": "Meteorological factors such as wind speed, wind direction, and temperature significantly influenced pollutant dispersion and accumulation.",
+    "answer_type": "reasoning"
+  },
+  {
+    "id": "air_q7",
+    "question": "What seasonal trends in air pollution were identified?",
+    "expected_answer": "Higher pollution levels were observed during colder seasons due to increased heating emissions and unfavorable dispersion conditions.",
+    "answer_type": "pattern_analysis"
+  },
+  {
+    "id": "air_q8",
+    "question": "How were simulation results validated in the study?",
+    "expected_answer": "Simulation outputs were compared with data from air quality monitoring stations in Almaty.",
+    "answer_type": "validation"
+  },
+  {
+    "id": "air_q9",
+    "question": "Which areas of Almaty showed the highest pollution levels?",
+    "expected_answer": "Central and densely populated areas with heavy traffic and limited air circulation showed the highest pollution levels.",
+    "answer_type": "spatial_analysis"
+  },
+  {
+    "id": "air_q10",
+    "question": "How did traffic emissions compare to stationary sources in their contribution?",
+    "expected_answer": "Traffic emissions were a dominant contributor, though stationary sources also played a significant role, especially in winter.",
+    "answer_type": "comparison"
+  }
+]

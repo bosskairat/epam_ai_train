@@ -1,0 +1,62 @@
+[
+  {
+    "id": "hkr_q1",
+    "question": "What specific linguistic characteristic of the Kazakh alphabet distinguishes it from the Russian Cyrillic alphabet in the context of the HKR database?",
+    "expected_answer": "While both languages share 33 basic Cyrillic characters [cite: 11], the Kazakh alphabet contains 9 additional specific characters not found in the Russian alphabet[cite: 12].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "hkr_q2",
+    "question": "Describe the language distribution of the HKR database and the total volume of symbols it contains.",
+    "expected_answer": "The database is composed of approximately 95% Russian and 5% Kazakh words/sentences [cite: 9] and contains more than 715,699 symbols[cite: 15, 466].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "hkr_q3",
+    "question": "How did the researchers automate the generation of ground truth labels for the handwritten forms?",
+    "expected_answer": "The forms were generated using LaTeX and converted to PDF[cite: 13, 163]. Since the researchers knew the printed text, they saved the source text with a unique ID and cell number to automatically generate correct labels[cite: 409, 410].",
+    "answer_type": "technical_process"
+  },
+  {
+    "id": "hkr_q4",
+    "question": "What technical reasoning led the authors to recommend using a blue pen for filling out the forms?",
+    "expected_answer": "A blue pen allows the system to distinguish handwriting from the black table borders at the color level[cite: 446]. By converting from RGB to HSV, the blue color remains invariant to lighting intensity, aiding segmentation[cite: 447, 448].",
+    "answer_type": "technical_reasoning"
+  },
+  {
+    "id": "hkr_q5",
+    "question": "Explain the difference in composition between the TEST1 and TEST2 datasets used in the recognition experiments.",
+    "expected_answer": "TEST1 consisted of words that did not exist in the Training or Validation datasets [cite: 484], while TEST2 contained words present in the training set but written in entirely different handwriting styles[cite: 485].",
+    "answer_type": "methodology"
+  },
+  {
+    "id": "hkr_q6",
+    "question": "Compare the performance of the Attention-Gated-CNN-BGRU model between the two test sets using the Levenshtein CER metric.",
+    "expected_answer": "The model achieved an 8.34% Character Error Rate (CER) on TEST1 [cite: 488] and a nearly identical 8.36% CER on TEST2[cite: 488].",
+    "answer_type": "comparative_analysis"
+  },
+  {
+    "id": "hkr_q7",
+    "question": "What pre-processing steps are performed to isolate and 'cut out' cells from the filled forms?",
+    "expected_answer": "The steps include filtering to enhance boundaries [cite: 418], defining table contours [cite: 419], compensating for rotation angle [cite: 420], and exclusion of lines[cite: 420].",
+    "answer_type": "technical_process"
+  },
+  {
+    "id": "hkr_q8",
+    "question": "How does the CER calculation developed by the authors (CER*) differ from the standard Levenshtein CER calculation?",
+    "expected_answer": "The authors' CER* algorithm loops through results to count frequencies of characters and correct predictions[cite: 500]. It multiplies character-specific errors by the fraction of that character in the whole dataset to find a weighted average[cite: 505, 506].",
+    "answer_type": "technical_definition"
+  },
+  {
+    "id": "hkr_q9",
+    "question": "According to the paper, what historical database did the authors use as a reference for their data collection and storage principles?",
+    "expected_answer": "The researchers decided to adopt the general principles of data collection and storage described in the IAM Database[cite: 40, 408].",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "hkr_q10",
+    "question": "What specific geographic keyword categories were included to make the database relevant for the Republic of Kazakhstan?",
+    "expected_answer": "The list includes areas, cities, villages, settlements, and streets [cite: 172-177].",
+    "answer_type": "factoid"
+  }
+]

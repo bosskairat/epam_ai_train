@@ -79,7 +79,11 @@ async def upload_pdf(files: list[UploadFile] = File(...)):
 
         # Process PDF into chunks using existing PDFCleaner
         try:
-            cleaner = PDFCleaner(min_block_size=100, max_block_size=500)
+            # Baseline splitting method 
+            # cleaner = PDFCleaner(min_block_size=100, max_block_size=500)
+            # Improved splitting method with sentence-based chunks and overlap
+            cleaner = PDFCleaner(min_block_size=300, max_block_size=1000, overlap_sentences=2)
+
             chunks = cleaner.process_pdf(str(saved_path))
 
             # collect documents to ingest and per-file metadata for the final response

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "kohtd_q1",
+    "question": "What problem in handwritten text recognition does the KOHTD dataset specifically aim to address?",
+    "expected_answer": "It addresses the lack of publicly available datasets for offline handwritten text recognition in the Kazakh language.",
+    "answer_type": "problem_definition"
+  },
+  {
+    "id": "kohtd_q2",
+    "question": "Why is the creation of a Kazakh handwritten dataset important compared to using existing datasets?",
+    "expected_answer": "Because most existing handwritten datasets focus on Latin scripts and do not represent the linguistic and script-specific characteristics of Kazakh.",
+    "answer_type": "reasoning"
+  },
+  {
+    "id": "kohtd_q3",
+    "question": "Which script is used in the KOHTD dataset, and what challenges does it introduce?",
+    "expected_answer": "The dataset uses the Kazakh Cyrillic script, which introduces challenges such as a larger character set and script-specific handwriting variations.",
+    "answer_type": "factoid"
+  },
+  {
+    "id": "kohtd_q4",
+    "question": "What types of handwritten data are included in the KOHTD dataset?",
+    "expected_answer": "The dataset includes offline handwritten text samples such as characters, words, and text lines written in Kazakh.",
+    "answer_type": "descriptive"
+  },
+  {
+    "id": "kohtd_q5",
+    "question": "How was the data for KOHTD collected?",
+    "expected_answer": "Data was collected from multiple writers under controlled conditions to ensure diversity in handwriting styles.",
+    "answer_type": "methodology"
+  },
+  {
+    "id": "kohtd_q6",
+    "question": "What preprocessing or annotation steps were applied to the dataset?",
+    "expected_answer": "Handwritten samples were digitized, cleaned, segmented, and annotated with corresponding ground-truth labels.",
+    "answer_type": "process"
+  },
+  {
+    "id": "kohtd_q7",
+    "question": "How does KOHTD differ from datasets like MNIST or IAM?",
+    "expected_answer": "Unlike MNIST or IAM, KOHTD focuses on Kazakh Cyrillic handwritten text rather than digits or Latin-script handwriting.",
+    "answer_type": "comparison"
+  },
+  {
+    "id": "kohtd_q8",
+    "question": "What types of variability are present in the KOHTD dataset?",
+    "expected_answer": "Variability includes different writers, handwriting styles, stroke thicknesses, and natural noise from scanning.",
+    "answer_type": "analysis"
+  },
+  {
+    "id": "kohtd_q9",
+    "question": "For which tasks is the KOHTD dataset primarily intended?",
+    "expected_answer": "It is intended for offline handwritten character recognition, word recognition, and handwritten text recognition tasks.",
+    "answer_type": "application"
+  },
+  {
+    "id": "kohtd_q10",
+    "question": "How was the usefulness of the KOHTD dataset validated?",
+    "expected_answer": "By conducting baseline experiments using standard recognition models to demonstrate feasibility and benchmark performance.",
+    "answer_type": "evidence"
+  }
+]
