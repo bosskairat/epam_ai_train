@@ -39,12 +39,9 @@ class RAG:
             # Chat Model Setup
             self.chat_model = LocalHuggingFaceChatModel()
             # HyDE generator (uses the same chat model by default)
-            self.hyde = HyDE(llm=self.chat_model, include_original=False)
+            # self.hyde = HyDE(llm=self.chat_model, include_original=False)
             # Reranker (cross-encoder with fallback)
-            try:
-                self.reranker = Reranker()
-            except Exception:
-                self.reranker = None
+            # self.reranker = Reranker()
             print("✅ AI clients initialized.")
         except Exception as e:
             print(f"❌ Failed to initialize AI clients. Please check your .env file or model names. Error: {e}")
@@ -112,33 +109,33 @@ class RAG:
 
         # 2. Chain for Final Answer Generation (with RAG context)
         # Baseline prompt
-        # generation_prompt = ChatPromptTemplate.from_template(
-        #     "You are a factual assistant. "
-        #     "Your task is to answer the user's question based only on the provided context, "
-        #     "do not use common knowledge, do not correct mistakes in provided context. "
-        #     "Synthesize the information from the context into a concise, bullet-point summary. "
-        #     "Focus on specific details like names, numbers, and technical terms mentioned in the context. "
-        #     "If the context does not contain the information needed to answer the question, "
-        #     "you must state: 'The provided context does not contain the answer to this question.' "
-        #     "\n\nContext:\n{context}\n\nQuestion: {question}"
-        # )
-        # Improved prompt
         generation_prompt = ChatPromptTemplate.from_template(
-            "SYSTEM: You are an expert factual analyst. Your sole purpose is to answer the "
-            "user's question using only the provided context. \n\n"
-            
-            "RULES:\n"
-            "1. Only use the information provided in the Context. Never use external knowledge.\n"
-            "2. If the Context is insufficient, state exactly: 'The provided context does not contain the answer.'\n"
-            "3. Do not correct typos or factual errors within the Context; report them as written.\n"
-            "4. Prioritize technical terms, specific dates, names, and numerical data.\n"
-            "5. Provide a structured response: Start with a direct answer, followed by supporting bullet points.\n\n"
-            
-            "CONTEXT:\n{context}\n\n"
-            
-            "USER QUESTION: {question}\n\n"
-            "ASSISTANT ANSWER:"
+            "You are a factual assistant. "
+            "Your task is to answer the user's question based only on the provided context, "
+            "do not use common knowledge, do not correct mistakes in provided context. "
+            "Synthesize the information from the context into a concise, bullet-point summary. "
+            "Focus on specific details like names, numbers, and technical terms mentioned in the context. "
+            "If the context does not contain the information needed to answer the question, "
+            "you must state: 'The provided context does not contain the answer to this question.' "
+            "\n\nContext:\n{context}\n\nQuestion: {question}"
         )
+        # Improved prompt
+        # generation_prompt = ChatPromptTemplate.from_template(
+        #     "SYSTEM: You are an expert factual analyst. Your sole purpose is to answer the "
+        #     "user's question using only the provided context. \n\n"
+            
+        #     "RULES:\n"
+        #     "1. Only use the information provided in the Context. Never use external knowledge.\n"
+        #     "2. If the Context is insufficient, state exactly: 'The provided context does not contain the answer.'\n"
+        #     "3. Do not correct typos or factual errors within the Context; report them as written.\n"
+        #     "4. Prioritize technical terms, specific dates, names, and numerical data.\n"
+        #     "5. Provide a structured response: Start with a direct answer, followed by supporting bullet points.\n\n"
+            
+        #     "CONTEXT:\n{context}\n\n"
+            
+        #     "USER QUESTION: {question}\n\n"
+        #     "ASSISTANT ANSWER:"
+        # )
 
         answer_generation_chain = generation_prompt | self.chat_model | StrOutputParser()
 
@@ -152,7 +149,6 @@ class RAG:
         # Improve retrieval with HyDE
         # HyDE: generate a hypothetical document from the (expanded) query
         try:
-            hyde_doc = None
             if hasattr(self, 'hyde') and self.hyde is not None:
                 expanded_query = self.hyde.transform(expanded_query)
         except Exception as e:
@@ -167,7 +163,7 @@ class RAG:
         rag_collection = self.weaviate_client.collections.get(COLLECTION_NAME)
         retrieved_objects = rag_collection.query.near_vector(
             near_vector=query_embedding,
-            limit=15,
+            limit=10,
             return_metadata=wvc.query.MetadataQuery(distance=True)
         )
         retrieved_objects_list = list(retrieved_objects.objects)

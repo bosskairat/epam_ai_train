@@ -86,7 +86,7 @@ def evaluate_rag(dataset_path):
 if __name__ == "__main__":
     all_datasets_output = []
     all_scores = []
-    for dataset_path in glob.glob("data/test/*.json"):
+    for dataset_path in sorted(glob.glob("data/test/*.json")):
         print(f"Evaluating dataset: {dataset_path}")
         scores = evaluate_rag(dataset_path)
         avg_score = sum(r["score"] for r in scores) / len(scores) if scores else 0.0
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         "overall_average_score": overall_average,
     }
     print(f"Overall Average RAG Score (all datasets): {overall_average:.2f}")
-    with open("5_rag_evaluation_results_hyde.json", "w", encoding="utf-8") as f:
+    with open("eval/0_rag_evaluation_results_baseline.json", "w", encoding="utf-8") as f:
         json.dump(final_output, f, indent=2, ensure_ascii=False)
     # Close the Weaviate client once after all datasets processed
     my_rag.close_weaviate_client()

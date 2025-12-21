@@ -55,8 +55,8 @@
   },
   {
     "id": "hkr_q10",
-    "question": "What specific geographic keyword categories were included to make the database relevant for the Republic of Kazakhstan?",
-    "expected_answer": "The list includes areas, cities, villages, settlements, and streets [cite: 172-177].",
-    "answer_type": "factoid"
+    "question": "How did meteorological conditions affect the simulation results?",
+    "expected_answer": "The provided context does not contain the answer to this question.",
+    "answer_type": "out_of_scope"
   }
 ]

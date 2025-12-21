@@ -25,9 +25,9 @@
   },
   {
     "id": "kohtd_q5",
-    "question": "How was the data for KOHTD collected?",
-    "expected_answer": "Data was collected from multiple writers under controlled conditions to ensure diversity in handwriting styles.",
-    "answer_type": "methodology"
+    "question": "Define the 'Maximum Permissible Concentration' (MPC) as used in the study's evaluation.",
+    "expected_answer": "The provided context does not contain the answer to this question.",
+    "answer_type": "out_of_scope"
   },
   {
     "id": "kohtd_q6",
@@ -43,9 +43,9 @@
   },
   {
     "id": "kohtd_q8",
-    "question": "What types of variability are present in the KOHTD dataset?",
-    "expected_answer": "Variability includes different writers, handwriting styles, stroke thicknesses, and natural noise from scanning.",
-    "answer_type": "analysis"
+    "question": "How does the algorithm utilize color weights and the fitness function to determine the best path for line segmentation?",
+    "expected_answer": "The image is inverted so that white space has a weight of 1 and black text has a weight of 256. The fitness function calculates the sum of these values along the dividing line; a lower total value indicates a higher quality solution because it means the line is passing through white space rather than text.",
+    "answer_type": "technical_process"
   },
   {
     "id": "kohtd_q9",

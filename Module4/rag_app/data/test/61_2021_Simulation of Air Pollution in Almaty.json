@@ -49,9 +49,9 @@
   },
   {
     "id": "air_q9",
-    "question": "Which areas of Almaty showed the highest pollution levels?",
-    "expected_answer": "Central and densely populated areas with heavy traffic and limited air circulation showed the highest pollution levels.",
-    "answer_type": "spatial_analysis"
+    "question": "Explain the basic principles of Newton's Third Law to help me understand the physics mentioned in paragraph three.",
+    "expected_answer": "The provided context does not contain the answer to this question.",
+    "answer_type": "out_of_scope"
   },
   {
     "id": "air_q10",

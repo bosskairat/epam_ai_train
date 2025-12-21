@@ -1,14 +1,14 @@
 [
   {
     "id": "air_q1",
-    "question": "What specific meteorological condition was the focus of this simulation, and why is it problematic for Almaty?",
-    "expected_answer": "The study focused on 'calm' situations (low wind speeds of 0–1 m/s), which are problematic because they prevent the dispersion of pollutants, leading to high surface concentrations in the city[cite: 8, 11].",
-    "answer_type": "objective"
+    "question": "What happens to the urban heat island when the anticyclone weakens at night?",
+    "expected_answer": "The weakened anticyclone increases latitudinal transport in the north, which blows out warm air and reduces the heat island's intensity, making vegetation areas like parks and gardens visible as cooler spots.",
+    "answer_type": "factoid"
   },
   {
     "id": "air_q2",
-    "question": "According to the paper, which two main types of air pollution sources were accounted for in the modeling process?",
-    "expected_answer": "The model included stationary sources (such as industrial plants and thermal power stations) and mobile sources (motor vehicles)[cite: 31, 33].",
+    "question": "Which part of Almaty typically receives more heat during the daylight heat island effect, and what is the temperature difference recorded?",
+    "expected_answer": "The northern part of the city gets more heat during the day, with a temperature difference of 3-4°C covering the entire residential sector.",
     "answer_type": "factoid"
   },
   {
@@ -19,33 +19,33 @@
   },
   {
     "id": "air_q4",
-    "question": "What specific height was used for the calculation of surface concentrations in the simulation results?",
-    "expected_answer": "The surface concentrations were calculated at a height of 2 meters[cite: 104].",
-    "answer_type": "factoid"
+    "question": "Describe the transition from nocturnal conditions to the formation of anabatic airflows in Almaty as described in the simulation results. How does this transition affect the distribution of pollutants?",
+    "expected_answer": "In the early morning, cold air remains near the surface (surface inversion) with stagnant wind. As the sun heats the surface by noon, an elevated inversion forms that blocks vertical exchange, forcing heated, polluted air to rise slowly toward the mountains along the ground surface as an anabatic airflow.",
+    "answer_type": "technical_process"
   },
   {
     "id": "air_q5",
-    "question": "Explain the role of the 'roughness parameter' (z0) in the mathematical model described.",
-    "expected_answer": "The roughness parameter represents the aerodynamic properties of the underlying surface (city buildings or terrain) and is used to calculate the vertical profile of the wind speed and the coefficient of turbulent exchange[cite: 49, 53].",
-    "answer_type": "technical_definition"
+    "question": "According to the modeling of vertical profiles, what physical change occurs in the inversion layer between 12:00 and 15:00 local time, and what is the resulting effect on wind speed?",
+    "expected_answer": "Between 12:00 and 15:00, the lower border of the inversion layer rises by approximately 150–200 meters as the surface continues to heat, causing the mountain upward breeze (anabatic wind) to intensify to speeds of 1.5–2 m/sec.",
+    "answer_type": "factoid"
   },
   {
     "id": "air_q6",
-    "question": "What mathematical approach was used to solve the transport and diffusion equations for pollutants?",
-    "expected_answer": "The equations were solved using the method of splitting by physical processes and coordinate directions, utilizing an implicit finite-difference scheme[cite: 85, 87].",
-    "answer_type": "methodology"
+    "question": "Explain how the 'wind rose' at the Shimbulak station characterizes the prevailing local atmospheric movement and how this differs from the general 'calm' conditions of the Almaty city center.",
+    "expected_answer": "At Shimbulak, the prevailing wind is a westward slope wind characterized by gusty variations from 0 to 10 m/sec, whereas the city center frequently experiences 'calm' stagnant conditions with wind speeds under 1 m/s.",
+    "answer_type": "comparative_analysis"
   },
   {
     "id": "air_q7",
-    "question": "How did the simulation distinguish the behavior of carbon monoxide (CO) compared to nitrogen dioxide (NO2) in the results?",
-    "expected_answer": "The simulation showed that CO, primarily from motor vehicles, reached high concentrations along major highways, while NO2 concentrations were influenced by both transport and larger stationary sources like power plants[cite: 105, 126].",
-    "answer_type": "comparative_analysis"
+    "question": "Why is the 'mountain-valley circulation' significant to the modeling of Almaty's air quality?",
+    "expected_answer": "It creates a local wind system that changes direction between day and night, which determines the movement of the pollution plume between the mountains and the steppe[cite: 12, 13].",
+    "answer_type": "technical_reasoning"
   },
   {
     "id": "air_q8",
     "question": "What was the specified horizontal grid resolution used for the numerical experiments in Almaty?",
-    "expected_answer": "The numerical experiments used a grid with a horizontal step of 500 meters[cite: 102].",
-    "answer_type": "factoid"
+    "expected_answer": "The provided context does not contain the answer to this question.",
+    "answer_type": "out_of_scope"
   },
   {
     "id": "air_q9",
@@ -55,8 +55,8 @@
   },
   {
     "id": "air_q10",
-    "question": "Define the 'Maximum Permissible Concentration' (MPC) as used in the study's evaluation.",
-    "expected_answer": "The MPC is a regulatory limit used to evaluate air quality; the study found that pollutants like NO2 and CO often exceeded these limits in Almaty's center and near highways[cite: 105, 114].",
-    "answer_type": "technical_definition"
+    "question": "Based on the article's mentions of Project, what was the total budget allocated for the 2025 fiscal year?",
+    "expected_answer": "The provided context does not contain the answer to this question.",
+    "answer_type": "out_of_scope"
   }
 ]
