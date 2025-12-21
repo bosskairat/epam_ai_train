@@ -188,7 +188,20 @@ class RAG:
         })
         # print(f"**Answer to the original query, with RAG:**\n{final_answer}")
 
-        retrieved_docs_content_with_ref = [f"{obj.properties['content']} [{obj.properties['file']}]" for obj in retrieved_objects.objects]
+        # Build a displayable context using the already-extracted contents.
+        # If a reranking was performed, use `ranked` so file references match the
+        # reranked document order (ranked entries include the original index).
+        if 'ranked' in locals() and ranked:
+            retrieved_docs_content_with_ref = [
+                f"{r['doc']} [{retrieved_objects_list[r['index']].properties['file']}]"
+                for r in ranked
+            ]
+        else:
+            retrieved_docs_content_with_ref = [
+                f"{obj.properties['content']} [{obj.properties['file']}]"
+                for obj in retrieved_objects_list
+            ]
+
         context_for_show = "\n\n---\n\n".join(retrieved_docs_content_with_ref)
 
         return expanded_query, context_for_show, final_answer
