@@ -1,0 +1,349 @@
+{
+  "datasets": [
+    {
+      "dataset": "61_2021_Simulation of Air Pollution in Almaty.json",
+      "average_score": 62.5,
+      "results": [
+        {
+          "id": "air_q1",
+          "question": "What was the main objective of simulating air pollution in Almaty?",
+          "predicted_answer": "Here’s a bullet-point summary of the main objective of the simulation:\n\n*   To map the risks of air pollution over Almaty City under adverse weather conditions.\n*   The study aimed to assess the SO plume from the CHP-2 source in Almaty.\n*   The simulation was conducted to analyze atmospheric processes in the autumn-winter season.",
+          "expected_answer": "The main objective was to analyze and predict the spatial and temporal distribution of air pollutants in Almaty using simulation modeling.",
+          "score": 85,
+          "justification": "The model answer provides relevant details about the simulation's objectives, including mapping risks and assessing specific pollution sources. However, it lacks a clear statement about the overall aim of analyzing and predicting the distribution of air pollutants, which is central to the expected answer."
+        },
+        {
+          "id": "air_q2",
+          "question": "Which air pollutants were modeled in the study and why are they important?",
+          "predicted_answer": "The study modeled air pollutants, specifically SO concentration, during adverse weather conditions. These pollutants are important because they indicate the most typical situations and are analyzed to determine the highest level of pollution of the atmospheric surface layer over the city.",
+          "expected_answer": "Key air pollutants such as particulate matter and gaseous emissions were modeled because they have significant impacts on human health and air quality.",
+          "score": 70,
+          "justification": "The model answer correctly identifies SO concentration as a pollutant but lacks mention of other key pollutants like particulate matter and gaseous emissions. It also does not fully explain the importance of these pollutants in terms of human health and air quality, focusing instead on their role in specific weather conditions."
+        },
+        {
+          "id": "air_q3",
+          "question": "What were the major sources of air pollution considered in Almaty?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The major sources included vehicle traffic and stationary sources such as industrial facilities and heating systems.",
+          "score": 20,
+          "justification": "The model answer correctly identifies that the provided context does not contain the answer, but it fails to acknowledge the known major sources of air pollution in Almaty, which include vehicle traffic and stationary sources like industrial facilities and heating systems."
+        },
+        {
+          "id": "air_q4",
+          "question": "What type of modeling approach was used to simulate air pollution?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "A numerical air dispersion and simulation model was used to estimate pollutant concentrations across the city.",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer specifies a numerical air dispersion and simulation model, which is a factual and complete response."
+        },
+        {
+          "id": "air_q5",
+          "question": "What input data were required for the air pollution simulation?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "Input data included emission inventories, meteorological data, and geographical information about the city.",
+          "score": 20,
+          "justification": "The model answer correctly states that the provided context does not contain the answer, but it fails to address the question about the required input data for the air pollution simulation, which is a factual oversight."
+        },
+        {
+          "id": "air_q6",
+          "question": "How did meteorological conditions affect the simulation results?",
+          "predicted_answer": "Here’s a bullet-point summary of how meteorological conditions affected the simulation results, based solely on the provided context:\n\n*   Adverse weather conditions (e.g., strong wind) were reflected in the simulation results, leading to light, variable, and occasionally gusty wind speeds.\n*   The presence of the Siberian High and low-gradient highand low-pressure conditions significantly increased error estimates in the model simulations.\n*   The model simulations were influenced by the complex, dynamic pattern of local winds with low speeds, varying spatial distributions.\n*   The WRF-Chem model was used to analyze atmospheric processes, and the results were compared with observational data from eight weather stations in Almaty.",
+          "expected_answer": "Meteorological factors such as wind speed, wind direction, and temperature significantly influenced pollutant dispersion and accumulation.",
+          "score": 85,
+          "justification": "The model answer accurately reflects the influence of meteorological conditions on simulation results, mentioning specific factors like wind and pressure systems. However, it could be more concise and directly address the impact on pollutant dispersion and accumulation, which is central to the expected answer."
+        },
+        {
+          "id": "air_q7",
+          "question": "What seasonal trends in air pollution were identified?",
+          "predicted_answer": "Here’s a bullet-point summary of the identified seasonal trends in air pollution:\n\n*   The study identified trends in air pollution during the autumn-winter season.\n*   Sulfur dioxide (SO) levels increased during the autumn-winter season, particularly in Almaty.\n*   The study found a rise in SO levels from the CHP-2 source in Almaty during the autumn-winter period.",
+          "expected_answer": "Higher pollution levels were observed during colder seasons due to increased heating emissions and unfavorable dispersion conditions.",
+          "score": 70,
+          "justification": "The model answer provides specific details about sulfur dioxide levels in Almaty during the autumn-winter season, which aligns with the expected answer's focus on colder seasons and increased emissions. However, it lacks a broader context regarding overall pollution trends and does not mention the unfavorable dispersion conditions, which are key elements of the expected answer."
+        },
+        {
+          "id": "air_q8",
+          "question": "How were simulation results validated in the study?",
+          "predicted_answer": "Here’s a summary of how simulation results were validated, based on the provided text:\n\n*   The study used the information from the University of Wyoming database (http://weather.uwyo.edu/upperair/sounding.html) and the World Weather database (http://rp5.kz/docs/about/ru) to compare simulation results with ground-based observational data.\n*   The WRF-Chem model was chosen based on its statistical minimum deviation from observations at weather stations in Almaty and its proximity to the Russian Meteorology and Hydrology data.\n*   The statistical minimum deviation of simulation results from observations was used to determine the validity of the results.",
+          "expected_answer": "Simulation outputs were compared with data from air quality monitoring stations in Almaty.",
+          "score": 85,
+          "justification": "The model answer provides relevant details about the validation process, including the use of specific databases and the WRF-Chem model. However, it does not explicitly mention the comparison with air quality monitoring stations in Almaty, which is a key aspect of the expected answer."
+        },
+        {
+          "id": "air_q9",
+          "question": "What are the specific parameters for offspring generation and mutation in this Genetic Algorithm implementation?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The provided context does not contain the answer to this question.",
+          "score": 100,
+          "justification": "The model answer accurately reflects that the provided context does not contain the answer to the question regarding specific parameters for offspring generation and mutation in the Genetic Algorithm implementation."
+        },
+        {
+          "id": "air_q10",
+          "question": "What are the horizontal resolutions of the D1, D2, and D3 domains, and how is the coordinate system centered?",
+          "predicted_answer": "Here’s a summary of the provided context regarding the domain resolutions and coordinate system:\n\n*   **D1:** 9 km horizontal resolution\n*   **D2:** 3 km horizontal resolution\n*   **D3:** 1 km horizontal resolution\n*   The coordinate system is centered at the point of 43.24 N, 76.92 E.",
+          "expected_answer": "The D1, D2, and D3 grids have horizontal resolutions of 9 km, 3 km, and 1 km, respectively. The system uses a Lambert conic projection in Cartesian coordinates centered at 43.24° N and 76.92° E.",
+          "score": 90,
+          "justification": "The model answer accurately lists the horizontal resolutions for D1, D2, and D3 and correctly identifies the center of the coordinate system. However, it omits the detail about the Lambert conic projection, which is part of the expected answer."
+        }
+      ]
+    },
+    {
+      "dataset": "62_2021_Handwritten Kazakh and Russian HKR database.json",
+      "average_score": 70.0,
+      "results": [
+        {
+          "id": "hkr_q1",
+          "question": "What specific linguistic characteristic of the Kazakh alphabet distinguishes it from the Russian Cyrillic alphabet in the context of the HKR database?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "While both languages share 33 basic Cyrillic characters [cite: 11], the Kazakh alphabet contains 9 additional specific characters not found in the Russian alphabet[cite: 12].",
+          "score": 20,
+          "justification": "The model answer correctly identifies that the context does not contain the answer, but it fails to address the specific linguistic characteristic of the Kazakh alphabet compared to the Russian Cyrillic alphabet, which is the presence of 9 additional characters."
+        },
+        {
+          "id": "hkr_q2",
+          "question": "Describe the language distribution of the HKR database and the total volume of symbols it contains.",
+          "predicted_answer": "Here’s a concise summary of the language distribution and symbol volume of the HKR database, based on the provided text:\n\n*   **Language Distribution:** The HKR database primarily consists of Russian (approximately 95%) and Kazakh (approximately 5%) language data.\n*   **Total Symbol Volume:** The database contains approximately 310 volunteers, with 27 authors producing 7 pages each, and a total of 310 filled forms. It contains over 715699 symbols, including more than 1500 filled forms, approximately 63000 sentences, more than 715699 symbols, and approximately 106718 words.",
+          "expected_answer": "The database is composed of approximately 95% Russian and 5% Kazakh words/sentences [cite: 9] and contains more than 715,699 symbols[cite: 15, 466].",
+          "score": 60,
+          "justification": "The model answer correctly identifies the language distribution of the HKR database but introduces incorrect details about the number of volunteers, authors, and filled forms, which are not mentioned in the expected answer. Additionally, it repeats the symbol count but does not clarify the context of the numbers provided, leading to a lack of completeness and faithfulness to the source."
+        },
+        {
+          "id": "hkr_q3",
+          "question": "How did the researchers utilize the original source files of the printed forms to generate ground truth labels?",
+          "predicted_answer": "Here’s a summary of how the researchers utilized the original source files of the printed forms to generate ground truth labels, based solely on the provided context:\n\n*   **Scanning and Saving:** The researchers scanned the forms and letters, and the complete database was annotated.\n*   **LaTeX-Based Generation:** The database was generated by LaTeX, which subsequently was filled out by persons with their handwriting.\n*   **Data Collection Process:** The original source files were generated by LaTeX, then converted to PDF and printed to be filled by writers.",
+          "expected_answer": "The sources for all printed forms were saved in a text file alongside a unique ID for the form and the specific cell number. This allowed the system to automatically match the handwritten input in a cell to the known intended text from the source file.",
+          "score": 40,
+          "justification": "The model answer provides some relevant information about the process of generating the forms but fails to address how the original source files were specifically used to generate ground truth labels. It lacks the crucial detail about the unique ID and cell number matching, which is essential for understanding the ground truth label generation."
+        },
+        {
+          "id": "hkr_q4",
+          "question": "What technical reasoning led the authors to recommend using a blue pen for filling out the forms?",
+          "predicted_answer": "The authors recommended using a blue pen because it allows the system to distinguish the word from the table borders at the color level. This is achieved through converting an image from RGB to HSV, which is invariant with respect to lighting.",
+          "expected_answer": "A blue pen allows the system to distinguish handwriting from the black table borders at the color level[cite: 446]. By converting from RGB to HSV, the blue color remains invariant to lighting intensity, aiding segmentation[cite: 447, 448].",
+          "score": 80,
+          "justification": "The model answer is factually correct and captures the main idea of using a blue pen for color distinction. However, it lacks details about the specific benefits of HSV conversion and does not mention the invariance to lighting intensity, which affects completeness."
+        },
+        {
+          "id": "hkr_q5",
+          "question": "Explain the difference in composition between the TEST1 and TEST2 datasets used in the recognition experiments.",
+          "predicted_answer": "Here’s a concise summary of the differences between the TEST1 and TEST2 datasets:\n\n*   **TEST1:** Consisted of words that did not exist in the Training and Validation datasets.\n*   **TEST2:** Was made up of words that exist in the Training dataset but with totally different handwriting styles.",
+          "expected_answer": "TEST1 consisted of words that did not exist in the Training or Validation datasets [cite: 484], while TEST2 contained words present in the training set but written in entirely different handwriting styles[cite: 485].",
+          "score": 90,
+          "justification": "The model answer accurately captures the key differences between TEST1 and TEST2 datasets, maintaining factual correctness and completeness. However, it lacks citations which are important for faithfulness to the source."
+        },
+        {
+          "id": "hkr_q6",
+          "question": "Compare the performance of the Attention-Gated-CNN-BGRU model between the two test sets using the Levenshtein CER metric.",
+          "predicted_answer": "Here’s a bullet-point summary of the performance comparison between the Attention-Gated-CNN-BGRU model and the SimpleHTR model on the two test sets, based solely on the provided context:\n\n*   The Attention-Gated-CNN-BGRU model demonstrated the highest recognition rate overall across both test sets.\n*   The Attention-Gated-CNN-BGRU model had a lower CER (8.34%) and WER (16.5%) compared to the SimpleHTR model.\n*   The Attention-Gated-CNN-BGRU model’s CER and WER were significantly lower than the SimpleHTR model.",
+          "expected_answer": "The model achieved an 8.34% Character Error Rate (CER) on TEST1 [cite: 488] and a nearly identical 8.36% CER on TEST2[cite: 488].",
+          "score": 60,
+          "justification": "The model answer provides some relevant information about the Attention-Gated-CNN-BGRU model's performance but fails to directly address the comparison of CER between the two test sets as requested. It also introduces information about the SimpleHTR model that was not part of the original question, which affects its faithfulness to the source. Additionally, the specific CER values for TEST2 are not mentioned, leading to a lack of completeness."
+        },
+        {
+          "id": "hkr_q7",
+          "question": "What pre-processing steps are performed to isolate and 'cut out' cells from the filled forms?",
+          "predicted_answer": "Here’s a bullet-point summary of the pre-processing steps performed to isolate and ‘cut out’ cells from the filled forms:\n\n*   Filtering forms to enhance table boundaries.\n*   Defining the contours of the table.\n*   Determination and compensation of the angle of rotation.\n*   Exclusion of lines.\n*   Cropping and segmentation of cells based on vertical white space.\n*   Removing edge artifacts (e.g., line artifacts) by using histograms.",
+          "expected_answer": "The steps include filtering to enhance boundaries [cite: 418], defining table contours [cite: 419], compensating for rotation angle [cite: 420], and exclusion of lines[cite: 420].",
+          "score": 75,
+          "justification": "The model answer includes additional steps not mentioned in the expected answer, such as cropping and segmentation of cells and removing edge artifacts. While these may be relevant, they detract from the focus on the specific steps outlined in the expected answer, affecting completeness and faithfulness to the source."
+        },
+        {
+          "id": "hkr_q8",
+          "question": "How does the CER calculation developed by the authors (CER*) differ from the standard Levenshtein CER calculation?",
+          "predicted_answer": "The authors’ CER* calculation differs from the standard Levenshtein CER calculation in that it involves a loop through all results, counting character frequencies and correctly recognized characters, while the standard calculation simply sums the Levenshtein distances.",
+          "expected_answer": "The authors' CER* algorithm loops through results to count frequencies of characters and correct predictions[cite: 500]. It multiplies character-specific errors by the fraction of that character in the whole dataset to find a weighted average[cite: 505, 506].",
+          "score": 85,
+          "justification": "The model answer accurately describes the key difference between CER* and the standard Levenshtein CER calculation, focusing on the counting of character frequencies. However, it lacks detail about the weighted average calculation and the specific method of multiplying character-specific errors by their dataset fraction, which is important for completeness."
+        },
+        {
+          "id": "hkr_q9",
+          "question": "According to the paper, what historical database did the authors use as a reference for their data collection and storage principles?",
+          "predicted_answer": "The paper describes the use of the IAM Handwriting Database [39, 40] as a reference for their data collection and storage principles.",
+          "expected_answer": "The researchers decided to adopt the general principles of data collection and storage described in the IAM Database[cite: 40, 408].",
+          "score": 90,
+          "justification": "The model answer correctly identifies the IAM Handwriting Database as the reference used for data collection and storage principles, which aligns with the expected answer. However, it does not explicitly mention the adoption of 'general principles,' which slightly affects its completeness."
+        },
+        {
+          "id": "hkr_q10",
+          "question": "How did meteorological conditions affect the simulation results?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The provided context does not contain the answer to this question.",
+          "score": 100,
+          "justification": "The model answer accurately reflects the absence of relevant information in the provided context regarding how meteorological conditions affected the simulation results."
+        }
+      ]
+    },
+    {
+      "dataset": "63_2022_Modeling of the Calm Situations.json",
+      "average_score": 72.5,
+      "results": [
+        {
+          "id": "air_q1",
+          "question": "What happens to the urban heat island when the anticyclone weakens at night?",
+          "predicted_answer": "Here’s a concise bullet-point summary of what happens to the urban heat island when the anticyclone weakens at night, based solely on the provided text:\n\n*   The anticyclone weakening at night leads to a decrease in the intensity of the urban heat island.\n*   The heat island’s temperature difference increases, with the northern part of the city getting more heat while the southern part receives less.\n*   During the night, cold islands form in the northern part of the city.",
+          "expected_answer": "The weakened anticyclone increases latitudinal transport in the north, which blows out warm air and reduces the heat island's intensity, making vegetation areas like parks and gardens visible as cooler spots.",
+          "score": 60,
+          "justification": "The model answer captures some aspects of the expected answer, such as the decrease in intensity of the urban heat island, but it misrepresents the details regarding latitudinal transport and the formation of cold islands. It lacks clarity on the role of warm air being blown out and does not mention the visibility of cooler spots like parks and gardens."
+        },
+        {
+          "id": "air_q2",
+          "question": "Which part of Almaty typically receives more heat during the daylight heat island effect, and what is the temperature difference recorded?",
+          "predicted_answer": "During the daylight heat island effect, the city of Almaty typically receives more heat from the center of the city, with a temperature difference of approximately 10-20°C.",
+          "expected_answer": "The northern part of the city gets more heat during the day, with a temperature difference of 3-4°C covering the entire residential sector.",
+          "score": 30,
+          "justification": "The model answer incorrectly identifies the center of the city as the area receiving more heat, while the expected answer specifies the northern part. Additionally, the temperature difference stated (10-20°C) is significantly higher than the expected 3-4°C."
+        },
+        {
+          "id": "air_q3",
+          "question": "How did the researchers justify the use of a three-dimensional numerical model over a two-dimensional one for this study?",
+          "predicted_answer": "The researchers justified the use of a three-dimensional numerical model over a two-dimensional one for this study by stating that BEP 3D diffusive model, built on basic microphysical processes in the layer of urban development and underlying layer of the urban relief, is a good reflection of the impact of the infrastructure of Almaty on local meteorological processes in the stagnant conditions.",
+          "expected_answer": "A three-dimensional model was necessary to account for Almaty's complex terrain (mountains) and the vertical distribution of temperature and wind, which significantly influence pollutant transport[cite: 38, 40].",
+          "score": 70,
+          "justification": "The model answer provides some justification for using a three-dimensional model, mentioning the BEP 3D diffusive model and its relevance to urban infrastructure. However, it lacks specific details about the complex terrain and vertical distribution of temperature and wind, which are critical factors influencing pollutant transport, as noted in the expected answer."
+        },
+        {
+          "id": "air_q4",
+          "question": "Describe the transition from nocturnal conditions to the formation of anabatic airflows in Almaty as described in the simulation results. How does this transition affect the distribution of pollutants?",
+          "predicted_answer": "Here’s a bullet-point summary of the transition from nocturnal to anabatic airflows in Almaty, as described in the simulation results, and its effect on pollutant distribution:\n\n*   **Transition:** The simulation results indicate a shift from nocturnal conditions to anabatic airflows, particularly during the daytime.\n*   **Mechanism:** This transition is linked to the dynamics of the vertical profiles of potential temperature, with a southward-directed v-component of the wind velocity.\n*   **Effect on Pollutants:** The anabatic flow promotes the dispersion of pollutants towards greater overheating, contributing to the formation of “nested domain system” for the study area.\n*   **Impact on Distribution:** The increased heating due to the anabatic flow significantly alters the spatial distribution of pollutants, particularly in the northern part of the city.",
+          "expected_answer": "In the early morning, cold air remains near the surface (surface inversion) with stagnant wind. As the sun heats the surface by noon, an elevated inversion forms that blocks vertical exchange, forcing heated, polluted air to rise slowly toward the mountains along the ground surface as an anabatic airflow.",
+          "score": 85,
+          "justification": "The model answer accurately describes the transition from nocturnal conditions to anabatic airflows and mentions the effects on pollutant distribution. However, it lacks some detail about the surface inversion and the specific mechanisms of how pollutants are affected, which could enhance completeness and factual correctness."
+        },
+        {
+          "id": "air_q5",
+          "question": "According to the modeling of vertical profiles, what physical change occurs in the inversion layer between 12:00 and 15:00 local time, and what is the resulting effect on wind speed?",
+          "predicted_answer": "Here’s a bullet-point summary of the information provided regarding the inversion layer’s change and wind speed effect:\n\n*   **Change:** Between 12:00 and 15:00 local time, the inversion layer locks the vertical exchange, including turbulent diffusion of pollutants.\n*   **Effect on Wind Speed:** The wind speed increases significantly, becoming light, variable, and periodically gusting.",
+          "expected_answer": "Between 12:00 and 15:00, the lower border of the inversion layer rises by approximately 150–200 meters as the surface continues to heat, causing the mountain upward breeze (anabatic wind) to intensify to speeds of 1.5–2 m/sec.",
+          "score": 40,
+          "justification": "The model answer incorrectly describes the change in the inversion layer and its effects on wind speed. It fails to mention the specific rise of the inversion layer and the intensification of the anabatic wind, which are crucial details in the expected answer."
+        },
+        {
+          "id": "air_q6",
+          "question": "Explain how the 'wind rose' at the Shimbulak station characterizes the prevailing local atmospheric movement and how this differs from the general 'calm' conditions of the Almaty city center.",
+          "predicted_answer": "Here’s a summary of how the wind rose at the Shimbulak station characterizes the local movement and how it differs from the general calm conditions in the Almaty city center, based solely on the provided text:\n\n*   **Shimbulak Wind Rose:** The Shimbulak wind rose indicates a westward slope wind, consistent with the prevailing direction observed in the region. It also shows gusty winds, with variations from 0 to 10 m/sec, suggesting a dynamic and potentially turbulent atmospheric flow.\n\n*   **Almaty City Wind Rose:** The Almaty city center’s wind rose, as depicted in Fig. 9b, shows a close coincidence with the prevailing wind direction (northward and northnortheastward), indicating a consistent wind breeze.\n\n*   **Differences:** The Shimbulak wind rose reveals a more intense and fluctuating flow compared to the generally calmer conditions in the Almaty city center, highlighting a greater dynamic movement.",
+          "expected_answer": "At Shimbulak, the prevailing wind is a westward slope wind characterized by gusty variations from 0 to 10 m/sec, whereas the city center frequently experiences 'calm' stagnant conditions with wind speeds under 1 m/s.",
+          "score": 85,
+          "justification": "The model answer accurately describes the wind conditions at Shimbulak and contrasts them with the calm conditions in Almaty city center. However, it lacks specific mention of the wind speed under 1 m/s for the city center, which is a key detail from the expected answer."
+        },
+        {
+          "id": "air_q7",
+          "question": "Why is the 'mountain-valley circulation' significant to the modeling of Almaty's air quality?",
+          "predicted_answer": "Here’s a concise summary of why the ‘mountain-valley circulation’ is significant to the modeling of Almaty’s air quality, based solely on the provided text:\n\n*   **Inversion Layer Blocking:** The mountain-valley circulation plays a crucial role in modeling Almaty’s air quality because it creates an inversion layer, which blocks vertical exchange of pollutants.\n*   **High Pollution Levels:** This inversion layer contributes to the high levels of pollution observed in the city, particularly during anticyclone periods.\n*   **Temperature Inversions:** The circulation’s regularity and changes in intensity and direction further exacerbate the formation of temperature inversions, leading to the buildup of pollutants.",
+          "expected_answer": "It creates a local wind system that changes direction between day and night, which determines the movement of the pollution plume between the mountains and the steppe[cite: 12, 13].",
+          "score": 70,
+          "justification": "The model answer provides relevant information about the mountain-valley circulation's impact on air quality, including inversion layers and pollution levels. However, it does not directly address the specific aspect of the circulation changing direction between day and night, which is crucial to understanding the movement of the pollution plume as mentioned in the expected answer."
+        },
+        {
+          "id": "air_q8",
+          "question": "What was the specified horizontal grid resolution used for the numerical experiments in Almaty?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The provided context does not contain the answer to this question.",
+          "score": 100,
+          "justification": "The model answer correctly states that the provided context does not contain the answer to the question, which aligns with the expected answer."
+        },
+        {
+          "id": "air_q9",
+          "question": "What role does the 'inversion layer' play in the pollution levels described in the paper?",
+          "predicted_answer": "Here’s a bullet-point summary of the role of the inversion layer in the pollution levels described in the text:\n\n*   The inversion layer blocks vertical exchange, contributing to the formation of smog and pollutants.\n*   It is a dirty air layer, formed by the temperature inversion in the lower atmospheric layers.\n*   It plays a crucial role in suppressing vertical exchange and causing atmospheric air pollution.\n*   It intensifies during the day, rising above buildings and covering the entire city.\n*   It is linked to the formation of anabatic airflow, which contributes to the pollution cycle.",
+          "expected_answer": "The inversion layer acts as a 'lid' or barrier that traps pollutants near the surface by preventing vertical mixing, especially during calm weather[cite: 16, 125].",
+          "score": 85,
+          "justification": "The model answer accurately describes the role of the inversion layer in trapping pollutants and its effects on air quality. However, it could be more concise and focused on the key points mentioned in the expected answer, particularly the emphasis on the inversion layer acting as a barrier and its specific impact during calm weather."
+        },
+        {
+          "id": "air_q10",
+          "question": "Based on the article's mentions of Project, what was the total budget allocated for the 2025 fiscal year?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The provided context does not contain the answer to this question.",
+          "score": 100,
+          "justification": "The model answer accurately states that the provided context does not contain the answer to the question about the total budget allocated for the 2025 fiscal year, demonstrating factual correctness, completeness, and faithfulness to the source."
+        }
+      ]
+    },
+    {
+      "dataset": "64_2022_KOHTD Kazakh offline handwritten text dataset.json",
+      "average_score": 60.0,
+      "results": [
+        {
+          "id": "kohtd_q1",
+          "question": "What problem in handwritten text recognition does the KOHTD dataset specifically aim to address?",
+          "predicted_answer": "The KOHTD dataset specifically aims to address the challenge of recognizing handwritten Kazakh text in scanned documents.",
+          "expected_answer": "It addresses the lack of publicly available datasets for offline handwritten text recognition in the Kazakh language.",
+          "score": 80,
+          "justification": "The model answer is factually correct in identifying the challenge of recognizing handwritten Kazakh text, but it lacks completeness as it does not mention the specific issue of the lack of publicly available datasets for offline handwritten text recognition."
+        },
+        {
+          "id": "kohtd_q2",
+          "question": "Why is the creation of a Kazakh handwritten dataset important compared to using existing datasets?",
+          "predicted_answer": "Here’s a concise summary of why the creation of a Kazakh handwritten dataset is important, based solely on the provided text:\n\n*   Due to the lack of a dataset for handwritten Kazakh text, the development of a large dataset like KOHTD is crucial for addressing challenges in handwriting recognition, particularly in the Kazakh-Russian language.\n*   The KOHTD dataset is necessary to overcome the difficulty of handwriting recognition in the scanned documents due to the variability of handwriting and the presence of gaps.",
+          "expected_answer": "Because most existing handwritten datasets focus on Latin scripts and do not represent the linguistic and script-specific characteristics of Kazakh.",
+          "score": 70,
+          "justification": "The model answer correctly identifies the need for a Kazakh handwritten dataset but introduces specific details about the KOHTD dataset and challenges in handwriting recognition that were not mentioned in the original question. This affects its completeness and faithfulness to the source."
+        },
+        {
+          "id": "kohtd_q3",
+          "question": "Which script is used in the KOHTD dataset, and what challenges does it introduce?",
+          "predicted_answer": "The provided context does not contain information about the script used in the KOHTD dataset.",
+          "expected_answer": "The dataset uses the Kazakh Cyrillic script, which introduces challenges such as a larger character set and script-specific handwriting variations.",
+          "score": 20,
+          "justification": "The model answer is factually incorrect as it states that the provided context does not contain information about the script used in the KOHTD dataset, while the expected answer clearly identifies the Kazakh Cyrillic script and its associated challenges."
+        },
+        {
+          "id": "kohtd_q4",
+          "question": "What types of handwritten data are included in the KOHTD dataset?",
+          "predicted_answer": "Here’s a bullet-point summary of the handwritten data included in the KOHTD dataset:\n\n*   Approximately 922,010 symbols\n*   140,335 segmented images\n*   42 characters in Kazakh\n*   Handwritten exam papers (3000)\n*   A collection of Kazakh-Russian language documents.",
+          "expected_answer": "The dataset includes offline handwritten text samples such as characters, words, and text lines written in Kazakh.",
+          "score": 85,
+          "justification": "The model answer provides specific details about the dataset, including the number of symbols and segmented images, as well as the inclusion of Kazakh characters and handwritten exam papers. However, it introduces a collection of Kazakh-Russian language documents, which may not be explicitly stated in the expected answer, affecting its faithfulness to the source."
+        },
+        {
+          "id": "kohtd_q5",
+          "question": "Define the 'Maximum Permissible Concentration' (MPC) as used in the study's evaluation.",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The provided context does not contain the answer to this question.",
+          "score": 100,
+          "justification": "The model answer correctly states that the provided context does not contain the answer to the question about 'Maximum Permissible Concentration' (MPC), which aligns with the expected answer."
+        },
+        {
+          "id": "kohtd_q6",
+          "question": "What preprocessing or annotation steps were applied to the dataset?",
+          "predicted_answer": "Here’s a bullet-point summary of the preprocessing and annotation steps applied to the dataset:\n\n*   **Segmentation:** Words were segmented and normalized from the input scripts.\n*   **Intensity Feature Collection:** Intensity features were collected from each split word image.\n*   **Structure Feature Retrieval:** Number of subwords and diacritical marks were retrieved.\n*   **Classification Scheme:** A classification scheme was created based on the merged characteristics.\n*   **Annotations:** Volunteers filled out annotations very inattentively.\n*   **Neural Network Training:** A neural network was trained on an existing incomplete dataset to identify handwriting recognition.\n*   **Image Pre-processing:** Images were pre-processed and segmented.\n*   **Data Augmentation:** Data augmentation techniques were employed to mix TL with data augmentation effectively (DA).\n*   **Addressing Inaccurate Labeling:** Strategies were developed to counter the impacts of inaccurate training set labeling.",
+          "expected_answer": "Handwritten samples were digitized, cleaned, segmented, and annotated with corresponding ground-truth labels.",
+          "score": 60,
+          "justification": "The model answer includes relevant preprocessing steps but lacks clarity and focus on the specific steps mentioned in the expected answer. It introduces additional concepts like neural network training and data augmentation that are not directly related to the preprocessing and annotation of the dataset, leading to a lack of completeness and potential factual inaccuracies."
+        },
+        {
+          "id": "kohtd_q7",
+          "question": "How does KOHTD differ from datasets like MNIST or IAM?",
+          "predicted_answer": "The KOHTD dataset differs from datasets like MNIST and IAM in that it is specifically designed for Kazakh and Russian handwriting recognition, utilizing a 3000 handwritten exam papers and 140,335 segmented images. It’s a Kazakh-language offline dataset, unlike the MNIST and IAM datasets which focus on English language handwriting.",
+          "expected_answer": "Unlike MNIST or IAM, KOHTD focuses on Kazakh Cyrillic handwritten text rather than digits or Latin-script handwriting.",
+          "score": 85,
+          "justification": "The model answer is factually correct in stating that KOHTD is designed for Kazakh and Russian handwriting recognition and mentions the number of handwritten exam papers and segmented images. However, it could improve by explicitly stating that KOHTD focuses on Kazakh Cyrillic handwriting, which is a key distinction from MNIST and IAM, which focus on digits and Latin-script handwriting."
+        },
+        {
+          "id": "kohtd_q8",
+          "question": "How does the algorithm utilize color weights and the fitness function to determine the best path for line segmentation?",
+          "predicted_answer": "Here’s a summary of how the algorithm utilizes color weights and the fitness function to determine the best path for line segmentation, based solely on the provided text:\n\n*   **Color Weights:** The algorithm uses color weights to evaluate the “best” line segmentation path.\n*   **Fitness Function:** The fitness function is based on the sum of all horizontal and connecting lines. The algorithm aims to find the line that maximizes this sum, representing the most “complete” segmentation.",
+          "expected_answer": "The image is inverted so that white space has a weight of 1 and black text has a weight of 256. The fitness function calculates the sum of these values along the dividing line; a lower total value indicates a higher quality solution because it means the line is passing through white space rather than text.",
+          "score": 40,
+          "justification": "The model answer misrepresents the color weights and the fitness function. It incorrectly states that the fitness function aims to maximize the sum, while the expected answer indicates that a lower total value is preferred for better segmentation. Additionally, it lacks details about the inversion of colors and the specific weights assigned to white and black."
+        },
+        {
+          "id": "kohtd_q9",
+          "question": "For which tasks is the KOHTD dataset primarily intended?",
+          "predicted_answer": "Here’s a bullet-point summary of the KOHTD dataset’s primary intended tasks:\n\n*   It is intended for researchers in the field of handwriting recognition.\n*   It serves as a standard and pure dataset for evaluating and comparing different algorithms.\n*   It is designed to address challenging detection and recognition issues of handwritten Kazakh text in scanned documents.",
+          "expected_answer": "It is intended for offline handwritten character recognition, word recognition, and handwritten text recognition tasks.",
+          "score": 60,
+          "justification": "The model answer provides relevant information about the KOHTD dataset but does not directly address the specific tasks of offline handwritten character recognition, word recognition, and handwritten text recognition, which were the main focus of the expected answer."
+        },
+        {
+          "id": "kohtd_q10",
+          "question": "What were the hardware specifications of the machine used to conduct the recognition tests?",
+          "predicted_answer": "The provided context does not contain the answer to this question.",
+          "expected_answer": "The machine was equipped with 2x Intel(R) Xeon(R) E-5-2680 processors, 4x NVIDIA Tesla k20x graphics cards, and 100 GB of RAM.",
+          "score": 0,
+          "justification": "The model answer incorrectly states that the provided context does not contain the answer, while the expected answer clearly specifies the hardware specifications."
+        }
+      ]
+    }
+  ],
+  "overall_average_score": 66.25
+}

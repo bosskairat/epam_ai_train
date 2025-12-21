@@ -25,7 +25,7 @@ class HyDE:
         "Given the user question below, write a short hypothetical document "
         "that contains plausible facts and context that would help answer the question.\n\n"
         "Constraints:\n"
-        "- Write ONLY 3 to 5 complete sentences.\n"
+        "- Write ONLY 1 to 3 complete sentences.\n"
         "- Do NOT add explanations, lists, or extra commentary.\n"
         "- Do NOT mention that this is hypothetical.\n\n"
         "Question: {query}\n\n"

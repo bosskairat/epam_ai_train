@@ -38,33 +38,33 @@ class PDFCleaner:
         return text
 
     # Baseline splitting method
-    # def split_into_blocks(self, text: str) -> List[str]:
-    #     """Divides the text into semantic blocks of optimal length for RAG."""
-    #     paragraphs = re.split(r'\n{1,}|\.\s+', text)
-    #     blocks = []
-    #     current_block = ""
+    def _split_into_blocks(self, text: str) -> List[str]:
+        """Divides the text into semantic blocks of optimal length for RAG."""
+        paragraphs = re.split(r'\n{1,}|\.\s+', text)
+        blocks = []
+        current_block = ""
 
-    #     for para in paragraphs:
-    #         para = para.strip()
-    #         if not para:
-    #             continue
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
+                continue
 
-    #         if len(current_block) + len(para) < self.max_block_size:
-    #             current_block += para + ". "
-    #         else:
-    #             if len(current_block) >= self.min_block_size:
-    #                 blocks.append(current_block.strip())
-    #                 current_block = para + ". "
-    #             else:
-    #                 current_block += para + ". "
+            if len(current_block) + len(para) < self.max_block_size:
+                current_block += para + ". "
+            else:
+                if len(current_block) >= self.min_block_size:
+                    blocks.append(current_block.strip())
+                    current_block = para + ". "
+                else:
+                    current_block += para + ". "
 
-    #     if current_block:
-    #         blocks.append(current_block.strip())
+        if current_block:
+            blocks.append(current_block.strip())
 
-    #     return blocks
+        return blocks
     
     
-    # Improved splitting method with sentence-based chunks and overlap
+    # Splitting method with sentence-based chunks and overlap
     def split_into_blocks(self, text: str) -> List[str]:
         """Create sentence-based chunks with overlap for better retrieval.
 

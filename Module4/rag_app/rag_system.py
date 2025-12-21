@@ -39,9 +39,9 @@ class RAG:
             # Chat Model Setup
             self.chat_model = LocalHuggingFaceChatModel()
             # HyDE generator (uses the same chat model by default)
-            # self.hyde = HyDE(llm=self.chat_model, include_original=False)
+            self.hyde = HyDE(llm=self.chat_model, include_original=False)
             # Reranker (cross-encoder with fallback)
-            # self.reranker = Reranker()
+            self.reranker = Reranker()
             print("✅ AI clients initialized.")
         except Exception as e:
             print(f"❌ Failed to initialize AI clients. Please check your .env file or model names. Error: {e}")
@@ -119,7 +119,7 @@ class RAG:
             "you must state: 'The provided context does not contain the answer to this question.' "
             "\n\nContext:\n{context}\n\nQuestion: {question}"
         )
-        # Improved prompt
+        # New prompt, it's not improved results
         # generation_prompt = ChatPromptTemplate.from_template(
         #     "SYSTEM: You are an expert factual analyst. Your sole purpose is to answer the "
         #     "user's question using only the provided context. \n\n"
@@ -150,7 +150,7 @@ class RAG:
         # HyDE: generate a hypothetical document from the (expanded) query
         try:
             if hasattr(self, 'hyde') and self.hyde is not None:
-                expanded_query = self.hyde.transform(expanded_query)
+                expanded_query = self.hyde.transform(user_query)
         except Exception as e:
             print(f"⚠️ HyDE generation failed: {e}")
 
@@ -163,7 +163,7 @@ class RAG:
         rag_collection = self.weaviate_client.collections.get(COLLECTION_NAME)
         retrieved_objects = rag_collection.query.near_vector(
             near_vector=query_embedding,
-            limit=10,
+            limit=15,
             return_metadata=wvc.query.MetadataQuery(distance=True)
         )
         retrieved_objects_list = list(retrieved_objects.objects)

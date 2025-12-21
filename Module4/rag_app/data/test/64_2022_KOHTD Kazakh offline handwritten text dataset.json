@@ -55,8 +55,8 @@
   },
   {
     "id": "kohtd_q10",
-    "question": "How was the usefulness of the KOHTD dataset validated?",
-    "expected_answer": "By conducting baseline experiments using standard recognition models to demonstrate feasibility and benchmark performance.",
-    "answer_type": "evidence"
+    "question": "What were the hardware specifications of the machine used to conduct the recognition tests?",
+    "expected_answer": "The machine was equipped with 2x Intel(R) Xeon(R) E-5-2680 processors, 4x NVIDIA Tesla k20x graphics cards, and 100 GB of RAM.",
+    "answer_type": "factoid"
   }
 ]

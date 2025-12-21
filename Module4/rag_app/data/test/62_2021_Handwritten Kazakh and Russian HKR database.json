@@ -13,8 +13,8 @@
   },
   {
     "id": "hkr_q3",
-    "question": "How did the researchers automate the generation of ground truth labels for the handwritten forms?",
-    "expected_answer": "The forms were generated using LaTeX and converted to PDF[cite: 13, 163]. Since the researchers knew the printed text, they saved the source text with a unique ID and cell number to automatically generate correct labels[cite: 409, 410].",
+    "question": "How did the researchers utilize the original source files of the printed forms to generate ground truth labels?",
+    "expected_answer": "The sources for all printed forms were saved in a text file alongside a unique ID for the form and the specific cell number. This allowed the system to automatically match the handwritten input in a cell to the known intended text from the source file.",
     "answer_type": "technical_process"
   },
   {

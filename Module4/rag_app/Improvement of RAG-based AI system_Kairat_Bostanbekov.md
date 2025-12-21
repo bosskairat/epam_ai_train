@@ -1,66 +1,157 @@
-Evaluation Script
+# RAG System Evaluation Report
 
-The RAG evaluation script implements an automated LLM-as-a-judge approach to assess answer quality using a percentage-based scoring system (0–100%). For each question, the system compares the model-generated answer against a curated expected answer and evaluates it along three core dimensions: factual correctness, completeness, and faithfulness to the retrieved context. The evaluator LLM returns both a numeric score and a brief justification, enabling quantitative benchmarking as well as qualitative error analysis. This setup supports regression testing, comparison across retriever or prompt variants, and integration into CI pipelines, making it suitable for continuous RAG system improvement.
+## Overview
 
-0. Baseline overall average score is 49.0
+This report summarizes a series of controlled experiments conducted using the `evaluate_rag_openai.py` evaluation script. The goal was to assess the impact of prompt design, document splitting, reranking, and hypothetical document embeddings on overall RAG answer quality, as measured by an LLM-as-a-judge framework. Test questions and their corresponding expected answers are stored in the data/test/ directory. All original PDF documents used in the RAG experiments are preserved in the data/pdf/ directory
 
+The evaluation uses a **percentage-based scoring system (0–100%)**, where each answer is judged against a curated expected answer along three dimensions:
 
-1. Improved splitting method with sentence-based chunks and overlap
+* **Factual correctness**
+* **Completeness**
+* **Faithfulness to retrieved context**
 
-Change: Replaced paragraph splitting with sentence-based sliding-window chunking and added overlap_sentences parameter.
-How it works: Split into sentences, aggregate until max_block_size, ensure min_block_size when possible, then advance window with overlap to produce overlapping chunks.
-Benefits: Improves passage coherence and recall for RAG, reduces fragmentary answers, and lets you tune overlap to boost faithfulness.
-Defaults & recommendation: min_block_size 200–400 chars, max_block_size 800–1500 chars, overlap_sentences 1–3.
-Next steps: Run quick experiments on a few PDFs, compare retrieval accuracy and index size, then consider switching to token-based sizing for tighter LLM context control.
-cleaner = PDFCleaner(min_block_size=300, max_block_size=1000, overlap_sentences=2)
-Improved splitting method overall average score is 52.6
+The evaluator LLM outputs both a numeric score and a brief justification, enabling quantitative benchmarking and qualitative error analysis. This setup supports regression testing, ablation studies, and CI integration.
 
+All evaluation outputs, including per-question scores, justifications, and aggregated metrics, are automatically saved in the eval/ directory for traceability, regression analysis, and CI integration.
 
-2. Changed Prompt
+---
 
-generation_prompt = ChatPromptTemplate.from_template(
-    "SYSTEM: You are an expert factual analyst. Your sole purpose is to answer the "
-    "user's question using only the provided context. \n\n"
-    
-    "RULES:\n"
-    "1. Only use the information provided in the Context. Never use external knowledge.\n"
-    "2. If the Context is insufficient, state exactly: 'The provided context does not contain the answer.'\n"
-    "3. Do not correct typos or factual errors within the Context; report them as written.\n"
-    "4. Prioritize technical terms, specific dates, names, and numerical data.\n"
-    "5. Provide a structured response: Start with a direct answer, followed by supporting bullet points.\n\n"
-    
-    "CONTEXT:\n{context}\n\n"
-    
-    "USER QUESTION: {question}\n\n"
-    "ASSISTANT ANSWER:"
+## 0. Baseline Performance
+
+* **Baseline overall average score:** **66.25**
+
+This baseline reflects the original RAG configuration prior to prompt, chunking, or retrieval enhancements.
+
+---
+
+## 1. Prompt Change Experiment
+
+### Change Description
+
+The generation prompt was replaced with a highly restrictive, context-only prompt enforcing strict grounding rules:
+
+* Answers must rely **exclusively** on provided context
+* Explicit fallback response when context is insufficient
+* No correction of context errors
+* Structured output with a direct answer and bullet-point support
+
+### Observed Impact
+
+* **Overall average score:** **54.5** (↓ from 66.25)
+
+### Analysis
+
+The stricter prompt significantly reduced scores. A large fraction of responses correctly—but frequently—returned:
+
+> *“The provided context does not contain the answer.”*
+
+While this behavior improves **faithfulness**, it negatively impacts **completeness** and overall scoring under the current evaluation rubric. This suggests a misalignment between:
+
+* The evaluation criteria (which reward completeness), and
+* The prompt’s conservative refusal policy.
+
+### Key Insight
+
+Strict factual grounding increases safety and faithfulness but requires:
+
+* Better retrieval recall, or
+* Updated evaluation expectations that explicitly reward correct abstention.
+
+---
+
+## 2. Sentence-Based Chunking with Overlap
+
+### Change Description
+
+Paragraph-based splitting was replaced with sentence-level sliding-window chunking with overlap.
+
+**Configuration:**
+
+```python
+cleaner = PDFCleaner(
+    min_block_size=300,
+    max_block_size=1000,
+    overlap_sentences=1
 )
-The updated prompt improved the evaluation results, raising the overall average score to 58.30%.
+```
 
+**Mechanism:**
 
-3. The retrieval limit was reduced from 10 to 5:
-retrieved_objects = rag_collection.query.near_vector( near_vector=query_embedding, limit=5, return_metadata=wvc.query.MetadataQuery(distance=True) )
-However, this change did not improve the overall performance. The average evaluation score decreased to 44.40%, indicating reduced answer coverage despite higher precision.
+* Text is split into sentences
+* Sentences are aggregated until size constraints are met
+* Overlapping windows preserve local context continuity
 
+### Observed Impact
 
-4. Reranker Integration 
+* **Overall average score:** **64.125**
 
-A reranking stage was added to the RAG pipeline to improve the relevance of retrieved documents before answer generation. After the initial vector-based retrieval, the retrieved passages are reordered using a reranker that prioritizes semantic relevance to the expanded query. The system primarily employs a cross-encoder reranker (ms-marco-MiniLM-L-6-v2), which jointly encodes the query–document pairs to produce more accurate relevance scores. To ensure robustness, a fallback mechanism based on embedding cosine similarity is used when the cross-encoder is unavailable. Only the top-ranked documents (top-10) are passed to the generation stage, reducing contextual noise and improving answer grounding. This reranking step enhances retrieval precision and contributes to more faithful and focused RAG outputs.
-Overall average score is 48.70
+### Analysis
 
-5.Hypothetical Document Embeddings
+This approach improved contextual coherence and reduced fragmentary retrieval results compared to paragraph splitting. Although still slightly below the baseline, the results indicate improved recall and answer grounding, especially for multi-sentence facts.
 
- DEFAULT_PROMPT = (
-        "Given the user question below, write a short hypothetical document "
-        "that contains plausible facts and context that would help answer the question.\n\n"
-        "Constraints:\n"
-        "- Write ONLY 2 to 5 complete sentences.\n"
-        "- Do NOT add explanations, lists, or extra commentary.\n"
-        "- Do NOT mention that this is hypothetical.\n\n"
-        "Question: {query}\n\n"
-        "Hypothetical document:"
-    )
-verall average score is 51.00
+---
 
-6. Hypothetical Document Embeddings
-self.hyde = HyDE(llm=self.chat_model, include_original=False)
-Write ONLY 3 to 5 complete sentences
+## 3. Reranker Integration
+
+### Change Description
+
+A reranking stage was added after initial vector retrieval:
+
+* **Primary reranker:** `ms-marco-MiniLM-L-6-v2` (cross-encoder)
+* **Fallback:** embedding cosine similarity
+* **Selection:** top-10 documents passed to generation from top-15 retrieved
+
+### Observed Impact
+
+* **Overall average score:** **68.0**
+
+### Analysis
+
+Reranking significantly improved retrieval precision by reducing contextual noise and prioritizing semantically relevant passages. This led to more focused, faithful answers and surpassed the original baseline.
+
+### Key Benefit
+
+* Improved answer grounding without increasing prompt complexity
+* Robustness ensured via fallback mechanism
+
+---
+
+## 4. Hypothetical Document Embeddings (HyDE)
+
+### Change Description
+
+A hypothetical document generation prompt was introduced to enrich query embeddings prior to retrieval.
+
+**Key constraints:**
+
+* 1–3 sentences only
+* No meta-commentary
+* No mention of hypothetical nature
+
+### Observed Impact
+
+* **Overall average score:** **68.875** (best result)
+
+### Analysis
+
+HyDE improved recall by expanding sparse or underspecified queries into semantically richer representations. This enhancement worked particularly well in combination with reranking, leading to the highest observed overall score.
+
+---
+
+## Summary of Results
+
+| Configuration                      | Avg. Score |
+| ---------------------------------- | ---------- |
+| Baseline                           | 66.25      |
+| Strict Context-Only Prompt         | 54.5       |
+| Sentence-Based Chunking            | 64.125     |
+| + Reranker                         | 68.0       |
+| + Hypothetical Document Embeddings | **68.875** |
+
+---
+
+## Key Conclusions
+
+1. **Prompt strictness alone can degrade performance** if retrieval recall is insufficient or evaluation does not reward abstention.
+2. **Retrieval quality improvements (chunking, reranking, HyDE)** have a stronger positive impact than prompt changes.
+3. **Reranking and HyDE together outperform the baseline**, indicating that upstream retrieval enhancements are the highest-leverage interventions.

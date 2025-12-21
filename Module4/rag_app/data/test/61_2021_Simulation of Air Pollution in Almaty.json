@@ -49,14 +49,14 @@
   },
   {
     "id": "air_q9",
-    "question": "Explain the basic principles of Newton's Third Law to help me understand the physics mentioned in paragraph three.",
+    "question": "What are the specific parameters for offspring generation and mutation in this Genetic Algorithm implementation?",
     "expected_answer": "The provided context does not contain the answer to this question.",
     "answer_type": "out_of_scope"
   },
   {
     "id": "air_q10",
-    "question": "How did traffic emissions compare to stationary sources in their contribution?",
-    "expected_answer": "Traffic emissions were a dominant contributor, though stationary sources also played a significant role, especially in winter.",
-    "answer_type": "comparison"
+    "question": "What are the horizontal resolutions of the D1, D2, and D3 domains, and how is the coordinate system centered?",
+    "expected_answer": "The D1, D2, and D3 grids have horizontal resolutions of 9 km, 3 km, and 1 km, respectively. The system uses a Lambert conic projection in Cartesian coordinates centered at 43.24° N and 76.92° E.",
+    "answer_type": "factoid"
   }
 ]

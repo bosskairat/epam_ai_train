@@ -47,8 +47,8 @@ def evaluate_rag(dataset_path):
     pdf_path = os.path.join("data/pdf", os.path.basename(dataset_path).replace(".json", ".pdf"))
     # Baseline splitting method 
     # cleaner = PDFCleaner(min_block_size=100, max_block_size=500)
-    # Improved splitting method with sentence-based chunks and overlap
-    cleaner = PDFCleaner(min_block_size=300, max_block_size=1000, overlap_sentences=2)
+    # Splitting method with sentence-based chunks and overlap
+    cleaner = PDFCleaner(min_block_size=300, max_block_size=1000, overlap_sentences=1)
     chunks = cleaner.process_pdf(str(pdf_path))
 
     # collect documents to ingest into RAG
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         "overall_average_score": overall_average,
     }
     print(f"Overall Average RAG Score (all datasets): {overall_average:.2f}")
-    with open("eval/0_rag_evaluation_results_baseline.json", "w", encoding="utf-8") as f:
+    with open("eval/4_rag_evaluation_results_hyde2.json", "w", encoding="utf-8") as f:
         json.dump(final_output, f, indent=2, ensure_ascii=False)
     # Close the Weaviate client once after all datasets processed
     my_rag.close_weaviate_client()
