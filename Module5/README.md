@@ -1,39 +1,36 @@
-# Weather and News Query App
+# Weather & News Agent (Streamlit + MCP)
 
-This is a Python-based application using Streamlit that answers user questions about current weather conditions and latest news. It leverages agent orchestration patterns and Model Context Protocol (MCP) servers to integrate external data sources.
+## Overview
+This project is a Python-based AI agent that answers questions about:
+- Current weather conditions
+- Latest news headlines
 
-## Features
+It uses:
+- Streamlit for UI
+- Agent orchestration pattern
+- Model Context Protocol (MCP) for external tools
+- Open-Meteo and TheNews API (no API keys)
 
-- Query weather information using Open-Meteo (free, no API key)
-- Fetch latest news from BBC RSS feed (free, no API key)
-- Agent orchestration using LangChain with OpenAI
-- Streamlit web interface with conversation history
-- MCP server implementations for weather and news (in mcp_config/)
+## Architecture
+- Intent detection → Tool routing → Response aggregation
+- MCP servers standardize external data access
+- Supports multi-turn conversations
+
+## LLM Integration
+This project uses OpenAI GPT-4o-mini as the reasoning engine:
+- Intent detection
+- Entity extraction
+- Tool routing decisions
+- Final response synthesis
+
+External data access is performed exclusively via MCP servers.
 
 ## Setup
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set your OpenAI API key: `export OPENAI_API_KEY=your_key_here`
-3. Run the app: `streamlit run app.py`
 
-## Project Structure
 
-- `app.py`: Main Streamlit application
-- `agents/orchestrator.py`: LangChain agent with tools for weather and news
-- `mcp_config/`: MCP server implementations (weather_server.py, news_server.py)
-- `requirements.txt`: Python dependencies
-- `README.md`: This file
-
-## Usage
-
-- Enter questions like "What's the weather in New York?" or "Latest news headlines"
-- The agent will parse the query and fetch relevant data
-- Conversation history is maintained in the session
-
-## MCP Servers
-
-The project includes custom MCP servers for demonstration:
-- `weather_server.py`: Fetches weather from Open-Meteo
-- `news_server.py`: Fetches news from BBC RSS
-
-To run MCP servers separately: `python mcp_config/weather_server.py` (requires MCP SDK)
