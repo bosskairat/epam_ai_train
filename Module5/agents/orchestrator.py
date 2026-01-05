@@ -49,12 +49,16 @@ City name: "{city_name}"
     
 
     def handle(self, query: str, context: list):
-        intent = parse_intent(query)
+
+        # Build conversation history for LLM
+        history_text = ""
+        for msg in context[-5:]:  # last 5 messages
+            role = "User" if msg["role"] == "user" else "Assistant"
+            history_text += f"{role}: {msg['content']}\n"
+
+        # Parse intent
+        intent = parse_intent(query, history_text)
         tool_results = {}
-
-       
-
-        
 
         # Determine city from intent or last context
         city = intent.get("city")
@@ -62,7 +66,7 @@ City name: "{city_name}"
             # Look for last city mentioned in context
             for msg in reversed(context):
                 if msg["role"] == "user":
-                    prev_intent = parse_intent(msg["content"])
+                    prev_intent = parse_intent(msg["content"], history_text)
                     if prev_intent.get("city"):
                         city = prev_intent["city"]
                         break
@@ -94,12 +98,6 @@ City name: "{city_name}"
                 tool_results["news"] = news_result["data"]
             else:
                 tool_results["news_error"] = news_result["message"]
-
-        # Build conversation history for LLM
-        history_text = ""
-        for msg in context[-5:]:  # last 5 messages
-            role = "User" if msg["role"] == "user" else "Assistant"
-            history_text += f"{role}: {msg['content']}\n"
 
         # LLM synthesis prompt
         synthesis_prompt = f"""
