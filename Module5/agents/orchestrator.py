@@ -52,6 +52,10 @@ City name: "{city_name}"
         intent = parse_intent(query)
         tool_results = {}
 
+       
+
+        
+
         # Determine city from intent or last context
         city = intent.get("city")
         if not city:
@@ -75,13 +79,21 @@ City name: "{city_name}"
             days = self.get_days_from_intent(intent)        
             
             if lat is not None and lon is not None:
-                tool_results["weather"] = self.weather.get_weather(lat, lon, days)
+                weather_result = self.weather.get_weather(lat, lon, days)
+                if weather_result["ok"]:
+                    tool_results["weather"] = weather_result["data"]
+                else:
+                    tool_results["weather_error"] = weather_result["message"]
             else:
-                tool_results["weather"] = {"error": f"Coordinates not found for city '{city}'"}
+                tool_results["weather_error"] = {"error": f"Coordinates not found for city '{city}'"}
 
         # News MCP
         if intent.get("news"):
-            tool_results["news"] = self.news.latest(intent.get("news_topic"))
+            news_result = self.news.latest(intent.get("news_topic"))
+            if news_result["ok"]:
+                tool_results["news"] = news_result["data"]
+            else:
+                tool_results["news_error"] = news_result["message"]
 
         # Build conversation history for LLM
         history_text = ""
@@ -102,8 +114,13 @@ Current user question:
 
 Available tool data (JSON):
 {tool_results}
+If tool data contains *_error fields:
+- Explain politely that the service is temporarily unavailable
+- Do NOT invent data
+- Suggest retrying later
 
 Respond clearly, friendly, and concisely.
+
 """
 
         return self.llm.chat(

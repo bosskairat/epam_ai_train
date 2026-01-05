@@ -4,3 +4,4 @@ requests
 pydantic
 cachetools
 python-dotenv
+feedparser

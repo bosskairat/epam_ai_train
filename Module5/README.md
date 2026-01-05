@@ -101,12 +101,16 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Run the Streamlit app**
+4. **Environment Variables**
+Create a .env file in the project root directory and add your OpenAI API key:
+OPENAI_API_KEY=sk-your_api_key_here
+
+5. **Run the Streamlit app**
 ```bash
 streamlit run app.py
 ```
 
-5. **Open the web interface**
+6. **Open the web interface**
 - The app will open at `http://localhost:8501/` by default
 
 ---
