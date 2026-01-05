@@ -1,36 +1,17 @@
 import re
 from agents.intent import parse_intent
 from agents.llm import OpenAILLM
-from mcp_config.weather_mcp import WeatherMCP
+from mcp_config.weather_mcp import WeatherMCP, GeoMCP
 from mcp_config.news_mcp import NewsMCP
 
 
 class AgentOrchestrator:
     def __init__(self):
+        self.geo = GeoMCP()
         self.weather = WeatherMCP()
         self.news = NewsMCP()
         self.llm = OpenAILLM()
         self.city_cache = {}
-
-
-    def get_city_coords(self, city_name: str):
-        """
-        Ask the LLM for latitude and longitude of any city.
-        Returns (lat, lon) as floats, or None if unknown.
-        """
-        prompt = f"""
-You are a helpful assistant that converts a city name to geographic coordinates.
-Return ONLY JSON in the format: {{"latitude": float, "longitude": float}}
-
-City name: "{city_name}"
-"""
-        response = self.llm.chat(system="City to coordinates converter", user=prompt)
-
-        try:
-            coords = eval(response)  # simple JSON-like parsing
-            return coords["latitude"], coords["longitude"]
-        except Exception:
-            return None, None
 
 
     def get_days_from_intent(self, intent: dict) -> int:
@@ -52,7 +33,7 @@ City name: "{city_name}"
 
         # Build conversation history for LLM
         history_text = ""
-        for msg in context[-5:]:  # last 5 messages
+        for msg in context[-3:]:  # last 3 messages
             role = "User" if msg["role"] == "user" else "Assistant"
             history_text += f"{role}: {msg['content']}\n"
 
@@ -73,11 +54,13 @@ City name: "{city_name}"
 
         # Weather MCP
         if city and intent.get("weather"):
+            lat, lon = None, None
             if city in self.city_cache:
                 lat, lon = self.city_cache[city]
             else:
-                lat, lon = self.get_city_coords(city)
-                if lat is not None:
+                coords = self.geo.get_city_coords(city)
+                if coords["ok"]:
+                    lat, lon = coords["latitude"], coords["longitude"]
                     self.city_cache[city] = (lat, lon)
 
             days = self.get_days_from_intent(intent)        
@@ -112,10 +95,6 @@ Current user question:
 
 Available tool data (JSON):
 {tool_results}
-If tool data contains *_error fields:
-- Explain politely that the service is temporarily unavailable
-- Do NOT invent data
-- Suggest retrying later
 
 Respond clearly, friendly, and concisely.
 

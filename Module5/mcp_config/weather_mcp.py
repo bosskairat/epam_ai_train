@@ -33,3 +33,47 @@ class WeatherMCP:
             "data": result["data"]
         }
 
+
+class GeoMCP:
+    def __init__(self):
+        self.client = MCPClient("https://geocoding-api.open-meteo.com/v1")
+
+    def get_city_coords(self, city_name: str):
+        """
+        Get latitude and longitude of a city using Open-Meteo Geocoding API.
+        """
+        result = self.client.call(
+            "search",
+            {
+                "name": city_name,
+                "count": 1,
+                "language": "en",
+                "format": "json"
+            }
+        )
+
+        if not result["ok"]:
+            return {
+                "ok": False,
+                "message": "Geocoding service is temporarily unavailable"
+            }
+
+        data = result.get("data", {})
+        results = data.get("results", [])
+
+        if not results:
+            return {
+                "ok": False,
+                "message": f"City '{city_name}' not found"
+            }
+
+        city = results[0]
+
+        return {
+            "ok": True,
+            "latitude": city["latitude"],
+            "longitude": city["longitude"],
+            "name": city.get("name"),
+            "country": city.get("country")
+        }
+
