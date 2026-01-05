@@ -85,7 +85,7 @@ City name: "{city_name}"
 
         # Build conversation history for LLM
         history_text = ""
-        for msg in context[-10:]:  # last 10 messages
+        for msg in context[-5:]:  # last 5 messages
             role = "User" if msg["role"] == "user" else "Assistant"
             history_text += f"{role}: {msg['content']}\n"
 

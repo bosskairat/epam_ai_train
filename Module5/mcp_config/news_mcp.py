@@ -1,37 +1,28 @@
 import feedparser
 
+SOURCES = {
+    "astana_times": "https://astanatimes.com/feed/",
+    "qazmonitor": "https://en.qazmonitor.com/rss",
+    "kazakhstan_today": "https://www.kt.kz/eng/rss",
+}
+
 class NewsMCP:
-    """
-    MCP news client fetching top news from Astana Times RSS feed.
-    """
 
-    RSS_URL = "https://astanatimes.com/feed/"
-
-    def latest(self, topic: str | None = None, limit: int = 5):
-        """
-        Fetch latest news articles.
-
-        :param topic: Optional keyword to filter news
-        :param limit: Number of articles to return
-        :return: dict with 'data' key containing list of articles
-        """
-        feed = feedparser.parse(self.RSS_URL)
+    def latest(self, topic: str | None = None, limit: int = 3):
         articles = []
 
-        for entry in feed.entries:
-            title = entry.title
-            link = entry.link
-            summary = getattr(entry, "summary", "")  # some RSS items may have a summary
+        for source, url in SOURCES.items():
+            feed = feedparser.parse(url)
+            for entry in feed.entries[:limit]:
+                title = entry.get("title", "")
+                summary = entry.get("summary", "")
+                text = f"{title} {summary}".lower()
 
-            # filter by topic if provided
-            if topic is None or topic.lower() in title.lower() or topic.lower() in summary.lower():
-                articles.append({
-                    "title": title,
-                    "link": link,
-                    "summary": summary
-                })
-
-            if len(articles) >= limit:
-                break
+                if topic is None or topic.lower() in text:
+                    articles.append({
+                        "source": source,
+                        "title": title,
+                        "link": entry.get("link")
+                    })
 
         return {"data": articles}

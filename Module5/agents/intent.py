@@ -33,7 +33,6 @@ Query: "{user_query}"
 
 def parse_intent(user_query: str) -> dict:
     result = llm.chat(SYSTEM_PROMPT, user_query)
-    print(result)
 
     try:
         return json.loads(result)
