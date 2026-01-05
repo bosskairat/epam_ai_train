@@ -180,3 +180,5 @@ Assistant: Weather in Astana: ..., News: Top headlines about politics: ...
 
 ---
 
+The full implementation and evaluation code are available in the project repository:
+[https://github.com/bosskairat/epam_ai_train/tree/main/Module5](#)
