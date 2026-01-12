@@ -1,0 +1,242 @@
+{
+  "name": "HR assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        -224
+      ],
+      "id": "64090248-862b-42d5-9f28-d7315ff9c5a5",
+      "name": "Telegram Trigger",
+      "webhookId": "77370067-4d9e-4ed2-ab59-490b409d6e48",
+      "credentials": {
+        "telegramApi": {
+          "id": "zuPSxkQKQKLcCYrO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jlUrUWI-FZtsPB-Iv4KODgv3Os6zzZp0E-zRJDkR9Pw",
+          "mode": "list",
+          "cachedResultName": "module6",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jlUrUWI-FZtsPB-Iv4KODgv3Os6zzZp0E-zRJDkR9Pw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "spences",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jlUrUWI-FZtsPB-Iv4KODgv3Os6zzZp0E-zRJDkR9Pw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}",
+            "Query": "={{ $json.search_query }}",
+            "URL": "={{ $json.url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        -320
+      ],
+      "id": "51f69287-0984-4203-ad41-fb32743c4906",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "wRqsCTjHHhSNE3mx",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an HR assistant for hh.kz.\nGenerate a resume search query and filters.\nReturn ONLY valid JSON that strictly follows the provided schema.\nDo not include explanations or extra fields.\n\nEXPERIENCE RULES:\n- \"noExperience\" → 0 years\n- \"between1And3\" → 1–3 years\n- \"between3And6\" → 3–6 years\n- \"moreThan6\" → more than 6 years\nThe user with chat.id {{ $json[\"message\"][\"chat\"][\"id\"] }} asked:\n\"{{ $json[\"message\"][\"text\"] }}\"\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 200,
+          "textFormat": {
+            "textOptions": {
+              "type": "json_schema",
+              "name": "hh_search",
+              "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"chat_id\",\n    \"search_query\",\n    \"experience\",\n    \"schedule\",\n    \"location\"\n  ],\n  \"properties\": {\n    \"chat_id\": {\n      \"type\": \"integer\",\n      \"description\": \"Telegram chat ID of the user\"\n    },\n    \"search_query\": {\n      \"type\": \"string\",\n      \"description\": \"Keyword-based resume search query for hh.kz\"\n    },\n    \"experience\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"noExperience\",\n        \"between1And3\",\n        \"between3And6\",\n        \"moreThan6\"\n      ],\n      \"description\": \"Work experience filter according to hh.kz\"\n    },\n    \"schedule\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"fullDay\",\n        \"shift\",\n        \"flexible\",\n        \"remote\"\n      ],\n      \"description\": \"Work schedule or employment type\"\n    },\n    \"location\": {\n      \"type\": \"string\",\n      \"description\": \"Country or region for resume search\"\n    }\n  }\n}\n",
+              "strict": true
+            }
+          },
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        -224
+      ],
+      "id": "7410dada-9aff-4a54-a212-e7634e951f85",
+      "name": "Prepare query",
+      "credentials": {
+        "openAiApi": {
+          "id": "3L12mIZnweWG4DUC",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "pythonNative",
+        "pythonCode": "def build_hh_resume_search_url(search_query, experience, schedule, location):\n    \"\"\"\n    Build hh.kz resume search URL without any imports.\n    \"\"\"\n\n    # City → subdomain + area_id mapping\n    area_map = {\n        \"Astana\": {\"subdomain\": \"astana.\", \"id\": 159},\n        \"Almaty\": {\"subdomain\": \"almaty.\", \"id\": 160},\n        \"Shymkent\": {\"subdomain\": \"shymkent.\", \"id\": 221},\n    }\n\n    # fallback\n    area = area_map.get(location, {\"subdomain\": \"\", \"id\": None})\n\n    # simple URL encoding for spaces and basic symbols\n    def simple_encode(s):\n        return s.replace(\" \", \"+\").replace(\"#\", \"%23\").replace(\"&\", \"%26\")\n\n    encoded_query = simple_encode(search_query)\n\n    # base parameters\n    params = [\n        f\"text={encoded_query}\",\n        f\"schedule={schedule}\",\n        f\"experience={experience}\",\n        \"currency_code=KZT\",\n        \"ored_clusters=true\",\n        \"order_by=relevance\",\n        \"search_period=0\",\n        \"logic=normal\",\n        \"pos=full_text\",\n        \"exp_period=all_time\"\n    ]\n\n    # add area if exists\n    if area[\"id\"] is not None:\n        params.append(f\"area={area['id']}\")\n        params.append(\"isDefaultArea=true\")\n\n    # join all params\n    query_string = \"&\".join(params)\n\n    url = f\"https://{area['subdomain']}hh.kz/search/resume?{query_string}\"\n    return url\n\n\ninput = _item[\"json\"][\"output\"][0][\"content\"][0][\"text\"]\nparams = {\n    \"search_query\": input[\"search_query\"],\n    \"experience\": input[\"experience\"],\n    \"schedule\": input[\"schedule\"],\n    \"location\": input[\"location\"]\n}\nurl = build_hh_resume_search_url(**params)\n\nreturn {\"chat_id\": input[\"chat_id\"],\n        \"search_query\": input[\"search_query\"],\n        \"url\": url}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -224
+      ],
+      "id": "d401469f-3b30-4474-adf4-5c2a922b296d",
+      "name": "Build URL"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.url }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        -96
+      ],
+      "id": "32716c0b-09b9-4805-bc00-bf60a33c0769",
+      "name": "Send a text message",
+      "webhookId": "5ffc0ec0-3a21-427e-8ef9-ef359877a186",
+      "credentials": {
+        "telegramApi": {
+          "id": "zuPSxkQKQKLcCYrO",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare query": {
+      "main": [
+        [
+          {
+            "node": "Build URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build URL": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "bb94e526-d60f-49d4-b1e0-a2cb387c2e3e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ace580fb7925efc4ceb2dff2c569253cb86013c3422039b1d0f047c69e2678bc"
+  },
+  "id": "Oc4BHEW0J05rk4TC",
+  "tags": []
+}

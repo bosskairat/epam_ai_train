@@ -9,3 +9,7 @@ Module4/rag_app/__pycache__
 Module5/.env
 Module5/agents/__pycache__
 Module5/mcp_config/__pycache__
+Module6/n8n/.env
+Module6/n8n/playwright-api/app/__pycache__/
+Module6/emap-module6-20dbbae2881f.json
+Module6/ngrok_recovery_codes.txt
