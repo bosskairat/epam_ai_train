@@ -1,0 +1,53 @@
+flowchart TD
+    %% ===== Planning =====
+    P[1. Planning]
+    P --> P1[Define RBAC requirements]
+    P --> P2[Identify protected resources]
+    P --> P3[Create user stories & acceptance criteria]
+    P --> P4[Threat modeling]
+
+    P1 & P2 & P3 & P4 --> PG{Approval Gate}
+    PG -->|PM approves requirements\nSecurity approves model\nArchitect approves design| P_OUT[RBAC spec\nRole–permission matrix\nApproved stories]
+
+    %% ===== Development =====
+    P_OUT --> D[2. Development]
+    D --> D1[RBAC data model & migrations]
+    D --> D2[Role / Permission / Assignment APIs]
+    D --> D3[Authorization middleware]
+    D --> D4[Integrate RBAC into endpoints]
+    D --> D5[Admin UI for role management]
+
+    D1 & D2 & D3 & D4 & D5 --> DG{Approval Gate}
+    DG -->|Tech Lead verifies\nStandards met\nNo security shortcuts| D_OUT[RBAC backend services\nAdmin UI\nAPI docs]
+
+    %% ===== Code Review =====
+    D_OUT --> C[3. Code Review]
+    C --> C1[Peer review]
+    C --> C2[Security review]
+    C --> C3[Validate least privilege]
+    C --> C4[Review audit logging]
+
+    C1 & C2 & C3 & C4 --> CG{Approval Gate}
+    CG -->|Senior Dev approval\nSecurity sign-off| C_OUT[Approved PRs\nReview notes applied]
+
+    %% ===== Testing =====
+    C_OUT --> T[4. Testing]
+    T --> T1[Unit tests]
+    T --> T2[API access tests]
+    T --> T3[Integration tests]
+    T --> T4[UI role-based tests]
+    T --> T5[Privilege escalation tests]
+
+    T1 & T2 & T3 & T4 & T5 --> TG{Approval Gate}
+    TG -->|All tests pass\nNo critical defects\nSecurity approved| T_OUT[Test reports\nCoverage metrics\nVerified behavior]
+
+    %% ===== Deployment =====
+    T_OUT --> DEP[5. Deployment]
+    DEP --> DEP1[Deploy to staging]
+    DEP --> DEP2[Validate roles in staging]
+    DEP --> DEP3[Apply DB migrations]
+    DEP --> DEP4[Enable audit logs & monitoring]
+    DEP --> DEP5[Production rollout]
+
+    DEP1 & DEP2 & DEP3 & DEP4 & DEP5 --> DG2{Approval Gate}
+    DG2 -->|Staging sign-off\nChange approval\nProd approval| END[RBAC Live\nMonitoring dashboards\nChecklist complete]
