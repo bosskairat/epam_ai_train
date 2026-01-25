@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     %% ===== Planning =====
     P[1. Planning]
