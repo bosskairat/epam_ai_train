@@ -24,27 +24,12 @@ cd Module7/PT2
 npm install
 ```
 
-3. **Set up PostgreSQL database:**
-Create the table validation_rules:
-```sql
-CREATE TABLE validation_rules (
-    id SERIAL PRIMARY KEY,
-    field_name VARCHAR(50) NOT NULL,
-    rule_name VARCHAR(50) NOT NULL,
-    regex_pattern TEXT,
-    error_message VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+3. **Set up SQLite database:**
+```bash
+node scripts/init_db_from_sql.js
 ```
 
-4. **Configure .env:**
-```env
-DATABASE_URL=postgres://user:password@localhost:5432/yourdb
-PORT=3000
-```
-
-5. **Start the server:**
+4. **Start the server:**
 ```bash
 npm start
 ```
@@ -54,7 +39,7 @@ npm start
 ```javascript
 import { validateAll } from './validation.js';
 
-const result = validateAll({
+const result = validateEmail({
   email: 'test@example.com',
   password: 'Passw0rd!',
   phone: '+12345678900'

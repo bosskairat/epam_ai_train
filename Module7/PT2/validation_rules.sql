@@ -9,9 +9,10 @@ CREATE TABLE validation_rules (
 );
 
 INSERT INTO validation_rules (field_name, rule_name, regex_pattern, error_message)
-VALUES
+VALUES 
 ('email', 'valid_format', '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$', 'Invalid email format.'),
 ('password', 'min_length', '.{8,}', 'Password must be at least 8 characters long.'),
-('password', 'has_number', '.*\\d.*', 'Password must include at least one number.'),
-('password', 'has_special', '.*[!@#$%^&*].*', 'Password must include at least one special character.'),
-('phone', 'intl_format', '^\\+\\d{8,15}$', 'Phone number must be in international format.');
+('password', 'number_required', '\\d', 'Password must include at least one number.'),
+('password', 'special_char_required', '[!@#$%^&*(),.?":{}|<>]', 'Password must include at least one special character.'),
+('phone', 'international_format', '^\\+\\d{8,15}$', "Phone number must start with '+' followed by country code and be 8-15 digits.");
+

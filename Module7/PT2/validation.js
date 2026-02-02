@@ -28,7 +28,7 @@ export function validatePhone(phone) {
   if (!phone) errors.push('Phone number is required.');
   else {
     if (!phone.startsWith('+')) errors.push("Phone number must start with '+' followed by country code.");
-    if (!phoneRegex.test(phone)) errors.push('Phone number must contain only digits and be 8-15 digits long after "+".');
+    if (!phoneRegex.test(phone)) errors.push("Phone number must contain only digits and be 8-15 digits long after '+'.");
   }
   return { valid: errors.length === 0, errors };
 }
