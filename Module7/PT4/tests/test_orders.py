@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db import init_db, engine
-from sqlmodel import SQLModel, Session
+from sqlmodel import Session
 from app.db import DB_FILE
 from datetime import datetime, timedelta
 
@@ -73,7 +73,6 @@ def test_filter_by_amount_range():
 
 def test_filter_by_date_range():
     # create orders with specific dates by directly using DB session
-    from sqlmodel import Session
     from app.models import Order
     with Session(engine) as s:
         now = datetime.utcnow()

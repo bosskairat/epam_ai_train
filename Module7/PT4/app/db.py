@@ -1,9 +1,9 @@
-from sqlmodel import create_engine, Session, SQLModel
+from sqlmodel import create_engine, Session, SQLModel, select
 from typing import Generator
 from .models import Order
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 DB_FILE = os.path.join(os.path.dirname(__file__), "../orders.db")
 DB_URL = f"sqlite:///{DB_FILE}"
@@ -22,13 +22,13 @@ def init_db():
 def seed_data_if_empty(count: int = 50):
     init_db()
     with Session(engine) as session:
-        q = session.query(Order).limit(1).all()
+        q = session.exec(select(Order).limit(1)).all()
         if q:
             return
         statuses = [s for s in Order.__fields__["status"].type_.__members__.keys()] if False else None
         # fallback statuses
         statuses = ["created", "processing", "completed", "cancelled"]
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for i in range(count):
             order = Order(
                 status=random.choice(statuses),
