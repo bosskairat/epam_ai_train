@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Cucumber
+    implementation 'io.cucumber:cucumber-java:7.15.0'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.15.0'
+
+    // Selenium (For Browser Automation)
+    implementation 'org.seleniumhq.selenium:selenium-java:4.11.0'
+    implementation 'io.github.bonigarcia:webdrivermanager:5.5.3'
+
+    // RestAssured (For API testing)
+    implementation 'io.rest-assured:rest-assured:5.4.0'
+
+    // Log4j (For Logging)
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+
+    // ReportPortal (for integration with ReportPortal)
+    implementation 'com.epam.reportportal:logger-java-log4j:5.0.2'
+
+    // JUnit 5
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.junit.platform:junit-platform-suite:1.10.0'
+}
+
+test {
+    useJUnitPlatform()
+}
