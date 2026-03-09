@@ -1,0 +1,41 @@
+Test Case Identifier,Test Case Summary,Priority,Link to Requirement,State
+TC001,Verify that user can successfully add book review,Medium,Book Information,Blocked
+TC002,Verify that user can successfully view author details,Low,Book Information,Failed
+TC003,Verify that user can successfully view book details,Low,Book Information,Failed
+TC004,Verify that user can successfully view book reviews,Medium,Book Information,Failed
+TC005,Verify that user can view books in the same category,High,Book Information,Failed
+TC006,Verify that user can search for books by author,Medium,Book Search,Failed
+TC007,Verify that user can search for best-rated books,Medium,Book Search,Failed
+TC008,"Verify that user is unable to add ""not-in-stock""  book to the cart",High,Cart,Failed
+TC009,Verify that user can add a new shipping address,High,Checkout,Failed
+TC010,Verify that user can successfully make payment,High,Payment,Failed
+TC011,Verify that user can change password,Low,Authentication,Passed
+TC012,Verify that user can login to the website,High,Authentication,Passed
+TC013,Verify that user can reset password,Low,Authentication,Passed
+TC014,Verify that user can view privacy policy,Low,Authentication,Passed
+TC015,Verify that user can successfully view FAQ section,Low,Book Information,Passed
+TC016,Verify that user can successfully view publisher details,Low,Book Information,Passed
+TC017,Verify that user can view book recommendations,Medium,Book Information,Passed
+TC018,Verify that user can view new releases,Medium,Book Information,Passed
+TC019,Verify that user can view reviews for a book,Medium,Book Information,Passed
+TC020,Verify that user can update own review for a book,Medium,Book Information,Passed
+TC021,Verify that user can apply filters for search,Medium,Book Search,Passed
+TC022,Verify that user can search for a book by title,High,Book Search,Passed
+TC023,Verify that user can search for books by category,Medium,Book Search,Passed
+TC024,Verify that user can search for new releases,Medium,Book Search,Passed
+TC025,Verify that user can sort books by price,Medium,Book Search,Passed
+TC026,Verify that user can sort books by rating,Medium,Book Search,Passed
+TC027,Verify that user can view top-selling books,Medium,Book Search,Passed
+TC028,Verify that user can add a book to cart,High,Cart,Passed
+TC029,Verify that user can remove a book from cart,High,Cart,Passed
+TC030,Verify that user can move book from the cart to wishlist,High,Cart,Passed
+TC031,Verify that user can update the quantity of a book in the cart cart,High,Cart,Passed
+TC032,Verify that user can successfully checkout from a cart,Critical,Checkout,Passed
+TC033,Verify that user can delete a shipping address,High,Checkout,Passed
+TC034,Verify that user can edit an existing shipping address,High,Checkout,Passed
+TC035,Verify that user can successfully checkout from a main menu,High,Checkout,Passed
+TC036,Verify that user can view order details,High,Checkout,Passed
+TC037,Verify that user can cancel an order,High,Checkout,Passed
+TC038,Verify that user can successfully view the order history,Medium,User profile,Passed
+TC039,Verify that user can update profile details,Low,User profile,Passed
+TC040,Verify that user can view wishlist,High,User profile,Passed
