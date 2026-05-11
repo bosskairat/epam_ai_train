@@ -25,6 +25,9 @@ htmlcov/
 .idea/
 *.swp
 
+# Chat
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
