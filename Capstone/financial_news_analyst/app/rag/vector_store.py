@@ -12,6 +12,9 @@ Features:
 from __future__ import annotations
 import hashlib
 import json
+import os
+import shutil
+import sqlite3 as _sqlite3
 from datetime import datetime
 from typing import Optional
 import chromadb
@@ -28,9 +31,29 @@ COLLECTION_NAME = "financial_context"
 class VectorStore:
     """Thin wrapper around a ChromaDB persistent collection."""
 
+    def _make_client(self) -> chromadb.PersistentClient:
+        self._purge_if_incompatible()
+        return chromadb.PersistentClient(path=settings.CHROMA_PERSIST_DIR)
+
+    def _purge_if_incompatible(self) -> None:
+        """Check SQLite schema before ChromaDB opens the file. Purge if stale."""
+        db_path = os.path.join(settings.CHROMA_PERSIST_DIR, "chroma.sqlite3")
+        if not os.path.exists(db_path):
+            return
+        try:
+            con = _sqlite3.connect(db_path)
+            con.execute("SELECT topic FROM collections LIMIT 1")
+            con.close()
+        except _sqlite3.OperationalError:
+            con.close()
+            logger.warning(
+                "ChromaDB database schema is incompatible with the installed version. "
+                "Purging and recreating."
+            )
+            shutil.rmtree(settings.CHROMA_PERSIST_DIR, ignore_errors=True)
+
     def __init__(self):
-        # Persistent client – data survives restarts
-        self._client = chromadb.PersistentClient(path=settings.CHROMA_PERSIST_DIR)
+        self._client = self._make_client()
 
         # Use OpenAI embeddings if key is set, otherwise fall back to the
         # built-in sentence-transformers model (works offline)

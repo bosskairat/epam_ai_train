@@ -18,6 +18,9 @@ class Settings:
     MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "1024"))
     TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.3"))
 
+    # ── Market data ───────────────────────────────────────────────────────────
+    FINNHUB_API_KEY: str = os.getenv("FINNHUB_API_KEY", "")
+
     # ── News ──────────────────────────────────────────────────────────────────
     NEWS_API_KEY: str = os.getenv("NEWS_API_KEY", "")
 

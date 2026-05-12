@@ -1,86 +1,116 @@
 """
 app/tools/financial_tool.py
 -----------------------------
-Fetches live market data using yfinance.
-Returns structured JSON suitable for the Data Agent and RAG ingestion.
+Fetches live market data using the Finnhub API (free tier).
+
+Free-tier endpoints used:
+  /quote            — current price, prev close, day high/low, change %
+  /stock/profile2   — company name, market cap, industry
+
+Set FINNHUB_API_KEY in .env (https://finnhub.io/register).
 """
 
 from __future__ import annotations
-import json
 from datetime import datetime
 from typing import Optional
-import yfinance as yf
+import finnhub
+from app.core.config import settings
 from app.core.logger import get_logger, log_latency
 
 logger = get_logger(__name__)
+
+_client: Optional[finnhub.Client] = None
+
+
+def _get_client() -> finnhub.Client:
+    global _client
+    if _client is None:
+        _client = finnhub.Client(api_key=settings.FINNHUB_API_KEY)
+    return _client
+
+
+# Crypto tickers → Finnhub exchange-prefixed symbols
+_CRYPTO_MAP: dict[str, str] = {
+    "BTC-USD":  "BINANCE:BTCUSDT",
+    "ETH-USD":  "BINANCE:ETHUSDT",
+    "BNB-USD":  "BINANCE:BNBUSDT",
+    "SOL-USD":  "BINANCE:SOLUSDT",
+    "ADA-USD":  "BINANCE:ADAUSDT",
+    "XRP-USD":  "BINANCE:XRPUSDT",
+    "DOGE-USD": "BINANCE:DOGEUSDT",
+}
+
+
+def _resolve(ticker: str) -> tuple[str, bool]:
+    """Return (finnhub_symbol, is_crypto)."""
+    upper = ticker.upper()
+    if upper in _CRYPTO_MAP:
+        return _CRYPTO_MAP[upper], True
+    return upper, False
 
 
 @log_latency(logger)
 def fetch_market_data(ticker: str, period: str = "5d") -> dict:
     """
-    Retrieve price history + key info for a stock/crypto ticker.
+    Retrieve current price + company info for a stock/crypto ticker.
 
-    Args:
-        ticker: Symbol such as 'TSLA', 'BTC-USD', 'SPY'.
-        period: yfinance period string ('1d', '5d', '1mo', …).
-
-    Returns:
-        Structured dict with:
-          - ticker
-          - company_name
-          - current_price
-          - change_pct  (vs previous close)
-          - volume
-          - market_cap
-          - history     (list of OHLCV dicts for the period)
-          - fetched_at  (ISO timestamp)
+    Uses only Finnhub free-tier endpoints (/quote, /stock/profile2).
+    Returns a structured dict compatible with format_for_rag().
     """
-    logger.info(f"Fetching market data for {ticker} (period={period})")
+    logger.info(f"Fetching market data for {ticker} via Finnhub")
+
+    if not settings.FINNHUB_API_KEY:
+        logger.warning("FINNHUB_API_KEY not set — returning empty market data")
+        return _empty_result(ticker, error="FINNHUB_API_KEY not configured")
+
+    symbol, is_crypto = _resolve(ticker)
+    client = _get_client()
 
     try:
-        stock = yf.Ticker(ticker)
-        try:
-            info = stock.info or {}
-        except Exception as info_exc:
-            logger.warning(f"Could not fetch info for {ticker} (using price history only): {info_exc}")
-            info = {}
-        hist = stock.history(period=period)
+        # ── Quote (current price, prev close, day range) ──────────────────────
+        quote = client.quote(symbol)
+        current_price = quote.get("c")
+        prev_close    = quote.get("pc")
+        day_high      = quote.get("h")
+        day_low       = quote.get("l")
 
-        if hist.empty:
-            logger.warning(f"No history data for {ticker}")
-            return _empty_result(ticker, error="no history data returned")
+        if not current_price:
+            return _empty_result(ticker, error="no quote data returned")
 
-        latest = hist.iloc[-1]
-        prev_close = hist.iloc[-2]["Close"] if len(hist) > 1 else latest["Close"]
-        change_pct = ((latest["Close"] - prev_close) / prev_close * 100) if prev_close else 0.0
+        change_pct = quote.get("dp") or (
+            (current_price - prev_close) / prev_close * 100 if prev_close else 0.0
+        )
 
-        history_records = [
-            {
-                "date": str(idx.date()),
-                "open": round(row["Open"], 4),
-                "high": round(row["High"], 4),
-                "low": round(row["Low"], 4),
-                "close": round(row["Close"], 4),
-                "volume": int(row["Volume"]),
-            }
-            for idx, row in hist.iterrows()
-        ]
+        # ── Company profile (stocks only, best-effort) ────────────────────────
+        company_name = ticker
+        market_cap   = None
+        industry     = None
+
+        if not is_crypto:
+            try:
+                profile      = client.company_profile2(symbol=symbol)
+                company_name = profile.get("name") or ticker
+                mc           = profile.get("marketCapitalization")
+                market_cap   = int(mc * 1_000_000) if mc else None  # Finnhub gives millions
+                industry     = profile.get("finnhubIndustry")
+            except Exception as profile_exc:
+                logger.warning(f"Could not fetch profile for {ticker}: {profile_exc}")
 
         result = {
-            "ticker": ticker.upper(),
-            "company_name": info.get("longName") or info.get("shortName") or ticker,
-            "current_price": round(float(latest["Close"]), 4),
-            "change_pct": round(change_pct, 2),
-            "volume": int(latest["Volume"]),
-            "market_cap": info.get("marketCap"),
-            "sector": info.get("sector"),
-            "industry": info.get("industry"),
-            "pe_ratio": info.get("trailingPE"),
-            "52w_high": info.get("fiftyTwoWeekHigh"),
-            "52w_low": info.get("fiftyTwoWeekLow"),
-            "history": history_records,
-            "period": period,
-            "fetched_at": datetime.utcnow().isoformat(),
+            "ticker":        ticker.upper(),
+            "company_name":  company_name,
+            "current_price": round(float(current_price), 4),
+            "change_pct":    round(float(change_pct), 2),
+            "volume":        None,
+            "market_cap":    market_cap,
+            "sector":        None,
+            "industry":      industry,
+            "pe_ratio":      None,
+            "52w_high":      day_high,
+            "52w_low":       day_low,
+            "history":       [],
+            "period":        period,
+            "fetched_at":    datetime.utcnow().isoformat(),
         }
 
         logger.info(
@@ -88,6 +118,15 @@ def fetch_market_data(ticker: str, period: str = "5d") -> dict:
         )
         return result
 
+    except finnhub.FinnhubAPIException as exc:
+        if exc.status_code == 403:
+            logger.error(
+                f"Finnhub 403 for {ticker} — check FINNHUB_API_KEY in .env "
+                "(get a free key at https://finnhub.io/register)"
+            )
+            return _empty_result(ticker, error="Finnhub API key missing or invalid (403)")
+        logger.error(f"Finnhub API error for {ticker}: {exc}")
+        return _empty_result(ticker, error=str(exc))
     except Exception as exc:
         logger.error(f"Failed to fetch market data for {ticker}: {exc}")
         return _empty_result(ticker, error=str(exc))
@@ -95,15 +134,15 @@ def fetch_market_data(ticker: str, period: str = "5d") -> dict:
 
 def _empty_result(ticker: str, error: Optional[str] = None) -> dict:
     return {
-        "ticker": ticker.upper(),
-        "company_name": ticker,
+        "ticker":        ticker.upper(),
+        "company_name":  ticker,
         "current_price": None,
-        "change_pct": None,
-        "volume": None,
-        "market_cap": None,
-        "history": [],
-        "fetched_at": datetime.utcnow().isoformat(),
-        "error": error,
+        "change_pct":    None,
+        "volume":        None,
+        "market_cap":    None,
+        "history":       [],
+        "fetched_at":    datetime.utcnow().isoformat(),
+        "error":         error,
     }
 
 
@@ -114,12 +153,10 @@ def format_for_rag(data: dict) -> str:
 
     lines = [
         f"Ticker: {data['ticker']} ({data['company_name']})",
-        f"Price: ${data['current_price']} ({data['change_pct']:+.2f}% vs prev close)",
-        f"Volume: {data['volume']:,}" if data['volume'] else "Volume: N/A",
-        f"Market Cap: ${data['market_cap']:,}" if data['market_cap'] else "Market Cap: N/A",
-        f"Sector: {data.get('sector', 'N/A')} | Industry: {data.get('industry', 'N/A')}",
-        f"52W High: {data.get('52w_high')} | 52W Low: {data.get('52w_low')}",
-        f"P/E Ratio: {data.get('pe_ratio', 'N/A')}",
+        f"Price: {data['current_price']} ({data['change_pct']:+.2f}% vs prev close)",
+        f"Market Cap: {data['market_cap']:,}" if data["market_cap"] else "Market Cap: N/A",
+        f"Industry: {data.get('industry', 'N/A')}",
+        f"Day High: {data.get('52w_high')} | Day Low: {data.get('52w_low')}",
         f"As of: {data['fetched_at']}",
     ]
     return "\n".join(lines)

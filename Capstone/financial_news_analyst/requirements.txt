@@ -15,7 +15,7 @@ chromadb==0.4.24
 sentence-transformers==3.0.0
 
 # Financial Data
-yfinance==0.2.38
+finnhub-python==2.4.20
 
 # News
 requests==2.32.2

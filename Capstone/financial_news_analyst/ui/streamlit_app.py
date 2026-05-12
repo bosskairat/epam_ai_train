@@ -11,8 +11,11 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+import requests
 import streamlit as st
 import time
+
+API_BASE = "http://localhost:8000/api/v1"
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -70,14 +73,6 @@ st.markdown("""
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ⚙️ Settings")
-
-    use_api = st.checkbox("Use FastAPI backend", value=False,
-                          help="If unchecked, calls the pipeline directly in-process.")
-    st.session_state.setdefault("api_url", "http://localhost:8000/api/v1")
-    api_url = st.text_input("API URL", key="api_url", disabled=not use_api)
-
-    st.markdown("---")
     st.markdown("### 💡 Example Queries")
     examples = [
         "Why did Tesla stock drop today?",
@@ -87,16 +82,21 @@ with st.sidebar:
         "Give me an overview of AAPL and MSFT",
     ]
     for ex in examples:
-        if st.button(ex, key=ex, use_container_width=True):
-            st.session_state["query_input"] = ex
+        st.button(
+            ex, key=ex, use_container_width=True,
+            on_click=lambda q=ex: st.session_state.update({"query_input": q}),
+        )
 
     st.markdown("---")
     st.markdown("### 📊 RAG Store")
     if st.button("🔄 Refresh stats"):
         try:
-            from app.rag.vector_store import get_vector_store
-            count = get_vector_store().count()
+            resp = requests.get(f"{API_BASE}/rag/stats", timeout=5)
+            resp.raise_for_status()
+            count = resp.json().get("document_count", "?")
             st.success(f"📚 {count} documents in store")
+        except requests.exceptions.ConnectionError:
+            st.error("FastAPI server is not running.")
         except Exception as e:
             st.error(f"Error: {e}")
 
@@ -118,13 +118,14 @@ query = st.text_input(
     help="Max 500 characters. Prompt injection is blocked.",
 )
 
+def _clear_query():
+    st.session_state["query_input"] = ""
+
 col_btn, col_clear = st.columns([1, 5])
 with col_btn:
     analyze_clicked = st.button("🔍 Analyze", type="primary", use_container_width=True)
 with col_clear:
-    if st.button("✕ Clear"):
-        st.session_state["query_input"] = ""
-        st.rerun()
+    st.button("✕ Clear", on_click=_clear_query)
 
 
 # ── Pipeline execution ────────────────────────────────────────────────────────
@@ -142,36 +143,36 @@ if analyze_clicked and query.strip():
         state = None
         error = None
 
-        if use_api:
-            # ── Call FastAPI backend ──────────────────────────────────────────
-            import requests as req
-            try:
-                resp = req.post(
-                    f"{api_url}/analyze",
-                    json={"query": clean_query},
-                    timeout=60,
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                state = data
-            except Exception as e:
-                error = str(e)
-        else:
-            # ── In-process pipeline ───────────────────────────────────────────
-            try:
-                from app.agents.supervisor_agent import run_pipeline
-                state = run_pipeline(clean_query)
-            except Exception as e:
-                error = str(e)
+        try:
+            resp = requests.post(
+                f"{API_BASE}/analyze",
+                json={"query": clean_query},
+                timeout=60,
+            )
+            resp.raise_for_status()
+            state = resp.json()
+        except requests.exceptions.ConnectionError:
+            error = (
+                "Cannot connect to the FastAPI server. "
+                "Start it with:  uvicorn main:app --reload"
+            )
+        except requests.exceptions.HTTPError as e:
+            error = f"Server error {e.response.status_code}: {e.response.text}"
+        except Exception as e:
+            error = str(e)
 
         elapsed = time.perf_counter() - t0
 
     if error:
-        st.error(f"❌ Pipeline error: {error}")
+        st.error(f"❌ {error}")
         st.stop()
 
     if state:
         analysis = state.get("analysis", {})
+
+        def _md(text: str) -> str:
+            """Escape $ so Streamlit doesn't treat them as LaTeX delimiters."""
+            return str(text).replace("$", r"\$")
         tickers = state.get("tickers", [])
         rag_sources = state.get("rag_sources", [])
         token_usage = state.get("token_usage", {})
@@ -181,7 +182,7 @@ if analyze_clicked and query.strip():
         # ── Metrics row ───────────────────────────────────────────────────────
         m1, m2, m3, m4 = st.columns(4)
         with m1:
-            st.metric("⏱ Latency", f"{state.get('total_latency_s', round(elapsed,2))}s")
+            st.metric("⏱ Latency", f"{state.get('total_latency_s', round(elapsed, 2))}s")
         with m2:
             st.metric("🪙 Tokens Used", token_usage.get("total", "—"))
         with m3:
@@ -205,7 +206,7 @@ if analyze_clicked and query.strip():
 
         # ── Summary ───────────────────────────────────────────────────────────
         st.subheader("📋 Summary")
-        st.write(analysis.get("summary", "No summary generated."))
+        st.markdown(_md(analysis.get("summary", "No summary generated.")))
 
         # ── Key drivers / risk factors ────────────────────────────────────────
         col_left, col_right = st.columns(2)
@@ -213,7 +214,7 @@ if analyze_clicked and query.strip():
             st.subheader("🚀 Key Drivers")
             drivers = analysis.get("key_drivers", [])
             for d in drivers:
-                st.markdown(f"• {d}")
+                st.markdown(f"• {_md(d)}")
             if not drivers:
                 st.caption("None identified.")
 
@@ -221,13 +222,13 @@ if analyze_clicked and query.strip():
             st.subheader("⚠️ Risk Factors")
             risks = analysis.get("risk_factors", [])
             for r in risks:
-                st.markdown(f"• {r}")
+                st.markdown(f"• {_md(r)}")
             if not risks:
                 st.caption("None identified.")
 
         # ── Insight ───────────────────────────────────────────────────────────
         st.subheader("💡 Educational Insight")
-        st.info(analysis.get("insight", "No insight generated."))
+        st.info(_md(analysis.get("insight", "No insight generated.")))
 
         # ── Tickers ───────────────────────────────────────────────────────────
         if tickers:
@@ -244,7 +245,6 @@ if analyze_clicked and query.strip():
         else:
             st.caption("No RAG sources retrieved.")
 
-        # Also show sources_used from LLM output if present
         llm_sources = analysis.get("sources_used", [])
         if llm_sources:
             with st.expander("LLM-cited sources"):
