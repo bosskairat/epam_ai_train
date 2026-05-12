@@ -57,24 +57,24 @@ def health():
 
 @router.get("/rag/stats")
 def rag_stats():
-    """Return the number of documents stored in ChromaDB."""
+    """Return the number of documents stored in the vector store."""
     store = get_vector_store()
     return {"document_count": store.count()}
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
-def analyze(request: AnalyzeRequest):
+async def analyze(request: AnalyzeRequest):
     """
     Run the full multi-agent pipeline.
 
     - Validates and sanitises the query
-    - Invokes Supervisor → Data Agent → News Agent → Analysis Agent
+    - Invokes Supervisor → Data Agent (MCP) → News Agent (MCP) → Analysis Agent (MCP + OpenAI)
     - Returns structured analysis with source attribution
     """
     logger.info(f"[API] POST /analyze query='{request.query[:80]}'")
 
     try:
-        state = run_pipeline(request.query)
+        state = await run_pipeline(request.query)
     except Exception as exc:
         logger.error(f"[API] Pipeline error: {exc}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Pipeline error: {exc}")

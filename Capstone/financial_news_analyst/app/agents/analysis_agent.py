@@ -1,14 +1,11 @@
 """
 app/agents/analysis_agent.py
 ------------------------------
-Analysis Agent — the main LLM-powered reasoning agent.
+Analysis Agent — LLM-powered reasoning via OpenAI.
 
-Combines:
-  • Live market data (from Data Agent)
-  • Recent news articles (from News Agent)
-  • Historical context retrieved via RAG
-
-Generates a structured insight report using GPT-4o-mini.
+Ingests market data and news articles directly into the Qdrant in-memory
+vector store, retrieves relevant context, then calls gpt-4o-mini to
+synthesise a structured JSON insight report.
 
 ⚠ DISCLAIMER: Output is for educational/informational purposes only.
   It is NOT financial advice.
@@ -17,11 +14,12 @@ Generates a structured insight report using GPT-4o-mini.
 from __future__ import annotations
 import json
 import time
-from datetime import datetime
+
 from openai import OpenAI
-from app.rag.retriever import retrieve_context
 from app.core.config import settings
-from app.core.logger import get_logger, estimate_tokens, log_latency
+from app.core.logger import get_logger, estimate_tokens
+from app.rag.vector_store import get_vector_store
+from app.rag.retriever import retrieve_context
 
 logger = get_logger(__name__)
 
@@ -35,27 +33,25 @@ def _get_client() -> OpenAI:
     return _client
 
 
-# ── Prompt templates ──────────────────────────────────────────────────────────
-
 SYSTEM_PROMPT = """You are a financial research assistant.
 Your role is to synthesise market data, news headlines, and historical context
 into clear, structured investment research summaries.
 
 Rules:
 - Be factual, balanced, and concise.
-- Always cite the sources provided in the context.
+- For sources_used, extract the full URL from each "URL: ..." line in the context. Only include actual URLs (starting with http). Never use labels like "news", "market", or "pipeline".
 - NEVER give specific buy/sell recommendations or guarantee returns.
-- End every summary with: "⚠ This is not financial advice."
+- End every summary with: "This is not financial advice."
 - Respond ONLY in valid JSON matching the schema below.
 
 Response schema:
 {
-  "summary":       "<2-3 sentence overview>",
+  "summary":       "<5-7 sentence overview>",
   "sentiment":     "<Bullish | Bearish | Neutral | Mixed>",
   "key_drivers":   ["<driver 1>", "<driver 2>", ...],
   "risk_factors":  ["<risk 1>", "<risk 2>", ...],
   "insight":       "<1 paragraph educational insight>",
-  "sources_used":  ["<source 1>", ...],
+  "sources_used":  ["<https://...>", ...],
   "disclaimer":    "This is not financial advice."
 }
 """
@@ -65,38 +61,21 @@ def _build_user_prompt(
     query: str,
     market_data: dict,
     articles: list[dict],
-    rag_context: dict,
+    context_text: str,
 ) -> str:
-    """Assemble the full user-turn prompt from all data sources."""
+    market_block = (
+        "\n\n".join(
+            f"[{ticker}]\n{text}" for ticker, text in market_data.items() if text
+        )
+        or "No market data available."
+    )
 
-    # ── Market data block ────────────────────────────────────────────────────
-    market_block = "No market data available."
-    if market_data:
-        lines = []
-        for ticker, data in market_data.items():
-            if data.get("error"):
-                lines.append(f"• {ticker}: data unavailable ({data['error']})")
-            else:
-                lines.append(
-                    f"• {data.get('company_name', ticker)} ({ticker}): "
-                    f"${data.get('current_price')} "
-                    f"({data.get('change_pct', 0):+.2f}%) | "
-                    f"Vol: {data.get('volume', 'N/A')}"
-                )
-        market_block = "\n".join(lines)
+    news_block = (
+        "\n\n".join(a.get("text", "") for a in articles[:5] if a.get("text"))
+        or "No recent news found."
+    )
 
-    # ── News block ───────────────────────────────────────────────────────────
-    news_block = "No recent news found."
-    if articles:
-        news_lines = []
-        for a in articles[:5]:  # top 5 to stay within token budget
-            news_lines.append(
-                f"• [{a.get('source', '?')}] {a.get('title', '')} "
-                f"({a.get('published_at', '')[:10]})"
-            )
-        news_block = "\n".join(news_lines)
-
-    prompt = f"""User Question: {query}
+    return f"""User Question: {query}
 
 --- LIVE MARKET DATA ---
 {market_block}
@@ -104,17 +83,14 @@ def _build_user_prompt(
 --- RECENT NEWS ---
 {news_block}
 
---- HISTORICAL CONTEXT (RAG, {rag_context['doc_count']} docs retrieved) ---
-{rag_context['context_text']}
+--- HISTORICAL CONTEXT (RAG) ---
+{context_text}
 
 Based on ALL the above information, generate your structured JSON analysis.
 Remember to cite the sources provided."""
 
-    return prompt
 
-
-@log_latency(logger)
-def run(
+async def run(
     query: str,
     market_data: dict,
     articles: list[dict],
@@ -122,48 +98,53 @@ def run(
     """
     Entry point called by the Supervisor Agent.
 
-    Args:
-        query:       Original user question.
-        market_data: Output from Data Agent.
-        articles:    Output from News Agent.
-
     Returns:
         {
-          "analysis":      {...},   # parsed JSON from LLM
-          "rag_sources":   [...],
-          "token_usage":   {...},
-          "latency_s":     float,
+          "analysis":    {...},
+          "rag_sources": [...],
+          "token_usage": {...},
+          "latency_s":   float,
         }
     """
     logger.info(f"[AnalysisAgent] Running for query: '{query[:80]}'")
 
-    # ── RAG Retrieval ─────────────────────────────────────────────────────────
-    rag_context = retrieve_context(query)
-    logger.info(f"[AnalysisAgent] RAG retrieved {rag_context['doc_count']} docs")
+    # Ingest market data and news into the shared vector store
+    store = get_vector_store()
+    try:
+        for ticker, text in market_data.items():
+            if text and not text.startswith("[Market data unavailable"):
+                store.upsert([text], source_tag=f"market:{ticker}")
+        news_texts = [a.get("text", "") for a in articles if a.get("text")]
+        if news_texts:
+            store.upsert(news_texts, source_tag="news")
+    except Exception as exc:
+        logger.warning(f"[AnalysisAgent] RAG upsert failed: {exc}")
 
-    # ── Build prompt ──────────────────────────────────────────────────────────
-    user_prompt = _build_user_prompt(query, market_data, articles, rag_context)
+    # Retrieve relevant context from the vector store
+    try:
+        ctx = retrieve_context(query)
+        context_text = ctx.get("context_text", "No historical context available.")
+        rag_sources = ctx.get("sources", ["pipeline"])
+    except Exception as exc:
+        logger.warning(f"[AnalysisAgent] RAG retrieval failed: {exc}")
+        context_text = "No historical context available."
+        rag_sources = []
 
-    # Log prompt token estimate
+    user_prompt = _build_user_prompt(query, market_data, articles, context_text)
     prompt_tokens = estimate_tokens(SYSTEM_PROMPT + user_prompt)
     logger.info(f"[AnalysisAgent] Estimated prompt tokens: ~{prompt_tokens}")
-    logger.debug(f"[AnalysisAgent] Full prompt:\n{user_prompt}")
 
-    # ── LLM Call ──────────────────────────────────────────────────────────────
-    t0 = time.perf_counter()
-
+    # Graceful degradation without API key
     if not settings.OPENAI_API_KEY:
-        # Graceful degradation: return a stub response without a real API key
         logger.warning("[AnalysisAgent] No OPENAI_API_KEY – returning stub analysis")
-        analysis = _stub_analysis(query, market_data, articles, rag_context)
-        latency = time.perf_counter() - t0
         return {
-            "analysis": analysis,
-            "rag_sources": rag_context["sources"],
+            "analysis": _stub_analysis(query, market_data, articles),
+            "rag_sources": ["pipeline"],
             "token_usage": {"prompt": prompt_tokens, "completion": 0, "total": prompt_tokens},
-            "latency_s": round(latency, 3),
+            "latency_s": 0.0,
         }
 
+    t0 = time.perf_counter()
     client = _get_client()
     response = client.chat.completions.create(
         model=settings.LLM_MODEL,
@@ -175,10 +156,8 @@ def run(
             {"role": "user", "content": user_prompt},
         ],
     )
-
     latency = time.perf_counter() - t0
 
-    # ── Parse response ────────────────────────────────────────────────────────
     raw_text = response.choices[0].message.content or "{}"
     logger.debug(f"[AnalysisAgent] Raw LLM output:\n{raw_text}")
 
@@ -190,42 +169,36 @@ def run(
 
     usage = response.usage
     token_info = {
-        "prompt": usage.prompt_tokens if usage else prompt_tokens,
+        "prompt":     usage.prompt_tokens if usage else prompt_tokens,
         "completion": usage.completion_tokens if usage else 0,
-        "total": usage.total_tokens if usage else prompt_tokens,
+        "total":      usage.total_tokens if usage else prompt_tokens,
     }
 
-    logger.info(
-        f"[AnalysisAgent] Done — latency={latency:.2f}s | tokens={token_info}"
-    )
-
+    logger.info(f"[AnalysisAgent] Done — latency={latency:.2f}s | tokens={token_info}")
     return {
-        "analysis": analysis,
-        "rag_sources": rag_context["sources"],
+        "analysis":    analysis,
+        "rag_sources": rag_sources,
         "token_usage": token_info,
-        "latency_s": round(latency, 3),
+        "latency_s":   round(latency, 3),
     }
 
 
-# ── Stub for offline / no-key mode ────────────────────────────────────────────
-
-def _stub_analysis(query, market_data, articles, rag_context) -> dict:
-    """Return a plausible stub when no OpenAI key is configured."""
+def _stub_analysis(query: str, market_data: dict, articles: list[dict]) -> dict:
     tickers = list(market_data.keys())
     return {
         "summary": (
             f"Analysis for '{query}'. "
             f"Live data retrieved for: {', '.join(tickers) or 'N/A'}. "
-            f"{len(articles)} news articles and {rag_context['doc_count']} RAG docs processed. "
+            f"{len(articles)} news articles processed. "
             "(OpenAI key not set — this is a stub response.)"
         ),
         "sentiment": "Neutral",
-        "key_drivers": ["Market data successfully fetched", "News articles retrieved"],
+        "key_drivers": ["Market data successfully fetched via MCP", "News articles retrieved via MCP"],
         "risk_factors": ["OpenAI API key not configured", "Stub mode active"],
         "insight": (
             "Set OPENAI_API_KEY in your .env file to enable full LLM-powered analysis. "
-            "The data pipeline (yfinance + news + RAG) is fully operational."
+            "The MCP data pipeline (market + news) is fully operational."
         ),
-        "sources_used": rag_context["sources"],
+        "sources_used": ["pipeline"],
         "disclaimer": "This is not financial advice.",
     }

@@ -1,48 +1,42 @@
 """
 app/agents/news_agent.py
 -------------------------
-News Agent — fetches recent financial news and ingests it into ChromaDB.
+News Agent — fetches recent financial news via the news MCP server.
 
 Responsibilities:
-  1. Build a news search query from the user question.
-  2. Fetch articles via news_tool (NewsAPI → RSS fallback).
-  3. Store each article snippet in the vector store.
-  4. Return structured article list to the Supervisor.
+  1. Build a focused search query from the user question + tickers.
+  2. Call news_server.py (MCP) to fetch articles.
+  3. Return article snippets to the Supervisor.
+
+RAG ingestion is handled downstream by analysis_agent directly.
 """
 
 from __future__ import annotations
-from app.tools.news_tool import fetch_news, format_for_rag
-from app.rag.vector_store import get_vector_store
-from app.core.logger import get_logger, log_latency
+import sys
+from pathlib import Path
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+NEWS_SERVER = Path(__file__).parent.parent / "mcp_servers" / "news_server.py"
+ARTICLE_SEPARATOR = "\n\n---\n\n"
+
 
 def _build_search_query(user_query: str, tickers: list[str]) -> str:
-    """
-    Construct a focused news search string by combining the user question
-    with identified ticker symbols.
-    """
-    # Add ticker symbols so news is financially relevant
     ticker_terms = " OR ".join(tickers[:3]) if tickers else ""
     combined = f"{user_query} {ticker_terms}".strip()
-    # Trim to NewsAPI's query length limit
     return combined[:500]
 
 
-@log_latency(logger)
-def run(query: str, tickers: list[str] | None = None) -> dict:
+async def run(query: str, tickers: list[str] | None = None) -> dict:
     """
     Entry point called by the Supervisor Agent.
 
-    Args:
-        query:   Original user question.
-        tickers: Ticker symbols identified by the Data Agent.
-
     Returns:
         {
-          "articles":     [...],   # raw article dicts
-          "rag_ingested": int,
+          "articles": [{"text": "<formatted snippet>"}, ...],
         }
     """
     logger.info(f"[NewsAgent] Running for query: '{query[:80]}'")
@@ -50,25 +44,20 @@ def run(query: str, tickers: list[str] | None = None) -> dict:
     tickers = tickers or []
     search_query = _build_search_query(query, tickers)
 
-    articles = fetch_news(search_query, max_articles=8)
+    params = StdioServerParameters(command=sys.executable, args=[str(NEWS_SERVER)])
+    async with stdio_client(params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            try:
+                result = await session.call_tool(
+                    "fetch_financial_news",
+                    {"query": search_query, "max_articles": 8},
+                )
+                raw = result.content[0].text if result.content else ""
+            except Exception as exc:
+                logger.warning(f"[NewsAgent] MCP call failed: {exc}")
+                raw = ""
 
-    # Prepare text snippets for RAG
-    snippets = format_for_rag(articles)
-    metadatas = [
-        {"source": a.get("source", "unknown"), "published_at": a.get("published_at", "")}
-        for a in articles
-    ]
-
-    store = get_vector_store()
-    ingested = store.upsert(
-        texts=snippets,
-        metadatas=metadatas,
-        source_tag="news",
-    )
-
-    logger.info(f"[NewsAgent] Done — {len(articles)} articles, {ingested} docs ingested")
-
-    return {
-        "articles": articles,
-        "rag_ingested": ingested,
-    }
+    articles = [{"text": a.strip()} for a in raw.split(ARTICLE_SEPARATOR) if a.strip()]
+    logger.info(f"[NewsAgent] Done — {len(articles)} articles fetched")
+    return {"articles": articles}

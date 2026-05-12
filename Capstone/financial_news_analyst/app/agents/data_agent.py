@@ -1,24 +1,28 @@
 """
 app/agents/data_agent.py
 -------------------------
-Data Agent — fetches live market data and ingests it into the vector store.
+Data Agent — fetches live market data via the market MCP server.
 
 Responsibilities:
-  1. Extract ticker symbols from a user query.
-  2. Call yfinance via financial_tool.
-  3. Store a text snippet in ChromaDB for future RAG retrieval.
-  4. Return structured market data to the Supervisor.
+  1. Extract ticker symbols from a user query (heuristic).
+  2. Call market_server.py (MCP) for each ticker.
+  3. Return structured market data text to the Supervisor.
+
+RAG ingestion is handled downstream by analysis_agent directly.
 """
 
 from __future__ import annotations
 import re
-from app.tools.financial_tool import fetch_market_data, format_for_rag
-from app.rag.vector_store import get_vector_store
-from app.core.logger import get_logger, log_latency
+import sys
+from pathlib import Path
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Well-known ticker aliases in natural language
+MARKET_SERVER = Path(__file__).parent.parent / "mcp_servers" / "market_server.py"
+
 _ALIAS_MAP = {
     "tesla": "TSLA",
     "apple": "AAPL",
@@ -40,68 +44,51 @@ _ALIAS_MAP = {
 
 
 def extract_tickers(query: str) -> list[str]:
-    """
-    Heuristically extract ticker symbols or company names from a free-text query.
-
-    Returns a list of yfinance-compatible symbols.
-    """
-    tickers = set()
+    """Heuristically extract ticker symbols or company names from a free-text query."""
+    tickers: set[str] = set()
     q_lower = query.lower()
 
-    # 1. Map well-known aliases
     for name, symbol in _ALIAS_MAP.items():
         if name in q_lower:
             tickers.add(symbol)
 
-    # 2. Uppercase 1-5 letter words that look like tickers (e.g. TSLA, AAPL)
     for match in re.findall(r"\b[A-Z]{1,5}\b", query):
-        # Skip common English words
         if match not in {"I", "A", "THE", "AND", "OR", "IN", "IS", "FOR", "OF", "TO", "IT"}:
             tickers.add(match)
 
-    # 3. Detect crypto patterns like BTC-USD
     for match in re.findall(r"\b[A-Z]{2,5}-USD\b", query):
         tickers.add(match)
 
     logger.info(f"Extracted tickers: {tickers}")
-    return list(tickers) if tickers else ["SPY"]   # default: S&P 500 ETF
+    return list(tickers) if tickers else ["SPY"]
 
 
-@log_latency(logger)
-def run(query: str) -> dict:
+async def run(query: str) -> dict:
     """
     Entry point called by the Supervisor Agent.
 
     Returns:
         {
-          "tickers": [...],
-          "market_data": { TICKER: {...}, ... },
-          "rag_ingested": int,   # number of docs added to vector store
+          "tickers":     list[str],
+          "market_data": {TICKER: "formatted text", ...},
         }
     """
     logger.info(f"[DataAgent] Running for query: '{query[:80]}'")
 
     tickers = extract_tickers(query)
-    market_data = {}
-    snippets = []
+    market_data: dict[str, str] = {}
 
-    for ticker in tickers:
-        data = fetch_market_data(ticker)
-        market_data[ticker] = data
-        snippets.append(format_for_rag(data))
+    params = StdioServerParameters(command=sys.executable, args=[str(MARKET_SERVER)])
+    async with stdio_client(params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            for ticker in tickers:
+                try:
+                    result = await session.call_tool("get_market_data", {"ticker": ticker})
+                    market_data[ticker] = result.content[0].text if result.content else ""
+                except Exception as exc:
+                    logger.warning(f"[DataAgent] MCP call failed for {ticker}: {exc}")
+                    market_data[ticker] = f"[Market data unavailable for {ticker}: {exc}]"
 
-    # Ingest into vector store for future RAG retrieval
-    store = get_vector_store()
-    ingested = store.upsert(
-        texts=snippets,
-        metadatas=[{"ticker": t} for t in tickers],
-        source_tag="market_data",
-    )
-
-    logger.info(f"[DataAgent] Done — {len(tickers)} tickers, {ingested} docs ingested")
-
-    return {
-        "tickers": tickers,
-        "market_data": market_data,
-        "rag_ingested": ingested,
-    }
+    logger.info(f"[DataAgent] Done — {len(tickers)} tickers fetched")
+    return {"tickers": tickers, "market_data": market_data}

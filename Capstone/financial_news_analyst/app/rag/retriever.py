@@ -41,14 +41,18 @@ def retrieve_context(query: str, k: int | None = None) -> dict:
 
     # Build numbered context block
     sections = []
+    seen: set[str] = set()
     sources = []
     for i, doc in enumerate(docs, start=1):
         tag = doc["source_tag"]
         date = doc["ingested_at"][:10] if doc["ingested_at"] else "unknown date"
         sections.append(
-            f"[Context {i} | Source: {tag} | {date}]\n{doc['text']}"
+            f"[Context {i} | {date}]\n{doc['text']}"
         )
-        sources.append(f"{tag} ({date})")
+        label = f"{tag} ({date})"
+        if label not in seen:
+            seen.add(label)
+            sources.append(label)
 
     context_text = "\n\n".join(sections)
     token_est = estimate_tokens(context_text)

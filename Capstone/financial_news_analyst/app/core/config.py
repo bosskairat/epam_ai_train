@@ -25,7 +25,7 @@ class Settings:
     NEWS_API_KEY: str = os.getenv("NEWS_API_KEY", "")
 
     # ── RAG ───────────────────────────────────────────────────────────────────
-    CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
+    QDRANT_PATH: str = os.getenv("QDRANT_PATH", "./qdrant_db")
     TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "4"))
 
     # ── App ───────────────────────────────────────────────────────────────────

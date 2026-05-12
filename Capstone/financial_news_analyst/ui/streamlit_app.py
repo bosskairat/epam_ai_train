@@ -147,7 +147,7 @@ if analyze_clicked and query.strip():
             resp = requests.post(
                 f"{API_BASE}/analyze",
                 json={"query": clean_query},
-                timeout=60,
+                timeout=120,
             )
             resp.raise_for_status()
             state = resp.json()
@@ -249,7 +249,10 @@ if analyze_clicked and query.strip():
         if llm_sources:
             with st.expander("LLM-cited sources"):
                 for s in llm_sources:
-                    st.markdown(f"• {s}")
+                    if str(s).startswith("http"):
+                        st.markdown(f"• [{s}]({s})")
+                    else:
+                        st.markdown(f"• {s}")
 
         # ── Agent trace ───────────────────────────────────────────────────────
         with st.expander("🔎 Agent Execution Trace"):

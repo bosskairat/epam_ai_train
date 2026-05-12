@@ -14,5 +14,3 @@ os.environ.setdefault("OPENAI_API_KEY", "")
 os.environ.setdefault("NEWS_API_KEY", "")
 os.environ.setdefault("LOG_LEVEL", "WARNING")  # quieter test output
 
-import posthog
-posthog.capture = lambda *args, **kwargs: None  # posthog 6.x broke the 3-arg signature ChromaDB uses
