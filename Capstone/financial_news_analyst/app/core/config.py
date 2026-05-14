@@ -28,6 +28,9 @@ class Settings:
     QDRANT_PATH: str = os.getenv("QDRANT_PATH", "./qdrant_db")
     TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "4"))
 
+    # ── History ───────────────────────────────────────────────────────────────
+    HISTORY_DB: str = os.getenv("HISTORY_DB", "./history.db")
+
     # ── App ───────────────────────────────────────────────────────────────────
     APP_ENV: str = os.getenv("APP_ENV", "development")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

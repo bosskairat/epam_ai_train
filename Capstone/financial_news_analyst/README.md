@@ -73,7 +73,7 @@ financial_news_analyst/
 │   │   └── analysis_agent.py     # RAG ingest + LLM synthesis
 │   ├── mcp_servers/
 │   │   ├── market_server.py      # MCP tool: get_market_data
-│   │   └── news_server.py        # MCP tool: fetch_financial_news
+│   │   └── news_server.py        # MCP tool: fetch_financial_news (11 RSS feeds)
 │   ├── rag/
 │   │   ├── vector_store.py       # Qdrant persistent wrapper
 │   │   └── retriever.py          # Top-k retrieval + prompt formatting
@@ -82,13 +82,14 @@ financial_news_analyst/
 │   │   └── routes.py             # REST endpoints
 │   └── core/
 │       ├── config.py             # Settings from environment variables
+│       ├── history.py            # SQLite conversation history store
 │       ├── logger.py             # Structured logging
 │       └── security.py           # Input validation + injection defence
 ├── tests/
 │   ├── conftest.py
 │   └── test_pipeline.py
 ├── ui/
-│   └── streamlit_app.py
+│   └── streamlit_app.py          # Tabbed UI: Analyze + History
 ├── main.py                       # FastAPI entry point
 ├── run.bat                       # Windows: start FastAPI + Streamlit together
 ├── requirements.txt
@@ -135,11 +136,12 @@ cp .env.example .env
 |---|---|---|
 | `OPENAI_API_KEY` | Yes (for LLM) | OpenAI API key — [platform.openai.com](https://platform.openai.com) |
 | `FINNHUB_API_KEY` | Yes (for market data) | Finnhub API key — free at [finnhub.io](https://finnhub.io) |
-| `NEWS_API_KEY` | Optional | NewsAPI key — free at [newsapi.org](https://newsapi.org). Falls back to Finnhub news if absent. |
+| `NEWS_API_KEY` | Optional | NewsAPI key — free at [newsapi.org](https://newsapi.org). Falls back to RSS feeds if absent. |
 | `LLM_MODEL` | Optional | Default: `gpt-4o-mini` |
 | `EMBEDDING_MODEL` | Optional | Default: `text-embedding-3-small` |
 | `QDRANT_PATH` | Optional | Persistent vector store path. Default: `./qdrant_db` |
 | `TOP_K_RESULTS` | Optional | RAG documents to retrieve. Default: `4` |
+| `HISTORY_DB` | Optional | SQLite file for conversation history. Default: `./history.db` |
 | `RATE_LIMIT_PER_MINUTE` | Optional | API rate limit. Default: `10` |
 | `LOG_LEVEL` | Optional | `DEBUG`, `INFO`, `WARNING`. Default: `INFO` |
 
@@ -166,6 +168,11 @@ streamlit run ui/streamlit_app.py
 # Opens at http://localhost:8501
 ```
 
+The UI has two tabs:
+
+- **🔍 Analyze** — enter a query, view live results (sentiment badge, summary, key drivers, risk factors, insight, sources, agent trace)
+- **📜 History** — browse all past conversations; each entry is expandable and shows the full analysis; use **Clear All** to wipe the history
+
 ### Both at once (Windows)
 
 ```bat
@@ -180,9 +187,11 @@ run.bat
 |---|---|---|
 | `GET` | `/api/v1/health` | Liveness check |
 | `GET` | `/api/v1/rag/stats` | Vector store document count |
-| `POST` | `/api/v1/analyze` | Run full pipeline |
+| `POST` | `/api/v1/analyze` | Run full pipeline and save to history |
+| `GET` | `/api/v1/history?limit=50` | List past conversations (newest first) |
+| `DELETE` | `/api/v1/history` | Clear all conversation history |
 
-**Example:**
+**Analyze example:**
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/analyze \
@@ -201,15 +210,42 @@ curl -X POST http://localhost:8000/api/v1/analyze \
     "key_drivers": ["..."],
     "risk_factors": ["..."],
     "insight": "...",
-    "sources_used": ["..."],
+    "sources_used": ["https://..."],
     "disclaimer": "This is not financial advice."
   },
   "tickers": ["TSLA"],
   "articles_count": 6,
-  "rag_sources": ["pipeline (2024-01-15)"],
+  "rag_sources": ["market:TSLA (2024-01-15)", "news (2024-01-15)"],
   "token_usage": {"prompt": 820, "completion": 310, "total": 1130},
   "total_latency_s": 3.4,
-  "agent_log": ["data_agent: ...", "news_agent: ...", "analysis_agent: ..."]
+  "agent_log": ["data_agent: ...", "news_agent: ...", "analysis_agent: ..."],
+  "history_id": 42
+}
+```
+
+**History example:**
+
+```bash
+curl http://localhost:8000/api/v1/history?limit=10
+```
+
+```json
+{
+  "conversations": [
+    {
+      "id": 42,
+      "created_at": "2026-05-12T10:30:00+00:00",
+      "query": "Why did Tesla stock drop today?",
+      "sentiment": "Bearish",
+      "summary": "...",
+      "tickers": ["TSLA"],
+      "rag_sources": ["market:TSLA (2026-05-12)"],
+      "token_total": 1130,
+      "latency_s": 3.4,
+      "full_state": { "..." : "..." }
+    }
+  ],
+  "count": 1
 }
 ```
 
