@@ -215,8 +215,8 @@ Authentication is always required. On first run the bootstrap account is created
 
 | Tab | What you get |
 |---|---|
-| **🔍 Analyze** | Query input · Consent checkbox · Run pipeline · View result (sentiment badge, summary, key drivers, risk factors, insight, sources, agent trace, hallucination score) · **🔬 RAG Quality Evaluation** expander with 5 dimension metrics |
-| **📜 History** | Your conversations only · Expandable cards · Rating (1–5) + feedback text · Refresh / Clear All |
+| **🔍 Analyze** | Query input · Consent checkbox · Run pipeline · Result rendered in order: Tickers → Sentiment → Summary → Key Drivers / Risk Factors → Educational Insight → LLM-cited sources → Disclaimer → **🔬 RAG Quality Evaluation** expander → Agent Execution Trace (with total latency) → Rate this analysis (1–5 stars + free text) |
+| **📜 History** | Your conversations only · Expandable cards showing full analysis · Submitted feedback displayed as rating + text · Refresh / Clear All |
 
 Sidebar shows: username · tokens used · example queries · logout.
 
