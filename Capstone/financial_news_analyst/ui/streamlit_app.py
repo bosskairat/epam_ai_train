@@ -303,7 +303,72 @@ with st.sidebar:
 if st.session_state.get("is_admin"):
 
     st.markdown("## 👑 Admin Panel")
-    admin_tab_users, admin_tab_rag = st.tabs(["👥 User Management", "🔬 RAG Evaluation"])
+    admin_tab_users, admin_tab_feedback, admin_tab_rag = st.tabs(
+        ["👥 User Management", "💬 User Feedback", "🔬 RAG Evaluation"]
+    )
+
+    with admin_tab_feedback:
+        st.markdown("### 💬 User Feedback")
+        if st.button("🔄 Refresh feedback", key="refresh_feedback"):
+            st.session_state.pop("admin_feedback", None)
+
+        if "admin_feedback" not in st.session_state:
+            with st.spinner("Loading feedback…"):
+                try:
+                    fb_resp = requests.get(
+                        f"{API_BASE}/admin/feedback",
+                        headers=_auth_headers(), timeout=10,
+                    )
+                    if fb_resp.ok:
+                        st.session_state["admin_feedback"] = fb_resp.json().get("feedback", [])
+                    else:
+                        st.error(fb_resp.text)
+                        st.session_state["admin_feedback"] = []
+                except Exception as e:
+                    st.error(str(e))
+                    st.session_state["admin_feedback"] = []
+
+        feedback_rows: list = st.session_state.get("admin_feedback", [])
+
+        if not feedback_rows:
+            st.info("No feedback submitted yet.")
+        else:
+            # Summary metrics
+            ratings = [r["user_rating"] for r in feedback_rows if r.get("user_rating")]
+            avg_rating = sum(ratings) / len(ratings) if ratings else 0
+            fc1, fc2, fc3 = st.columns(3)
+            fc1.metric("Total responses", len(feedback_rows))
+            fc2.metric("With rating", len(ratings))
+            fc3.metric("Avg rating", f"{'⭐' * round(avg_rating)} {avg_rating:.1f}" if ratings else "—")
+            st.markdown("---")
+
+            for row in feedback_rows:
+                rating = row.get("user_rating")
+                text   = row.get("feedback_text") or ""
+                stars  = "⭐" * int(rating) if rating else "—"
+                user   = row.get("username") or "unknown"
+                date   = (row.get("created_at") or "")[:16].replace("T", " ")
+                query  = (row.get("query") or "")[:80]
+                sentiment = row.get("sentiment", "")
+
+                sentiment_icon = {"Bullish": "🟢", "Bearish": "🔴",
+                                  "Neutral": "🟡", "Mixed": "🟣"}.get(sentiment, "")
+
+                with st.expander(f"{stars}  **{user}** — {date}  |  {sentiment_icon} {query}"):
+                    col_a, col_b = st.columns([1, 3])
+                    with col_a:
+                        st.markdown(f"**User:** `{user}`")
+                        st.markdown(f"**Date:** {date}")
+                        st.markdown(f"**Rating:** {stars} ({rating or '—'})")
+                        st.markdown(f"**Sentiment:** {sentiment_icon} {sentiment}")
+                        st.markdown(f"**Tokens:** {row.get('token_total', 0):,}")
+                        st.markdown(f"**Latency:** {row.get('latency_s', 0):.1f}s")
+                    with col_b:
+                        st.markdown(f"**Query:** {row.get('query', '')}")
+                        if text:
+                            st.info(text)
+                        else:
+                            st.caption("No written feedback.")
 
     with admin_tab_rag:
         st.markdown("### RAG Quality Metrics — Aggregate over History")
@@ -543,7 +608,13 @@ else:
         icons = {"Bullish": "🟢", "Bearish": "🔴", "Neutral": "🟡", "Mixed": "🟣"}
         return f'<span class="sentiment-{sentiment.lower()}">{icons.get(sentiment, "⚪")} {sentiment}</span>'
 
-    def _render_analysis(state: dict, elapsed=None, nested: bool = False) -> None:
+    def _render_analysis(
+        state: dict,
+        elapsed=None,
+        nested: bool = False,
+        history_id: int | None = None,
+        rag_eval: dict | None = None,
+    ) -> None:
         analysis       = state.get("analysis", {})
         tickers        = state.get("tickers", [])
         rag_sources    = state.get("rag_sources", [])
@@ -553,21 +624,20 @@ else:
         latency        = state.get("total_latency_s", round(elapsed, 2) if elapsed else "—")
         hallucination  = state.get("hallucination_score")
 
-        cols = st.columns(5)
-        cols[0].metric("⏱ Latency", f"{latency}s")
-        cols[1].metric("🪙 Tokens", token_usage.get("total", "—"))
-        cols[2].metric("📰 Articles", articles_count)
-        cols[3].metric("📚 RAG Docs", len(rag_sources))
-        if hallucination is not None:
-            color = "🟢" if hallucination < 0.3 else ("🟡" if hallucination < 0.6 else "🔴")
-            cols[4].metric("🧠 Hallucination", f"{color} {hallucination:.2f}")
+        # 1 — Tickers
+        if tickers:
+            st.subheader("📊 Tickers Analyzed")
+            st.write(" · ".join(tickers))
 
-        st.markdown("---")
+        # 2 — Sentiment
+        st.subheader("📊 Sentiment")
         st.markdown(_sentiment_html(analysis.get("sentiment", "Neutral")), unsafe_allow_html=True)
 
+        # 3 — Summary
         st.subheader("📋 Summary")
         st.markdown(_md(analysis.get("summary", "No summary generated.")))
 
+        # 4 — Key Drivers / Risk Factors
         col_left, col_right = st.columns(2)
         with col_left:
             st.subheader("🚀 Key Drivers")
@@ -582,22 +652,11 @@ else:
             if not analysis.get("risk_factors"):
                 st.caption("None identified.")
 
+        # 5 — Educational Insight
         st.subheader("💡 Educational Insight")
         st.info(_md(analysis.get("insight", "No insight generated.")))
 
-        if tickers:
-            st.subheader("📊 Tickers Analyzed")
-            st.write(" · ".join(tickers))
-
-        st.subheader("📚 Sources Used (RAG)")
-        if rag_sources:
-            st.markdown(
-                "".join(f'<span class="source-chip">{s}</span>' for s in rag_sources),
-                unsafe_allow_html=True,
-            )
-        else:
-            st.caption("No RAG sources retrieved.")
-
+        # 6 — LLM-cited sources
         llm_sources = analysis.get("sources_used", [])
         if llm_sources:
             if nested:
@@ -609,22 +668,64 @@ else:
                     for s in llm_sources:
                         st.markdown(f"• [{s}]({s})" if str(s).startswith("http") else f"• {s}")
 
-        if nested:
-            if agent_log:
-                st.markdown("**🔎 Agent Execution Trace**")
-                for step in agent_log:
-                    st.code(step, language=None)
-        else:
-            with st.expander("🔎 Agent Execution Trace"):
-                for step in agent_log:
-                    st.code(step, language=None)
-
+        # 7 — Disclaimer
         st.markdown(
             '<div class="disclaimer-box">⚠️ '
             + analysis.get("disclaimer", "This is not financial advice.")
             + "</div>",
             unsafe_allow_html=True,
         )
+
+        # 8 — RAG Quality Evaluation (only on Analyze page)
+        if not nested and rag_eval:
+            _render_rag_eval(rag_eval)
+
+        # 9 — Agent Execution Trace
+        trace_lines = list(agent_log)
+        if latency and latency != "—":
+            trace_lines.append(f"total latency: {latency}s")
+        if nested:
+            if trace_lines:
+                st.markdown("**🔎 Agent Execution Trace**")
+                for step in trace_lines:
+                    st.code(step, language=None)
+        else:
+            with st.expander("🔎 Agent Execution Trace"):
+                for step in trace_lines:
+                    st.code(step, language=None)
+
+        # 11 — Rate this analysis (only on Analyze page, not in history)
+        if not nested and history_id:
+            st.markdown("---")
+            st.markdown("#### 💬 Rate this analysis")
+            fb_col1, fb_col2, fb_col3 = st.columns([1, 5, 1])
+            with fb_col1:
+                rating_opts = ["—", "1", "2", "3", "4", "5"]
+                rating_sel = st.selectbox("Rating", rating_opts, index=0, key="analyze_rating")
+            with fb_col2:
+                feedback_txt = st.text_area("Feedback (optional)", height=70, key="analyze_feedback")
+            with fb_col3:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("Submit", key="analyze_fb_submit", use_container_width=True):
+                    payload: dict = {}
+                    if rating_sel != "—":
+                        payload["rating"] = int(rating_sel)
+                    if feedback_txt.strip():
+                        payload["feedback_text"] = feedback_txt.strip()
+                    if not payload:
+                        st.warning("Choose a rating or enter feedback first.")
+                    else:
+                        try:
+                            r = requests.patch(
+                                f"{API_BASE}/history/{history_id}/feedback",
+                                headers=_auth_headers(),
+                                json=payload,
+                                timeout=10,
+                            )
+                            r.raise_for_status()
+                            st.success("Feedback submitted — thank you!")
+                        except Exception as e:
+                            st.error(f"Failed: {e}")
 
     def _render_rag_eval(ev: dict | None) -> None:
         if not ev:
@@ -720,8 +821,9 @@ else:
             _render_analysis(
                 st.session_state["last_analysis"],
                 st.session_state.get("last_analysis_elapsed"),
+                history_id=st.session_state["last_analysis"].get("history_id"),
+                rag_eval=st.session_state.get("last_rag_eval"),
             )
-            _render_rag_eval(st.session_state.get("last_rag_eval"))
 
         if analyze_clicked and query.strip():
             st.session_state.pop("last_analysis", None)
@@ -862,46 +964,14 @@ else:
                                 unsafe_allow_html=True,
                             )
 
-                    # ── Feedback ───────────────────────────────────────────────
+                    # Show existing feedback if any
                     existing_rating   = record.get("user_rating")
-                    existing_feedback = record.get("feedback_text") or ""
-                    col_r, col_f, col_s = st.columns([1, 6, 1])
-                    with col_r:
-                        opts = ["No change", "1", "2", "3", "4", "5"]
-                        default = str(existing_rating) if existing_rating else "No change"
-                        rating_sel = st.selectbox(
-                            "Rating", opts,
-                            index=opts.index(default) if default in opts else 0,
-                            key=f"rating_{record.get('id')}",
-                        )
-                    with col_f:
-                        feedback_text = st.text_area(
-                            "Feedback", value=existing_feedback,
-                            key=f"feedback_{record.get('id')}", height=80,
-                        )
-                    with col_s:
-                        if st.button("Submit", key=f"fb_{record.get('id')}"):
-                            payload: dict = {}
-                            if rating_sel != "No change":
-                                try:
-                                    payload["rating"] = int(rating_sel)
-                                except Exception:
-                                    pass
-                            if feedback_text and feedback_text.strip():
-                                payload["feedback_text"] = feedback_text.strip()
-                            if not payload:
-                                st.warning("Provide a rating or feedback text.")
-                            else:
-                                try:
-                                    r2 = requests.patch(
-                                        f"{API_BASE}/history/{record.get('id')}/feedback",
-                                        headers=_auth_headers(), json=payload, timeout=10,
-                                    )
-                                    r2.raise_for_status()
-                                    st.success("Feedback submitted")
-                                    st.session_state.pop("history_loaded", None)
-                                    st.rerun()
-                                except requests.exceptions.HTTPError as e:
-                                    st.error(f"Server error {e.response.status_code}: {e.response.text}")
-                                except Exception as e:
-                                    st.error(f"Failed: {e}")
+                    existing_feedback = record.get("feedback_text")
+                    if existing_rating or existing_feedback:
+                        st.markdown("---")
+                        st.markdown("#### 💬 Your Feedback")
+                        stars = "⭐" * int(existing_rating) if existing_rating else "—"
+                        fb_c1, fb_c2 = st.columns([1, 4])
+                        fb_c1.metric("Rating", stars)
+                        if existing_feedback:
+                            fb_c2.info(existing_feedback)

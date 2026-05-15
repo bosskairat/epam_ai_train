@@ -190,6 +190,20 @@ def erase_by_trace_id(trace_id: str) -> int:
         return deleted
 
 
+def get_feedback_all(limit: int = 200) -> list[dict]:
+    """Return all conversations that have a rating or feedback text, newest first."""
+    with _conn() as conn:
+        rows = conn.execute(
+            """SELECT id, created_at, username, query, sentiment,
+                      user_rating, feedback_text, token_total, latency_s
+               FROM conversations
+               WHERE user_rating IS NOT NULL OR feedback_text IS NOT NULL
+               ORDER BY id DESC LIMIT ?""",
+            (limit,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_user_tokens(username: str | None = None) -> int:
     """Return total tokens consumed by username (all users if None)."""
     with _conn() as conn:

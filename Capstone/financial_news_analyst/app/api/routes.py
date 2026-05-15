@@ -266,6 +266,20 @@ class ResetPasswordBody(BaseModel):
     new_password: str = Field(..., min_length=8, max_length=256)
 
 
+@router.get("/admin/feedback")
+def admin_get_feedback(
+    limit: int = 200,
+    _: dict = Depends(require_admin),
+):
+    """Return all conversations that have a user rating or feedback text."""
+    try:
+        records = hist.get_feedback_all(limit=limit)
+        return {"feedback": records, "count": len(records)}
+    except Exception as exc:
+        logger.error(f"[API] Admin feedback error: {exc}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @router.get("/admin/users")
 def admin_list_users(
     _: dict = Depends(require_admin),
