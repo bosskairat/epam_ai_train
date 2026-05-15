@@ -1,63 +1,73 @@
 # Financial News Analyst — Multi-Agent GenAI System
 
-A capstone project demonstrating a **multi-agent AI architecture** that combines live financial data, real-time news, and RAG-powered historical context to generate structured investment research summaries.
+A capstone project demonstrating a **multi-agent AI architecture** that combines live
+financial data, real-time news, and RAG-powered historical context to generate
+structured investment research summaries — with full user authentication, an admin
+panel, and automated RAG quality evaluation.
 
-> **Disclaimer:** All outputs are for educational and informational purposes only. This system does **not** provide financial advice.
+> **Disclaimer:** All outputs are for educational and informational purposes only.
+> This system does **not** provide financial advice.
 
 ---
 
 ## Architecture
 
+![System Architecture](architecture.svg)
+
 ```
 User Query
     │
-    ▼
-┌─────────────────────────────────────────┐
-│           Supervisor Agent              │
-│     (async sequential orchestration)   │
-└──────┬──────────────┬───────────────────┘
-       │              │
-       ▼              ▼
- ┌──────────┐   ┌──────────┐
- │  Data    │   │  News    │
- │  Agent   │   │  Agent   │
- │(Finnhub  │   │(Finnhub/ │
- │  MCP)    │   │NewsAPI   │
- │          │   │  MCP)    │
- └────┬─────┘   └────┬─────┘
-      │              │
-      └──────┬───────┘
-             ▼
-      ┌─────────────┐
-      │   Qdrant    │  ← Persistent Vector Store
-      │ (embeddings)│
-      └──────┬──────┘
-             ▼
-      ┌─────────────────┐
-      │ Analysis Agent  │
-      │  (GPT-4o-mini)  │
-      │  RAG + LLM      │
-      └────────┬────────┘
-               ▼
-        Structured Report
-   (summary / sentiment / drivers)
+    ▼  JWT Bearer
+┌───────────────────────────────────────────┐
+│         FastAPI REST API (:8000)           │
+│  JWT · Rate Limit · Prometheus · PII      │
+└──────────────────┬────────────────────────┘
+                   │
+                   ▼
+        ┌─────────────────────┐
+        │   Supervisor Agent  │
+        └──┬─────────┬────────┘
+           │         │         │
+           ▼         ▼         ▼
+      Data Agent  News Agent  Analysis Agent
+      (MCP)       (MCP)       RAG → LLM → Verify
+           │         │         │
+           ▼         ▼         ▼
+      Finnhub   NewsAPI    Qdrant + evaluation.py
+                 + RSS
 ```
 
 ### Agents
 
 | Agent | Role | Transport |
 |---|---|---|
-| **Supervisor** | Async sequential orchestrator — runs agents in order, collects results | In-process |
-| **Data Agent** | Fetches live market data (price, volume, fundamentals) via Finnhub | MCP subprocess |
-| **News Agent** | Fetches recent financial news via Finnhub / NewsAPI | MCP subprocess |
-| **Analysis Agent** | Ingests data into Qdrant, retrieves RAG context, calls GPT-4o-mini | In-process |
+| **Supervisor** | Sequential orchestrator — runs agents in order, aggregates state | In-process |
+| **Data Agent** | Extracts tickers, fetches live price / profile / market cap via Finnhub | MCP stdio |
+| **News Agent** | Builds query, fetches recent articles via NewsAPI + 11 RSS fallbacks | MCP stdio |
+| **Analysis Agent** | Upserts data into Qdrant, retrieves RAG context, calls GPT-4o-mini, verifies claims | In-process |
 
 ### MCP Servers
 
-| Server | Purpose |
+| Server | Tools | Description |
+|---|---|---|
+| `market_server.py` | `get_market_data(ticker)` | Wraps Finnhub SDK — price, volume, fundamentals, profile |
+| `news_server.py` | `fetch_financial_news(query, max)` | NewsAPI primary, 11 RSS feeds as automatic fallback |
+
+---
+
+## Features
+
+| Area | What's included |
 |---|---|
-| `market_server.py` | Wraps Finnhub market data API — called by Data Agent |
-| `news_server.py` | Wraps Finnhub / NewsAPI news fetch — called by News Agent |
+| **Auth** | Registration · Login · JWT Bearer tokens · Cookie session persistence across browser refresh |
+| **Roles** | Admin (user management) · Regular user (analysis only) |
+| **Admin panel** | List users · Block/Unblock · Reset password · Delete · Token usage per user · RAG Evaluation aggregate |
+| **Analysis** | Live market data · News aggregation · RAG context · GPT-4o-mini · Hallucination score · Source chips |
+| **History** | Per-user SQLite history · Rating (1–5) + free-text feedback · PII redaction · Consent flag |
+| **RAG Evaluation** | Precision@K · MRR · Cosine similarity · ROUGE-1 · Traceability · Hallucination · Bias · Composite score |
+| **Observability** | Prometheus metrics · CPU/RAM gauges · Structured logging · Trace IDs |
+| **Safety** | Prompt-injection blocking · Content moderation · PII redaction · Rate limiting · Token quota |
+| **Resilience** | Stub mode (no API key) · RSS fallback · Local embeddings fallback · In-memory Redis fallback |
 
 ---
 
@@ -65,36 +75,46 @@ User Query
 
 ```
 financial_news_analyst/
+├── main.py                     # Uvicorn entry point
+├── run.py                      # Launches FastAPI + Streamlit together
+├── architecture.png            # System architecture diagram
+├── BLUEPRINT.md                # Full architecture blueprint + NFR coverage
 ├── app/
 │   ├── agents/
-│   │   ├── supervisor_agent.py   # Orchestration
-│   │   ├── data_agent.py         # Finnhub market data via MCP
-│   │   ├── news_agent.py         # News fetch via MCP
-│   │   └── analysis_agent.py     # RAG ingest + LLM synthesis
-│   ├── mcp_servers/
-│   │   ├── market_server.py      # MCP tool: get_market_data
-│   │   └── news_server.py        # MCP tool: fetch_financial_news (11 RSS feeds)
-│   ├── rag/
-│   │   ├── vector_store.py       # Qdrant persistent wrapper
-│   │   └── retriever.py          # Top-k retrieval + prompt formatting
+│   │   ├── supervisor_agent.py # Orchestration + trace propagation
+│   │   ├── data_agent.py       # Ticker extraction + market MCP
+│   │   ├── news_agent.py       # News MCP
+│   │   └── analysis_agent.py   # RAG + LLM + verify + cache
 │   ├── api/
-│   │   ├── app.py                # FastAPI factory + middleware
-│   │   └── routes.py             # REST endpoints
-│   └── core/
-│       ├── config.py             # Settings from environment variables
-│       ├── history.py            # SQLite conversation history store
-│       ├── logger.py             # Structured logging
-│       └── security.py           # Input validation + injection defence
-├── tests/
-│   ├── conftest.py
-│   └── test_pipeline.py
-├── ui/
-│   └── streamlit_app.py          # Tabbed UI: Analyze + History
-├── main.py                       # FastAPI entry point
-├── run.bat                       # Windows: start FastAPI + Streamlit together
-├── requirements.txt
-├── .env.example
-└── README.md
+│   │   ├── app.py              # FastAPI factory + middleware
+│   │   ├── routes.py           # All REST endpoints incl. /rag/evaluate
+│   │   ├── auth_routes.py      # /auth/login, /register, /me, /config
+│   │   ├── deps.py             # JWT dependency + require_admin
+│   │   └── limits.py           # Shared SlowAPI limiter
+│   ├── core/
+│   │   ├── config.py           # All settings from env vars
+│   │   ├── history.py          # Conversation persistence + token sums
+│   │   ├── users_store.py      # User accounts · block/unblock · bcrypt
+│   │   ├── jwt_tokens.py       # Token create/decode (HS256)
+│   │   ├── security.py         # Input validation + content moderation
+│   │   ├── pii.py              # PII detection/redaction
+│   │   ├── cache.py            # TTLCache + Redis adapter
+│   │   ├── quota.py            # Rate limit + token quota
+│   │   └── logger.py           # Structured logging + PII filter
+│   ├── rag/
+│   │   ├── vector_store.py     # Qdrant wrapper (score threshold applied)
+│   │   ├── retriever.py        # Top-k retrieval + source formatting
+│   │   ├── verify.py           # Claim-level hallucination scoring
+│   │   └── evaluation.py       # RAG evaluation: 5 dimensions + composite
+│   ├── mcp_servers/
+│   │   ├── market_server.py    # Finnhub MCP tool
+│   │   └── news_server.py      # NewsAPI + 11 RSS MCP tool
+│   └── observability/
+│       ├── metrics.py          # Prometheus counters/histograms/gauges
+│       ├── resource.py         # CPU/RAM background sampler
+│       └── tracing.py          # Trace ID ContextVar + llm_span
+└── ui/
+    └── streamlit_app.py        # Full-stack UI (see UI section below)
 ```
 
 ---
@@ -123,83 +143,144 @@ venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
+### 3. Configure environment
 
 ```bash
 cp .env.example .env
-# Fill in your API keys
+# Edit .env with your values
 ```
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | Yes (for LLM) | OpenAI API key — [platform.openai.com](https://platform.openai.com) |
-| `FINNHUB_API_KEY` | Yes (for market data) | Finnhub API key — free at [finnhub.io](https://finnhub.io) |
-| `NEWS_API_KEY` | Optional | NewsAPI key — free at [newsapi.org](https://newsapi.org). Falls back to RSS feeds if absent. |
-| `LLM_MODEL` | Optional | Default: `gpt-4o-mini` |
-| `EMBEDDING_MODEL` | Optional | Default: `text-embedding-3-small` |
-| `QDRANT_PATH` | Optional | Persistent vector store path. Default: `./qdrant_db` |
-| `TOP_K_RESULTS` | Optional | RAG documents to retrieve. Default: `4` |
-| `HISTORY_DB` | Optional | SQLite file for conversation history. Default: `./history.db` |
-| `RATE_LIMIT_PER_MINUTE` | Optional | API rate limit. Default: `10` |
-| `LOG_LEVEL` | Optional | `DEBUG`, `INFO`, `WARNING`. Default: `INFO` |
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `OPENAI_API_KEY` | For LLM | — | [platform.openai.com](https://platform.openai.com). Omit for stub mode + local embeddings. |
+| `FINNHUB_API_KEY` | Yes | — | Free at [finnhub.io](https://finnhub.io) |
+| `JWT_SECRET` | **Yes** | — | Random string ≥ 16 chars. Required for auth. |
+| `AUTH_BOOTSTRAP_USERNAME` | Yes | — | Admin account created on startup |
+| `AUTH_BOOTSTRAP_PASSWORD` | Yes | — | Min 8 chars |
+| `ADMIN_USERNAMES` | Yes | bootstrap user | Comma-separated admin usernames |
+| `NEWS_API_KEY` | Optional | — | [newsapi.org](https://newsapi.org). Falls back to RSS feeds. |
+| `ALLOW_USER_REGISTRATION` | Optional | `true` | Allow public registration |
+| `LLM_MODEL` | Optional | `gpt-4o-mini` | OpenAI model name |
+| `EMBEDDING_MODEL` | Optional | `text-embedding-3-small` | OpenAI embedding model |
+| `DB_PATH` | Optional | `./app.db` | SQLite file (users + conversations) |
+| `QDRANT_PATH` | Optional | `./qdrant_db` | Qdrant persistent storage directory |
+| `TOP_K_RESULTS` | Optional | `4` | RAG documents to retrieve |
+| `RAG_MIN_SIMILARITY` | Optional | `0.28` | Cosine similarity threshold for retrieval |
+| `RATE_LIMIT_PER_MINUTE` | Optional | `10` | Per-IP request limit |
+| `TOKEN_QUOTA_PER_KEY` | Optional | `0` | Max tokens per user (0 = unlimited) |
+| `CACHE_TTL` | Optional | `300` | LLM response cache TTL in seconds |
+| `HISTORY_RETENTION_DAYS` | Optional | `90` | Auto-purge conversations older than N days |
+| `ENABLE_CONTENT_MODERATION` | Optional | `true` | Apply content moderation to inputs and LLM output |
+| `REDIS_URL` | Optional | — | For durable rate limiting and caching |
 
-> **No OpenAI key?** The pipeline still runs — market data and news are fetched normally; the analysis step returns a structured stub response instead of calling the LLM.
-
-> **No OpenAI key for embeddings?** Automatically falls back to `all-MiniLM-L6-v2` (sentence-transformers, runs locally, zero API cost).
+> **No OpenAI key?** Pipeline runs fully — market + news data fetched normally; analysis returns a structured stub. Embeddings use `all-MiniLM-L6-v2` locally (zero cost).
 
 ---
 
 ## Running
 
-### FastAPI server
+### Both services at once
 
 ```bash
+python run.py
+# FastAPI  → http://localhost:8000
+# Streamlit → http://localhost:8501
+# Stop with Ctrl+C — both services shut down cleanly
+```
+
+### Individually
+
+```bash
+# API only
 python main.py
-# API at   http://localhost:8000
-# Docs at  http://localhost:8000/docs
-```
 
-### Streamlit UI
-
-```bash
+# UI only
 streamlit run ui/streamlit_app.py
-# Opens at http://localhost:8501
 ```
 
-The UI has two tabs:
+---
 
-- **🔍 Analyze** — enter a query, view live results (sentiment badge, summary, key drivers, risk factors, insight, sources, agent trace)
-- **📜 History** — browse all past conversations; each entry is expandable and shows the full analysis; use **Clear All** to wipe the history
+## UI Walkthrough
 
-### Both at once (Windows)
+### Login / Register
 
-```bat
-run.bat
-```
+Authentication is always required. On first run the bootstrap account is created automatically from `.env`.
+
+- **Login tab** — enter username + password → JWT stored in a browser cookie (persists across refresh)
+- **Register tab** — create a new account → auto-login on success (when `ALLOW_USER_REGISTRATION=true`)
+
+### Regular User
+
+| Tab | What you get |
+|---|---|
+| **🔍 Analyze** | Query input · Consent checkbox · Run pipeline · View result (sentiment badge, summary, key drivers, risk factors, insight, sources, agent trace, hallucination score) · **🔬 RAG Quality Evaluation** expander with 5 dimension metrics |
+| **📜 History** | Your conversations only · Expandable cards · Rating (1–5) + feedback text · Refresh / Clear All |
+
+Sidebar shows: username · tokens used · example queries · logout.
+
+### Admin
+
+Admin users land on a **separate panel** — no financial analysis page.
+
+| Tab | What you get |
+|---|---|
+| **👥 User Management** | Summary metrics (users, blocked, total tokens, RAG docs) · Per-user cards: block/unblock, reset password, delete |
+| **🔬 RAG Evaluation** | Aggregate Precision@K, Answer Relevance, Traceability, Hallucination over N conversations · Sentiment distribution with bias flag |
 
 ---
 
 ## API Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/v1/health` | Liveness check |
-| `GET` | `/api/v1/rag/stats` | Vector store document count |
-| `POST` | `/api/v1/analyze` | Run full pipeline and save to history |
-| `GET` | `/api/v1/history?limit=50` | List past conversations (newest first) |
-| `DELETE` | `/api/v1/history` | Clear all conversation history |
+All endpoints require `Authorization: Bearer <token>` (obtained from `POST /api/v1/auth/login`).
 
-**Analyze example:**
+### Auth
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/auth/config` | Public | Auth config (registration enabled?) |
+| `POST` | `/api/v1/auth/login` | Public | `{username, password}` → `{access_token, is_admin}` |
+| `POST` | `/api/v1/auth/register` | Public | Create account → auto-login token |
+| `GET` | `/api/v1/auth/me` | Bearer | Current user info |
+
+### Core
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/health` | Bearer | Liveness check |
+| `POST` | `/api/v1/analyze` | Bearer | Run full pipeline, persist to history |
+| `GET` | `/api/v1/history` | Bearer | User's conversations (newest first) |
+| `DELETE` | `/api/v1/history` | Bearer | Clear user's history |
+| `PATCH` | `/api/v1/history/{id}/feedback` | Bearer | Add rating + feedback text |
+| `GET` | `/api/v1/usage` | Bearer | Token usage for current user (from SQLite) |
+
+### RAG
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/rag/stats` | Bearer | Document count, top-k, min-similarity, model |
+| `POST` | `/api/v1/rag/evaluate` | Bearer | 5-dimension quality eval on a pipeline result |
+| `GET` | `/api/v1/rag/evaluate/history` | Admin | Aggregate eval over N recent conversations |
+
+### Admin
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/admin/users` | Admin | All users with token usage + blocked status |
+| `PATCH` | `/api/v1/admin/users/{u}/block` | Admin | Block account |
+| `PATCH` | `/api/v1/admin/users/{u}/unblock` | Admin | Unblock account |
+| `POST` | `/api/v1/admin/users/{u}/reset-password` | Admin | Reset password |
+| `DELETE` | `/api/v1/admin/users/{u}` | Admin | Delete account permanently |
+
+### Analyze — request / response
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/analyze \
+  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"query": "Why did Tesla stock drop today?"}'
+  -d '{"query": "Why did Tesla stock drop today?", "consent": false}'
 ```
-
-**Response schema:**
 
 ```json
 {
@@ -215,38 +296,61 @@ curl -X POST http://localhost:8000/api/v1/analyze \
   },
   "tickers": ["TSLA"],
   "articles_count": 6,
-  "rag_sources": ["market:TSLA (2024-01-15)", "news (2024-01-15)"],
+  "rag_sources": ["market:TSLA — 2026-05-15", "news — 2026-05-15"],
   "token_usage": {"prompt": 820, "completion": 310, "total": 1130},
   "total_latency_s": 3.4,
-  "agent_log": ["data_agent: ...", "news_agent: ...", "analysis_agent: ..."],
+  "agent_log": ["data_agent: 1 tickers in 0.8s", "..."],
+  "hallucination_score": 0.22,
+  "trace_id": "a1b2c3d4",
   "history_id": 42
 }
 ```
 
-**History example:**
+---
 
-```bash
-curl http://localhost:8000/api/v1/history?limit=10
+## RAG Evaluation
+
+After each analysis the UI automatically calls `POST /rag/evaluate` and shows results in a **🔬 RAG Quality Evaluation** expander.
+
+| Metric | Measures | Good value |
+|---|---|---|
+| **Precision@K** | Fraction of retrieved docs above similarity threshold | ≥ 0.6 |
+| **MRR** | Mean Reciprocal Rank of first relevant document | ≥ 0.5 |
+| **Cosine Similarity** | Semantic closeness of query to answer | ≥ 0.7 |
+| **Token Overlap** | ROUGE-1 recall of query terms in answer | ≥ 0.3 |
+| **Traceability Score** | Citation rate × 0.6 + source coverage × 0.4 | ≥ 0.5 |
+| **Hallucination Score** | 1 − mean claim support (0 = grounded) | ≤ 0.3 |
+| **Lexical Imbalance** | Bullish vs bearish keyword balance | ≤ 0.3 |
+| **Composite Score** | Weighted combination of all above | ≥ 0.6 |
+
+---
+
+## Observability
+
+Prometheus metrics available at `http://localhost:8000/metrics`:
+
+| Metric | Type | Description |
+|---|---|---|
+| `api_requests_total` | Counter | Requests by method, endpoint, status |
+| `api_latency_seconds` | Histogram | End-to-end request latency |
+| `api_errors_total` | Counter | Errors by endpoint and type |
+| `llm_requests_total` | Counter | LLM calls by model |
+| `llm_latency_seconds` | Histogram | LLM call latency |
+| `llm_tokens_total` | Counter | Tokens consumed by model |
+| `system_cpu_percent` | Gauge | Host CPU utilisation |
+| `system_memory_percent` | Gauge | Host memory utilisation |
+| `process_memory_mb` | Gauge | App process RSS memory |
+
+Structured log output:
+
 ```
-
-```json
-{
-  "conversations": [
-    {
-      "id": 42,
-      "created_at": "2026-05-12T10:30:00+00:00",
-      "query": "Why did Tesla stock drop today?",
-      "sentiment": "Bearish",
-      "summary": "...",
-      "tickers": ["TSLA"],
-      "rag_sources": ["market:TSLA (2026-05-12)"],
-      "token_total": 1130,
-      "latency_s": 3.4,
-      "full_state": { "..." : "..." }
-    }
-  ],
-  "count": 1
-}
+[INFO]  supervisor_agent  — Pipeline started for: 'Why did Tesla stock drop today?'
+[INFO]  data_agent        — Extracted tickers: TSLA
+[INFO]  news_agent        — 6 articles fetched in 1.2s
+[INFO]  vector_store      — Upserted 7 docs (source_tag=market:TSLA)
+[INFO]  retriever         — RAG context built: 4 docs, ~390 tokens
+[INFO]  analysis_agent    — Done — latency=1.94s | tokens={prompt:820,total:1130}
+[INFO]  supervisor_agent  — Pipeline complete — total=4.12s | trace=a1b2c3d4
 ```
 
 ---
@@ -254,25 +358,17 @@ curl http://localhost:8000/api/v1/history?limit=10
 ## Tests
 
 ```bash
-# All tests (no API keys needed — external calls are mocked)
-pytest
-
-# Verbose
-pytest -v
-
-# Specific class
+pytest                          # all tests (external calls mocked)
+pytest -v                       # verbose
 pytest tests/test_pipeline.py::TestInputValidation -v
-
-# With coverage
-pip install pytest-cov
 pytest --cov=app --cov-report=term-missing
 ```
 
-| Test Class | Coverage |
+| Test Class | What it covers |
 |---|---|
-| `TestInputValidation` | Empty, too-long, and injected inputs |
+| `TestInputValidation` | Empty, too-long, injected inputs |
 | `TestTickerExtraction` | Alias mapping, uppercase detection, default fallback |
-| `TestPositiveOutputStructure` | Required keys, valid sentiment values, latency |
+| `TestPositiveOutputStructure` | Required keys, valid sentiment, latency |
 | `TestNegativeCases` | Edge cases: empty news, missing market data |
 | `TestHallucinationDetection` | Rule-based detection of LLM refusal phrases |
 | `TestRAGStore` | Qdrant upsert + retrieval + empty store behaviour |
@@ -293,37 +389,11 @@ What are the key risks in the EV sector?
 
 ---
 
-## Observability
-
-The system emits structured logs at every pipeline step:
-
-```
-[INFO]  supervisor_agent  — Pipeline started for: 'Why did Tesla stock drop today?'
-[INFO]  data_agent        — Extracted tickers: {'TSLA'}
-[INFO]  data_agent        — Done — 1 tickers fetched
-[INFO]  news_agent        — Done — 6 articles fetched
-[INFO]  vector_store      — VectorStore loaded — Qdrant persistent at './qdrant_db' (14 docs)
-[INFO]  vector_store      — Upserted 7 docs (source_tag=pipeline)
-[INFO]  retriever         — RAG context built: 4 docs, ~390 tokens
-[INFO]  analysis_agent    — Done — latency=1.94s | tokens={...}
-[INFO]  supervisor_agent  — Pipeline complete — total=4.12s
-```
-
----
-
 ## Cost Notes
 
-- **Deduplication** — Qdrant uses a content-hash as point ID; re-ingesting the same document is a no-op.
-- **Small model** — `gpt-4o-mini` keeps LLM costs low (~10× cheaper than GPT-4).
-- **Token-efficient prompts** — top-5 news snippets only; market data compacted to a single text block.
-- **Local embedding fallback** — `all-MiniLM-L6-v2` runs offline at zero API cost when no OpenAI key is set.
-
----
-
-## Security
-
-- Control characters stripped from all user input.
-- Query length capped at 500 characters.
-- 8 regex patterns block common prompt injection attempts (`ignore instructions`, `act as`, `jailbreak`, etc.).
-- API rate limiting via `slowapi` (default: 10 req/min, configurable).
-- All secrets loaded from environment variables — nothing hardcoded.
+- **`gpt-4o-mini`** — ~10× cheaper than GPT-4; default model.
+- **Local embeddings** — `all-MiniLM-L6-v2` runs offline at zero cost when `OPENAI_API_KEY` is absent.
+- **LLM caching** — identical queries return cached results (SHA-256 keyed, TTL configurable).
+- **Qdrant deduplication** — content-hash point IDs; re-ingesting the same document is a no-op.
+- **Free data sources** — Finnhub free tier + NewsAPI free tier + 11 RSS feeds (no cost at all).
+- **Token tracking** — per-user token totals persisted in SQLite; survive restarts without Redis.

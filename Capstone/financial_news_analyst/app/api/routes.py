@@ -217,6 +217,49 @@ def get_usage_endpoint(
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+# ── RAG Evaluation ────────────────────────────────────────────────────────────
+
+class EvalRequest(BaseModel):
+    query: str
+    state: dict
+
+
+@router.post("/rag/evaluate")
+def rag_evaluate(
+    body: EvalRequest,
+    principal: dict = Depends(require_auth_principal),
+):
+    """
+    Run all five RAG quality evaluations on a completed pipeline result.
+    Returns retrieval accuracy, answer relevance, source attribution,
+    hallucination score, and bias assessment.
+    """
+    try:
+        from app.rag.evaluation import evaluate_pipeline_result
+        username = (principal or {}).get("sub")
+        history = hist.get_history(limit=100, username=None)   # all users for bias dist
+        report = evaluate_pipeline_result(body.query, body.state, history_rows=history)
+        return report
+    except Exception as exc:
+        logger.error(f"[API] RAG evaluate error: {exc}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.get("/rag/evaluate/history")
+def rag_evaluate_history(
+    sample: int = 20,
+    _: dict = Depends(require_admin),
+):
+    """Admin: aggregate RAG quality metrics over recent history."""
+    try:
+        from app.rag.evaluation import evaluate_from_history
+        rows = hist.get_history(limit=200, username=None)
+        return evaluate_from_history(rows, sample=sample)
+    except Exception as exc:
+        logger.error(f"[API] RAG eval history error: {exc}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # ── Admin: user management ────────────────────────────────────────────────────
 
 class ResetPasswordBody(BaseModel):

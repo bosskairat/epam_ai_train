@@ -302,152 +302,209 @@ with st.sidebar:
 # ═════════════════════════════════════════════════════════════════════════════
 if st.session_state.get("is_admin"):
 
-    st.markdown("## 👑 Admin Panel — User Management")
-    st.markdown("---")
+    st.markdown("## 👑 Admin Panel")
+    admin_tab_users, admin_tab_rag = st.tabs(["👥 User Management", "🔬 RAG Evaluation"])
 
-    # ── Load users ────────────────────────────────────────────────────────────
-    def _load_users() -> list:
+    with admin_tab_rag:
+        st.markdown("### RAG Quality Metrics — Aggregate over History")
+        sample = st.slider("Conversations to evaluate", 5, 50, 20, key="eval_sample")
+        if st.button("▶ Run Evaluation", key="run_rag_eval", type="primary"):
+            with st.spinner("Evaluating RAG quality… this may take ~30 s"):
+                try:
+                    ev_resp = requests.get(
+                        f"{API_BASE}/rag/evaluate/history?sample={sample}",
+                        headers=_auth_headers(), timeout=120,
+                    )
+                    if ev_resp.ok:
+                        st.session_state["admin_rag_eval"] = ev_resp.json()
+                    else:
+                        st.error(ev_resp.text)
+                except Exception as e:
+                    st.error(str(e))
+
+        ev = st.session_state.get("admin_rag_eval")
+        if ev:
+            if "error" in ev:
+                st.warning(ev["error"])
+            else:
+                st.caption(f"Sample: **{ev.get('sample_size', 0)}** conversations")
+                st.markdown("---")
+
+                def _agg_row(label: str, data: dict, fmt=".3f", invert=False):
+                    m = data.get("mean")
+                    if m is None:
+                        st.markdown(f"**{label}**: no data")
+                        return
+                    icon = ("🟢" if m >= 0.6 else ("🟡" if m >= 0.35 else "🔴"))
+                    if invert:
+                        icon = ("🔴" if m >= 0.6 else ("🟡" if m >= 0.35 else "🟢"))
+                    n = data.get("n", 0)
+                    st.metric(
+                        label,
+                        f"{icon} {m:{fmt}}",
+                        f"min {data.get('min', 0):{fmt}} / max {data.get('max', 0):{fmt}}  (n={n})",
+                    )
+
+                c1, c2, c3, c4 = st.columns(4)
+                with c1:
+                    _agg_row("📥 Retrieval Precision@K", ev.get("retrieval_precision", {}), ".2%")
+                with c2:
+                    _agg_row("💬 Answer Relevance (cosine)", ev.get("answer_relevance", {}))
+                with c3:
+                    _agg_row("🔗 Source Traceability", ev.get("source_attribution", {}))
+                with c4:
+                    _agg_row("🧠 Hallucination Score", ev.get("hallucination", {}), invert=True)
+
+                st.markdown("---")
+                st.markdown("**⚖️ Sentiment Distribution (historical)**")
+                dist = ev.get("sentiment_distribution", {})
+                if dist:
+                    icons = {"Bullish": "🟢", "Bearish": "🔴", "Neutral": "🟡", "Mixed": "🟣"}
+                    dcols = st.columns(len(dist))
+                    for i, (sent, pct) in enumerate(sorted(dist.items())):
+                        dcols[i].metric(
+                            f"{icons.get(sent, '⚪')} {sent}",
+                            f"{pct:.0%}",
+                        )
+                    # Bias flag
+                    for sent, pct in dist.items():
+                        if pct > 0.70:
+                            st.warning(f"⚠️ Potential bias: **{sent}** dominates {pct:.0%} of responses.")
+
+    with admin_tab_users:
+        def _load_users() -> list:
+            try:
+                resp = requests.get(
+                    f"{API_BASE}/admin/users", headers=_auth_headers(), timeout=10
+                )
+                resp.raise_for_status()
+                return resp.json().get("users", [])
+            except Exception as e:
+                st.error(f"Failed to load users: {e}")
+                return []
+
+        if st.button("🔄 Refresh", key="admin_refresh"):
+            st.session_state.pop("admin_users", None)
+
+        if "admin_users" not in st.session_state:
+            with st.spinner("Loading users…"):
+                st.session_state["admin_users"] = _load_users()
+
+        users: list = st.session_state.get("admin_users", [])
+
+        # ── Summary metrics ───────────────────────────────────────────────────
+        total = len(users)
+        blocked_count = sum(1 for u in users if u["is_blocked"])
+        total_tokens = sum(u.get("tokens_used", 0) for u in users)
+
+        rag_data = {}
         try:
-            resp = requests.get(
-                f"{API_BASE}/admin/users", headers=_auth_headers(), timeout=10
-            )
-            resp.raise_for_status()
-            return resp.json().get("users", [])
-        except Exception as e:
-            st.error(f"Failed to load users: {e}")
-            return []
+            rag_resp = requests.get(f"{API_BASE}/rag/stats", headers=_auth_headers(), timeout=5)
+            if rag_resp.ok:
+                rag_data = rag_resp.json()
+        except Exception:
+            pass
+        rag_count = rag_data.get("document_count", "?")
 
-    if st.button("🔄 Refresh", key="admin_refresh"):
-        st.session_state.pop("admin_users", None)
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("👥 Total Users", total)
+        c2.metric("🚫 Blocked", blocked_count)
+        c3.metric("🪙 Total Tokens Used", f"{total_tokens:,}")
+        c4.metric("📚 RAG Documents", rag_count)
+        st.markdown("---")
 
-    if "admin_users" not in st.session_state:
-        with st.spinner("Loading users…"):
-            st.session_state["admin_users"] = _load_users()
+        # ── Users table ───────────────────────────────────────────────────────
+        if not users:
+            st.info("No users found.")
+        else:
+            me = st.session_state.get("logged_in_user", "")
 
-    users: list = st.session_state.get("admin_users", [])
+            for u in users:
+                uname = u["username"]
+                created = u.get("created_at", "")[:10]
+                tokens = u.get("tokens_used", 0)
+                blocked = u["is_blocked"]
 
-    # ── Summary metrics ───────────────────────────────────────────────────────
-    total = len(users)
-    blocked_count = sum(1 for u in users if u["is_blocked"])
-    total_tokens = sum(u.get("tokens_used", 0) for u in users)
+                status_badge = "🚫 Blocked" if blocked else "✅ Active"
+                is_me = uname == me
 
-    # ── RAG stats ─────────────────────────────────────────────────────────────
-    rag_data = {}
-    try:
-        rag_resp = requests.get(f"{API_BASE}/rag/stats", headers=_auth_headers(), timeout=5)
-        if rag_resp.ok:
-            rag_data = rag_resp.json()
-    except Exception:
-        pass
-    rag_count = rag_data.get("document_count", "?")
+                with st.expander(f"{status_badge}  **{uname}**  —  registered {created}  |  🪙 {tokens:,} tokens"):
+                    col_info, col_actions = st.columns([3, 2])
 
-    # ── Summary metrics ───────────────────────────────────────────────────────
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("👥 Total Users", total)
-    c2.metric("🚫 Blocked", blocked_count)
-    c3.metric("🪙 Total Tokens Used", f"{total_tokens:,}")
-    c4.metric("📚 RAG Documents", rag_count)
-    st.markdown("---")
+                    with col_info:
+                        st.markdown(f"**Username:** `{uname}`")
+                        st.markdown(f"**Registered:** {u.get('created_at', '')[:19].replace('T', ' ')}")
+                        st.markdown(f"**Tokens used:** {tokens:,}")
+                        st.markdown(f"**Status:** {status_badge}")
+                        if is_me:
+                            st.info("This is your account.")
 
-    st.markdown("---")
-
-    # ── Users table ───────────────────────────────────────────────────────────
-    if not users:
-        st.info("No users found.")
-    else:
-        me = st.session_state.get("logged_in_user", "")
-
-        for u in users:
-            uname = u["username"]
-            created = u.get("created_at", "")[:10]
-            tokens = u.get("tokens_used", 0)
-            blocked = u["is_blocked"]
-
-            status_badge = "🚫 Blocked" if blocked else "✅ Active"
-            is_me = uname == me
-
-            with st.expander(f"{status_badge}  **{uname}**  —  registered {created}  |  🪙 {tokens:,} tokens"):
-
-                col_info, col_actions = st.columns([3, 2])
-
-                with col_info:
-                    st.markdown(f"**Username:** `{uname}`")
-                    st.markdown(f"**Registered:** {u.get('created_at', '')[:19].replace('T', ' ')}")
-                    st.markdown(f"**Tokens used:** {tokens:,}")
-                    st.markdown(f"**Status:** {status_badge}")
-                    if is_me:
-                        st.info("This is your account.")
-
-                with col_actions:
-                    if not is_me:
-                        # Block / Unblock
-                        if blocked:
-                            if st.button("✅ Unblock", key=f"unblock_{uname}", use_container_width=True):
-                                try:
-                                    r = requests.patch(
-                                        f"{API_BASE}/admin/users/{uname}/unblock",
-                                        headers=_auth_headers(), timeout=10,
-                                    )
-                                    r.raise_for_status()
-                                    st.success(f"{uname} unblocked.")
-                                    st.session_state.pop("admin_users", None)
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(str(e))
-                        else:
-                            if st.button("🚫 Block", key=f"block_{uname}", use_container_width=True):
-                                try:
-                                    r = requests.patch(
-                                        f"{API_BASE}/admin/users/{uname}/block",
-                                        headers=_auth_headers(), timeout=10,
-                                    )
-                                    r.raise_for_status()
-                                    st.success(f"{uname} blocked.")
-                                    st.session_state.pop("admin_users", None)
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(str(e))
-
-                        st.markdown("---")
-
-                        # Reset password (toggle via checkbox)
-                        if st.checkbox("🔑 Reset password", key=f"show_pw_{uname}"):
-                            new_pw = st.text_input(
-                                "New password (min 8 chars)",
-                                type="password",
-                                key=f"pw_{uname}",
-                            )
-                            if st.button("Set password", key=f"setpw_{uname}"):
-                                if len(new_pw) < 8:
-                                    st.error("Password must be at least 8 characters.")
-                                else:
+                    with col_actions:
+                        if not is_me:
+                            if blocked:
+                                if st.button("✅ Unblock", key=f"unblock_{uname}", use_container_width=True):
                                     try:
-                                        r = requests.post(
-                                            f"{API_BASE}/admin/users/{uname}/reset-password",
-                                            headers=_auth_headers(),
-                                            json={"new_password": new_pw},
-                                            timeout=10,
+                                        r = requests.patch(
+                                            f"{API_BASE}/admin/users/{uname}/unblock",
+                                            headers=_auth_headers(), timeout=10,
                                         )
                                         r.raise_for_status()
-                                        st.success("Password updated.")
+                                        st.success(f"{uname} unblocked.")
+                                        st.session_state.pop("admin_users", None)
+                                        st.rerun()
+                                    except Exception as e:
+                                        st.error(str(e))
+                            else:
+                                if st.button("🚫 Block", key=f"block_{uname}", use_container_width=True):
+                                    try:
+                                        r = requests.patch(
+                                            f"{API_BASE}/admin/users/{uname}/block",
+                                            headers=_auth_headers(), timeout=10,
+                                        )
+                                        r.raise_for_status()
+                                        st.success(f"{uname} blocked.")
+                                        st.session_state.pop("admin_users", None)
+                                        st.rerun()
                                     except Exception as e:
                                         st.error(str(e))
 
-                        # Delete (toggle via checkbox)
-                        if st.checkbox("🗑 Delete account", key=f"show_del_{uname}"):
-                            st.warning(f"Permanently delete **{uname}**? This cannot be undone.")
-                            if st.button("Confirm delete", key=f"del_{uname}", type="primary"):
-                                try:
-                                    r = requests.delete(
-                                        f"{API_BASE}/admin/users/{uname}",
-                                        headers=_auth_headers(), timeout=10,
-                                    )
-                                    r.raise_for_status()
-                                    st.success(f"{uname} deleted.")
-                                    st.session_state.pop("admin_users", None)
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(str(e))
+                            st.markdown("---")
+
+                            if st.checkbox("🔑 Reset password", key=f"show_pw_{uname}"):
+                                new_pw = st.text_input(
+                                    "New password (min 8 chars)", type="password",
+                                    key=f"pw_{uname}",
+                                )
+                                if st.button("Set password", key=f"setpw_{uname}"):
+                                    if len(new_pw) < 8:
+                                        st.error("Password must be at least 8 characters.")
+                                    else:
+                                        try:
+                                            r = requests.post(
+                                                f"{API_BASE}/admin/users/{uname}/reset-password",
+                                                headers=_auth_headers(),
+                                                json={"new_password": new_pw},
+                                                timeout=10,
+                                            )
+                                            r.raise_for_status()
+                                            st.success("Password updated.")
+                                        except Exception as e:
+                                            st.error(str(e))
+
+                            if st.checkbox("🗑 Delete account", key=f"show_del_{uname}"):
+                                st.warning(f"Permanently delete **{uname}**? This cannot be undone.")
+                                if st.button("Confirm delete", key=f"del_{uname}", type="primary"):
+                                    try:
+                                        r = requests.delete(
+                                            f"{API_BASE}/admin/users/{uname}",
+                                            headers=_auth_headers(), timeout=10,
+                                        )
+                                        r.raise_for_status()
+                                        st.success(f"{uname} deleted.")
+                                        st.session_state.pop("admin_users", None)
+                                        st.rerun()
+                                    except Exception as e:
+                                        st.error(str(e))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -569,6 +626,70 @@ else:
             unsafe_allow_html=True,
         )
 
+    def _render_rag_eval(ev: dict | None) -> None:
+        if not ev:
+            return
+        with st.expander("🔬 RAG Quality Evaluation", expanded=False):
+            composite = ev.get("composite_score")
+            if composite is not None:
+                color = "🟢" if composite >= 0.65 else ("🟡" if composite >= 0.4 else "🔴")
+                st.markdown(f"**Composite Quality Score: {color} {composite:.2f}**")
+                st.progress(float(composite))
+                st.markdown("---")
+
+            cols = st.columns(5)
+
+            # 1 — Retrieval
+            ret = ev.get("retrieval", {})
+            with cols[0]:
+                st.markdown("**📥 Retrieval**")
+                st.metric("Precision@K", f"{ret.get('precision_at_k', 0):.0%}")
+                st.metric("Mean Score",  f"{ret.get('mean_score', 0):.3f}")
+                st.metric("MRR",         f"{ret.get('mrr', 0):.3f}")
+                st.metric("Docs",        ret.get("doc_count", 0))
+
+            # 2 — Answer relevance
+            rel = ev.get("answer_relevance", {})
+            with cols[1]:
+                st.markdown("**💬 Relevance**")
+                label_icon = {"high": "🟢", "medium": "🟡", "low": "🔴"}.get(
+                    rel.get("relevance_label", ""), "⚪"
+                )
+                st.metric("Cosine Sim",    f"{rel.get('cosine_similarity', 0):.3f}")
+                st.metric("Token Overlap", f"{rel.get('token_overlap', 0):.0%}")
+                st.markdown(f"Label: {label_icon} **{rel.get('relevance_label', '—')}**")
+
+            # 3 — Source attribution
+            attr = ev.get("source_attribution", {})
+            with cols[2]:
+                st.markdown("**🔗 Attribution**")
+                st.metric("Traceability", f"{attr.get('traceability_score', 0):.2f}")
+                st.metric("Cited URLs",   attr.get("llm_cited_urls_count", 0))
+                st.metric("Coverage",     f"{attr.get('source_coverage', 0):.0%}")
+
+            # 4 — Hallucination
+            hall = ev.get("hallucination", {})
+            with cols[3]:
+                st.markdown("**🧠 Hallucination**")
+                h_score = hall.get("hallucination_score", 1.0)
+                h_icon  = "🟢" if h_score < 0.3 else ("🟡" if h_score < 0.6 else "🔴")
+                st.metric("Score", f"{h_icon} {h_score:.2f}")
+                st.metric("Claims", hall.get("claims_total", 0))
+                st.metric("Supported", hall.get("claims_supported", 0))
+
+            # 5 — Bias
+            bias = ev.get("bias", {})
+            lex  = bias.get("lexical", {})
+            with cols[4]:
+                st.markdown("**⚖️ Bias**")
+                imb   = lex.get("imbalance_score", 0.0)
+                b_icon = "🟢" if imb < 0.3 else ("🟡" if imb < 0.6 else "🔴")
+                st.metric("Imbalance", f"{b_icon} {imb:.2f}")
+                st.metric("🐂 Bullish KW", lex.get("bullish_keywords", 0))
+                st.metric("🐻 Bearish KW", lex.get("bearish_keywords", 0))
+                if bias.get("bias_flag"):
+                    st.warning(bias.get("bias_reason", "Bias detected"))
+
     # ── Tabs ──────────────────────────────────────────────────────────────────
     tab_analyze, tab_history = st.tabs(["🔍 Analyze", "📜 History"])
 
@@ -600,6 +721,7 @@ else:
                 st.session_state["last_analysis"],
                 st.session_state.get("last_analysis_elapsed"),
             )
+            _render_rag_eval(st.session_state.get("last_rag_eval"))
 
         if analyze_clicked and query.strip():
             st.session_state.pop("last_analysis", None)
@@ -647,6 +769,18 @@ else:
                 st.session_state.pop("history_loaded", None)
                 st.session_state["last_analysis"] = state
                 st.session_state["last_analysis_elapsed"] = elapsed
+                # Run RAG evaluation in background (best-effort)
+                try:
+                    ev_resp = requests.post(
+                        f"{API_BASE}/rag/evaluate",
+                        headers=_auth_headers(),
+                        json={"query": clean_query, "state": state},
+                        timeout=30,
+                    )
+                    if ev_resp.ok:
+                        st.session_state["last_rag_eval"] = ev_resp.json()
+                except Exception:
+                    pass
                 st.rerun()  # rerender sidebar with updated token count
 
         elif analyze_clicked:
