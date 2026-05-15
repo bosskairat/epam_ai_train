@@ -10,6 +10,8 @@ import time
 import functools
 from typing import Any, Callable
 from app.core.config import settings
+from app.core.pii import redact_pii
+from app.observability.tracing import get_request_id
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -19,10 +21,33 @@ def get_logger(name: str) -> logging.Logger:
     if not logger.handlers:
         handler = logging.StreamHandler()
         fmt = logging.Formatter(
-            "[%(asctime)s] %(levelname)s %(name)s — %(message)s",
+            "[%(asctime)s] %(levelname)s %(name)s %(trace_id)s — %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         handler.setFormatter(fmt)
+        # Redact common PII from log messages before they are emitted.
+        class TraceIdFilter(logging.Filter):
+            def filter(self, record: logging.LogRecord) -> bool:
+                try:
+                    record.trace_id = get_request_id() or "-"
+                except Exception:
+                    record.trace_id = "-"
+                return True
+
+        class RedactionFilter(logging.Filter):
+            def filter(self, record: logging.LogRecord) -> bool:
+                try:
+                    # Use conservative redaction to avoid leaking secrets in logs.
+                    redacted = redact_pii(record.getMessage())
+                    record.msg = redacted
+                    record.args = ()
+                except Exception:
+                    # Never fail logging due to redaction errors.
+                    pass
+                return True
+
+        handler.addFilter(TraceIdFilter())
+        handler.addFilter(RedactionFilter())
         logger.addHandler(handler)
 
     logger.setLevel(getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))

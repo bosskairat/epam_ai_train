@@ -15,6 +15,9 @@ from qdrant_client.models import Distance, VectorParams, PointStruct
 
 from app.core.config import settings
 from app.core.logger import get_logger
+from app.observability.metrics import observe_embedding, observe_retrieval
+from app.observability.tracing import get_request_id
+from app.core.pii import redact_pii
 
 logger = get_logger(__name__)
 
@@ -48,6 +51,11 @@ class VectorStore:
             logger.info(f"Using OpenAI embeddings ({model})")
 
             def embed(texts: list[str]) -> list[list[float]]:
+                # Record an embedding request metric and call provider
+                try:
+                    observe_embedding()
+                except Exception:
+                    pass
                 resp = client.embeddings.create(input=texts, model=model)
                 return [item.embedding for item in resp.data]
         else:
@@ -56,6 +64,10 @@ class VectorStore:
             logger.info("Using local SentenceTransformer embeddings (offline mode)")
 
             def embed(texts: list[str]) -> list[list[float]]:
+                try:
+                    observe_embedding()
+                except Exception:
+                    pass
                 return st_model.encode(texts).tolist()
 
         return embed
@@ -65,6 +77,7 @@ class VectorStore:
         texts: list[str],
         metadatas: Optional[list[dict]] = None,
         source_tag: str = "unknown",
+        consent: bool = False,
     ) -> int:
         texts = [t for t in texts if t and t.strip()]
         if not texts:
@@ -74,13 +87,30 @@ class VectorStore:
         points = []
         for i, (text, vector) in enumerate(zip(texts, vectors)):
             meta = (metadatas[i] if metadatas else {}) or {}
+            from app.core.security import sanitize_document, moderate_text
+
+            sanitized = sanitize_document(text)
+            if settings.ENABLE_CONTENT_MODERATION:
+                mod = moderate_text(sanitized)
+                severity = mod.get("severity", "allow")
+                if severity == "block":
+                    logger.warning(f"Skipping document upsert due to moderation block (source={source_tag})")
+                    continue
+
+            # Decide stored text based on consent
+            stored_text = sanitized if consent else redact_pii(sanitized)
             payload = {
-                "text": text,
+                "text": stored_text,
                 "source_tag": source_tag,
                 "ingested_at": datetime.now(timezone.utc).isoformat(),
+                "pii_redacted": stored_text != sanitized,
+                "moderation": severity,
                 **{k: str(v) for k, v in meta.items()},
             }
-            points.append(PointStruct(id=_hash_to_id(text), vector=vector, payload=payload))
+            if consent:
+                payload["original_text"] = sanitized
+
+            points.append(PointStruct(id=_hash_to_id(sanitized), vector=vector, payload=payload))
 
         self._qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
         logger.info(f"Upserted {len(points)} docs (source_tag={source_tag})")
@@ -99,18 +129,32 @@ class VectorStore:
             query=query_vector,
             limit=min(k, total),
             with_payload=True,
+            score_threshold=settings.RAG_MIN_SIMILARITY,
         )
+        # Emit retrieval metric
+        try:
+            observe_retrieval()
+        except Exception:
+            pass
 
-        retrieved = [
-            {
-                "text": h.payload.get("text", ""),
-                "source_tag": h.payload.get("source_tag", "unknown"),
-                "ingested_at": h.payload.get("ingested_at", ""),
-                "distance": round(1 - h.score, 4),
-            }
-            for h in result.points
-        ]
-        logger.info(f"Retrieved {len(retrieved)} docs for query '{query_text[:60]}…'")
+        retrieved = []
+        for h in result.points:
+            payload = h.payload or {}
+            # Skip documents that were explicitly blocked by moderation
+            if payload.get("moderation") == "block":
+                continue
+            retrieved.append(
+                {
+                    "id": getattr(h, "id", None),
+                    "text": payload.get("text", ""),
+                    "payload": payload,
+                    "source_tag": payload.get("source_tag", "unknown"),
+                    "ingested_at": payload.get("ingested_at", ""),
+                    "score": getattr(h, "score", None),
+                    "distance": round(1 - (h.score or 0), 4),
+                }
+            )
+        logger.info(f"Retrieved {len(retrieved)} docs for query '{query_text[:60]}…' | trace={get_request_id()}")
         return retrieved
 
     def count(self) -> int:

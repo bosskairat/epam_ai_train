@@ -29,12 +29,45 @@ class Settings:
     TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "4"))
 
     # ── History ───────────────────────────────────────────────────────────────
-    HISTORY_DB: str = os.getenv("HISTORY_DB", "./history.db")
+    DB_PATH: str = os.getenv("DB_PATH", "./app.db")
 
     # ── App ───────────────────────────────────────────────────────────────────
     APP_ENV: str = os.getenv("APP_ENV", "development")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "10"))
+    REDIS_URL: str = os.getenv("REDIS_URL", "")
+    HISTORY_RETENTION_DAYS: int = int(os.getenv("HISTORY_RETENTION_DAYS", "90"))
+    CACHE_TTL: int = int(os.getenv("CACHE_TTL", "300"))
+    TOKEN_QUOTA_PER_KEY: int = int(os.getenv("TOKEN_QUOTA_PER_KEY", "0"))
+
+    # ── RAG quality ───────────────────────────────────────────────────────────
+    RAG_MIN_SIMILARITY: float = float(os.getenv("RAG_MIN_SIMILARITY", "0.28"))
+
+    # ── Content & privacy ─────────────────────────────────────────────────────
+    ENABLE_CONTENT_MODERATION: bool = os.getenv("ENABLE_CONTENT_MODERATION", "true").lower() in (
+        "1", "true", "yes"
+    )
+    STORE_FULL_STATE: bool = os.getenv("STORE_FULL_STATE", "true").lower() in ("1", "true", "yes")
+    MAX_ARTICLE_CHARS_STORED: int = int(os.getenv("MAX_ARTICLE_CHARS_STORED", "800"))
+
+    # ── Auth (username + password → JWT) ─────────────────────────────────────
+    AUTH_ENABLED: bool = True  # always required
+    AUTH_BOOTSTRAP_USERNAME: str = os.getenv("AUTH_BOOTSTRAP_USERNAME", "")
+    AUTH_BOOTSTRAP_PASSWORD: str = os.getenv("AUTH_BOOTSTRAP_PASSWORD", "")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "")
+    JWT_EXPIRE_MINUTES: int = int(os.getenv("JWT_EXPIRE_MINUTES", "1440"))
+    # Registration open to all by default when auth is enabled
+    ALLOW_USER_REGISTRATION: bool = os.getenv("ALLOW_USER_REGISTRATION", "true").lower() in (
+        "1", "true", "yes"
+    )
+    # Comma-separated usernames with admin privileges (defaults to bootstrap user)
+    ADMIN_USERNAMES: str = os.getenv(
+        "ADMIN_USERNAMES", os.getenv("AUTH_BOOTSTRAP_USERNAME", "")
+    )
+
+    @property
+    def authorization_required(self) -> bool:
+        return self.AUTH_ENABLED
 
 
 settings = Settings()

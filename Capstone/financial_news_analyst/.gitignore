@@ -15,7 +15,7 @@ env/
 # QdrantDB data
 qdrant_db/
 
-history.db
+app.db
 
 # Test artifacts
 .pytest_cache/

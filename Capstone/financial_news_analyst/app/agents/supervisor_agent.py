@@ -20,7 +20,7 @@ from app.core.logger import get_logger
 logger = get_logger(__name__)
 
 
-async def run_pipeline(query: str) -> dict:
+async def run_pipeline(query: str, consent: bool = False, api_key: str | None = None) -> dict:
     """
     Execute the full multi-agent pipeline for a user query.
 
@@ -55,6 +55,8 @@ async def run_pipeline(query: str) -> dict:
         query,
         data_result["market_data"],
         news_result["articles"],
+        consent=consent,
+        api_key=api_key,
     )
     elapsed = round(time.perf_counter() - t0, 3)
     agent_log.append(
@@ -70,13 +72,15 @@ async def run_pipeline(query: str) -> dict:
     )
 
     return {
-        "query":          query,
-        "tickers":        data_result["tickers"],
-        "market_data":    data_result["market_data"],
-        "articles":       news_result["articles"],
-        "analysis":       analysis_result["analysis"],
-        "rag_sources":    analysis_result["rag_sources"],
-        "token_usage":    analysis_result["token_usage"],
-        "total_latency_s": total_latency,
-        "agent_log":      agent_log,
+        "query":            query,
+        "tickers":          data_result["tickers"],
+        "market_data":      data_result["market_data"],
+        "articles":         news_result["articles"],
+        "analysis":         analysis_result["analysis"],
+        "rag_sources":      analysis_result["rag_sources"],
+        "token_usage":      analysis_result["token_usage"],
+        "total_latency_s":  total_latency,
+        "agent_log":        agent_log,
+        "verification":     analysis_result.get("verification", {}),
+        "trace_id":         analysis_result.get("trace_id"),
     }

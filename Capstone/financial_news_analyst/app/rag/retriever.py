@@ -39,31 +39,39 @@ def retrieve_context(query: str, k: int | None = None) -> dict:
             "token_estimate": 0,
         }
 
-    # Build numbered context block
+    # Build numbered context block and a detailed sources list
     sections = []
     seen: set[str] = set()
     sources = []
+    sources_detailed = []
     for i, doc in enumerate(docs, start=1):
-        tag = doc["source_tag"]
-        date = doc["ingested_at"][:10] if doc["ingested_at"] else "unknown date"
-        sections.append(
-            f"[Context {i} | {date}]\n{doc['text']}"
-        )
+        tag = doc.get("source_tag") or doc.get("payload", {}).get("source_tag", "unknown")
+        date_raw = doc.get("ingested_at") or doc.get("payload", {}).get("ingested_at", "")
+        date = date_raw[:10] if date_raw else "unknown date"
+        text = doc.get("text") or doc.get("payload", {}).get("text", "")
+        sections.append(f"[Context {i} | {date}]\n{text}")
         label = f"{tag} ({date})"
         if label not in seen:
             seen.add(label)
             sources.append(label)
 
+        sources_detailed.append(
+            {
+                "id": doc.get("id"),
+                "payload": doc.get("payload", {}),
+                "score": doc.get("score"),
+            }
+        )
+
     context_text = "\n\n".join(sections)
     token_est = estimate_tokens(context_text)
 
-    logger.info(
-        f"RAG context built: {len(docs)} docs, ~{token_est} tokens"
-    )
+    logger.info(f"RAG context built: {len(docs)} docs, ~{token_est} tokens")
 
     return {
         "context_text": context_text,
         "sources": sources,
+        "sources_detailed": sources_detailed,
         "doc_count": len(docs),
         "token_estimate": token_est,
     }

@@ -19,10 +19,18 @@ requests==2.32.2
 
 # UI
 streamlit==1.35.0
+streamlit-cookies-controller==0.0.4
 
 # Rate Limiting & Caching
 slowapi==0.1.9
 cachetools==5.3.3
+
+# Observability
+prometheus-client>=0.16.0
+# System monitoring
+psutil>=5.9.5
+# Redis for durable rate-limiting and quotas
+redis>=4.6.0
 
 # Utilities
 python-dotenv==1.0.1
