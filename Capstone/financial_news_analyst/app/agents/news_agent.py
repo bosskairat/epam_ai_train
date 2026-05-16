@@ -25,6 +25,8 @@ ARTICLE_SEPARATOR = "\n\n---\n\n"
 
 
 def _build_search_query(user_query: str, tickers: list[str]) -> str:
+    # Cap at 3 tickers to keep the NewsAPI query focused; more terms dilute relevance.
+    # 500-char limit matches NewsAPI's recommended query length for best results.
     ticker_terms = " OR ".join(tickers[:3]) if tickers else ""
     combined = f"{user_query} {ticker_terms}".strip()
     return combined[:500]

@@ -248,7 +248,7 @@ if not st.session_state.get("token"):
                         "Username", help="3–64 characters: letters, digits, _ . -", key="reg_user"
                     )
                     reg_pass = st.text_input("Password", type="password",
-                                             help="Minimum 8 characters", key="reg_pass")
+                                             help="Min 8 chars. Use a mix of letters and numbers.", key="reg_pass")
                     reg_pass2 = st.text_input("Confirm password", type="password", key="reg_pass2")
                     reg_btn = st.form_submit_button(
                         "Create account", type="primary", use_container_width=True
@@ -585,10 +585,11 @@ else:
         st.markdown("### 💡 Example Queries")
         examples = [
             "Why did Tesla stock drop today?",
-            "Summarize current market sentiment for S&P 500",
-            "What's happening with Bitcoin prices?",
             "How is Nvidia performing this week?",
+            "What's the current sentiment on S&P 500?",
             "Give me an overview of AAPL and MSFT",
+            "What are the key risks in the EV sector?",
+            "What's happening with Bitcoin prices?",
         ]
         for ex in examples:
             st.button(
@@ -736,6 +737,7 @@ else:
                 color = "🟢" if composite >= 0.65 else ("🟡" if composite >= 0.4 else "🔴")
                 st.markdown(f"**Composite Quality Score: {color} {composite:.2f}**")
                 st.progress(float(composite))
+                st.caption("🟢 ≥ 0.65 good · 🟡 0.40–0.65 acceptable · 🔴 < 0.40 review needed")
                 st.markdown("---")
 
             cols = st.columns(5)
@@ -928,7 +930,7 @@ else:
         history_data: list = st.session_state.get("history_data", [])
 
         if not history_data:
-            st.info("No conversation history yet. Run an analysis first.")
+            st.info("No history yet. Each analysis is saved automatically after you run it.")
         else:
             st.markdown(f"**{len(history_data)} past conversation(s)**")
             sentiment_icons = {"Bullish": "🟢", "Bearish": "🔴", "Neutral": "🟡", "Mixed": "🟣"}

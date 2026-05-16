@@ -23,6 +23,8 @@ logger = get_logger(__name__)
 
 MARKET_SERVER = Path(__file__).parent.parent / "mcp_servers" / "market_server.py"
 
+# Maps common company/asset names to their exchange ticker symbols so natural-language
+# queries ("Tesla", "bitcoin") resolve without requiring the user to know the ticker.
 _ALIAS_MAP = {
     "tesla": "TSLA",
     "apple": "AAPL",
@@ -52,6 +54,8 @@ def extract_tickers(query: str) -> list[str]:
         if name in q_lower:
             tickers.add(symbol)
 
+    # Uppercase tokens of 1–5 chars are candidate ticker symbols, but common English
+    # words (pronouns, articles, prepositions) must be excluded to avoid false matches.
     for match in re.findall(r"\b[A-Z]{1,5}\b", query):
         if match not in {"I", "A", "THE", "AND", "OR", "IN", "IS", "FOR", "OF", "TO", "IT"}:
             tickers.add(match)

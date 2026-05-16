@@ -154,6 +154,7 @@ not the agent code.
 | **Error Tracking** | Structured logging via Python `logging` with PII-redacting filter. `api_errors_total` Prometheus counter distinguishes `server_error` vs `rate_limited`. All agent exceptions caught and logged with `exc_info=True`. | `app/core/logger.py`, `app/api/app.py` |
 | **User Feedback** | `PATCH /history/{id}/feedback` accepts rating (1–5) and free-text feedback. Stored in `conversations.user_rating / feedback_text` columns. Feedback form rendered at the bottom of every Analyze result. History tab displays submitted feedback as a formatted section (star rating metric + info box). Admin Feedback tab aggregates all responses with avg rating. | `app/core/history.py`, `app/api/routes.py`, `ui/streamlit_app.py` |
 | **Resource Usage** | Background coroutine samples CPU % and RAM (RSS MB) every 5 s via `psutil` and updates Prometheus `Gauge` metrics (`system_cpu_percent`, `process_memory_mb`). | `app/observability/resource.py`, `app/observability/metrics.py` |
+| **Test Coverage** | 174 automated tests across 6 files: input validation, ticker extraction, output structure, RAG store, API endpoint integration (auth mocked via FastAPI dependency override), auth flows, per-user history isolation, feedback, PII redaction, user management, and all 5 RAG evaluation dimensions. Async pipeline tests use `AsyncMock`. SlowAPI rate limiter disabled via `limiter.enabled = False` in autouse fixture. | `tests/` |
 
 ---
 

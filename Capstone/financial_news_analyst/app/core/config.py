@@ -36,14 +36,18 @@ class Settings:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "10"))
     REDIS_URL: str = os.getenv("REDIS_URL", "")
-    HISTORY_RETENTION_DAYS: int = int(os.getenv("HISTORY_RETENTION_DAYS", "90"))
+    HISTORY_RETENTION_DAYS: int = int(os.getenv("HISTORY_RETENTION_DAYS", "90"))  # ~3 months; GDPR-friendly default
     CACHE_TTL: int = int(os.getenv("CACHE_TTL", "300"))
     TOKEN_QUOTA_PER_KEY: int = int(os.getenv("TOKEN_QUOTA_PER_KEY", "0"))
 
     # ── RAG quality ───────────────────────────────────────────────────────────
+    # 0.28 is empirically tuned: low enough to capture paraphrased context,
+    # high enough to filter unrelated documents from a mixed financial corpus.
     RAG_MIN_SIMILARITY: float = float(os.getenv("RAG_MIN_SIMILARITY", "0.28"))
 
     # ── Content & privacy ─────────────────────────────────────────────────────
+    # When enabled, checks both RAG documents on upsert and LLM output for
+    # harmful content (violence, PII exfiltration, etc.) before serving.
     ENABLE_CONTENT_MODERATION: bool = os.getenv("ENABLE_CONTENT_MODERATION", "true").lower() in (
         "1", "true", "yes"
     )

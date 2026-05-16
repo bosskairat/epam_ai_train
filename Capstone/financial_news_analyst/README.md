@@ -8,6 +8,8 @@ panel, and automated RAG quality evaluation.
 > **Disclaimer:** All outputs are for educational and informational purposes only.
 > This system does **not** provide financial advice.
 
+> For full architecture blueprint and NFR coverage see [BLUEPRINT.md](BLUEPRINT.md).
+
 ---
 
 ## Architecture
@@ -373,6 +375,22 @@ pytest --cov=app --cov-report=term-missing
 | `TestHallucinationDetection` | Rule-based detection of LLM refusal phrases |
 | `TestRAGStore` | Qdrant upsert + retrieval + empty store behaviour |
 | `TestAPIEndpoints` | FastAPI routes with mocked pipeline |
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| White screen after login | Hard-refresh (Ctrl+Shift+R) — cookie needs one render cycle to load |
+| `JWT_SECRET` error on startup | Set `JWT_SECRET` in `.env` (min 16 characters) |
+| `Pipeline error: MCP` | Verify `FINNHUB_API_KEY` is valid; free tier allows 60 calls/min |
+| No news articles returned | `NEWS_API_KEY` absent — system falls back to 11 RSS feeds automatically |
+| Qdrant storage conflict error | Delete `./qdrant_db/` and restart to rebuild the vector store from scratch |
+| `Token quota exceeded` (HTTP 429) | Raise `TOKEN_QUOTA_PER_KEY` or set to `0` (unlimited) |
+| Port 8000 already in use | Find and kill the process: `lsof -ti:8000 \| xargs kill` (Linux/macOS) |
+| `[REDACTED_EMAIL]` in results | Old history records — use Clear All in the History tab to purge them |
+| Streamlit cookie error on refresh | Ensure `streamlit-cookies-controller==0.0.4` is installed exactly |
 
 ---
 

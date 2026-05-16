@@ -218,7 +218,9 @@ async def run(
                 return {
                     "analysis": _stub_analysis(query, {}, []),
                     "rag_sources": rag_sources,
-                    "token_usage": token_info if "token_info" in dir() else {"prompt": prompt_tokens, "completion": 0, "total": prompt_tokens},
+                    # token_info is defined after LLM call; if we never reached it (moderation
+                # blocked before JSON parse), fall back to prompt-only counts.
+                "token_usage": token_info if "token_info" in dir() else {"prompt": prompt_tokens, "completion": 0, "total": prompt_tokens},
                     "latency_s": round(latency, 3),
                     "trace_id": get_request_id(),
                     "verification": {"claims": [], "overall_support": 0.0, "hallucination_score": 1.0},
