@@ -90,6 +90,7 @@ class VectorStore:
             from app.core.security import sanitize_document, moderate_text
 
             sanitized = sanitize_document(text)
+            severity = "allow"
             if settings.ENABLE_CONTENT_MODERATION:
                 mod = moderate_text(sanitized)
                 severity = mod.get("severity", "allow")
