@@ -110,9 +110,13 @@ def stub_state() -> dict:
 
 @pytest.fixture
 def mock_pipeline(stub_state):
-    """Patch supervisor_agent.run_pipeline with an AsyncMock."""
+    """Patch run_pipeline at both the module definition and the import site in routes."""
     with patch(
         "app.agents.supervisor_agent.run_pipeline",
+        new_callable=AsyncMock,
+        return_value=stub_state,
+    ), patch(
+        "app.api.routes.run_pipeline",
         new_callable=AsyncMock,
         return_value=stub_state,
     ) as mock:
